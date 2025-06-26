@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 
-const Header = ({ title }) => {
+const Header = ({ title } : { title: string }) => {
     return (
         <header className="bg-primary shadow">
             <div className="container mx-auto px-4 py-6">
