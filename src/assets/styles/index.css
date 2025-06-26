@@ -1,0 +1,325 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary: #3498db;
+    --secondary: #2c3e50;
+    --accent: #e74c3c;
+    --light: #ecf0f1;
+    --dark: #34495e;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light);
+    color: var(--secondary);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background-color: var(--primary);
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px var(--shadow);
+}
+
+header h1 {
+    font-size: 2.2rem;
+    text-align: center;
+}
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--dark);
+    font-weight: normal;
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px var(--shadow);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: var(--secondary);
+    color: white;
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.converter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .converter-section {
+        flex-direction: row;
+    }
+}
+
+.converter-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.conversion-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.conversion-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.conversion-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.conversion-input select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+}
+
+.conversion-result {
+    background-color: var(--light);
+    padding: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.conversion-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.conversion-table th, .conversion-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.conversion-table th {
+    background-color: var(--secondary);
+    color: white;
+    font-weight: bold;
+}
+
+.conversion-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.conversion-table tr:hover {
+    background-color: #e9e9e9;
+}
+
+/* Socket sizing tables */
+.socket-tables {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .socket-tables {
+        flex-direction: row;
+    }
+}
+
+.socket-table-container {
+    flex: 1;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+}
+
+.tab:hover {
+    background-color: #f5f5f5;
+}
+
+.tab.active {
+    border-bottom: 3px solid var(--primary);
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Common Conversions Section */
+.common-conversion {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.common-conversion:last-child {
+    border-bottom: none;
+}
+
+.common-conversion-value {
+    font-weight: bold;
+    flex: 1;
+}
+
+.common-conversion-result {
+    flex: 1;
+    text-align: right;
+}
+
+footer {
+    background-color: var(--secondary);
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    font-size: 0.9rem;
+}
+
+/* Search input and quick reference */
+.search-box {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.quick-reference {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.reference-item {
+    background-color: white;
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 2px 4px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.reference-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.reference-imperial {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--primary);
+}
+
+.reference-metric {
+    margin-top: 5px;
+    color: var(--dark);
+}
+
+/* Toggle switch for common tools */
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.toggle-button {
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-button:first-child {
+    border-radius: 4px 0 0 4px;
+}
+
+.toggle-button:last-child {
+    border-radius: 0 4px 4px 0;
+}
+
+.toggle-button.active {
+    background-color: var(--primary);
+}
+
+/* Printing styles */
+@media print {
+    header, .tabs, .converter-section, footer {
+        display: none;
+    }
+
+    .card {
+        box-shadow: none;
+        margin-bottom: 20px;
+        page-break-inside: avoid;
+    }
+
+    .quick-reference {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
