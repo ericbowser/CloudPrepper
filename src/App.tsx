@@ -1,7 +1,8 @@
-﻿import React, { useState } from 'react';
+﻿// @ts-ignore
+import React, { useState } from 'react';
 import Header from './components/Header';
 
-const App = () => {
+const App = (): any => {
     const [count, setCount] = useState(0);
 
     return (
