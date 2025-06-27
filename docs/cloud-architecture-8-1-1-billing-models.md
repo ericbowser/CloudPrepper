@@ -1,0 +1,21 @@
+# Billing Models
+
+After completing this episode, you should be able to:
+
++ Discuss some of the various billing models commonly found with cloud computing   
+
+**Description:** In this episode, you will learn about some of the common billing models found in use in cloud computing today. These models include the pay-as-you-go model, as well as the dedicated host, reserved resources, and spot instance billing models.       
+
+## Billing Models       
+
+Pay As You Go: The pay-as-you-go (PAYG) cloud cost model is a flexible and scalable pricing strategy where users are billed based on their actual consumption of cloud resources, such as computing power, storage, and data transfer. This model eliminates the need for upfront investments and allows for dynamic scaling, making it cost-efficient and adaptable to fluctuating workloads. Users benefit from granular billing, detailed usage monitoring, and the ability to manage costs precisely, encouraging efficient resource utilization. This approach supports business agility, enabling quick deployment and experimentation with minimal financial risk, as seen in services like AWS EC2, Google Compute Engine, and Azure Virtual Machines.
+
+Spot instance: The spot instance cost model in cloud pricing offers users the ability to bid on and use spare computing capacity at significantly reduced rates compared to standard on-demand instances. This model is designed to utilize idle resources in a cloud provider's data center, providing a cost-effective option for users who have flexible and non-urgent workloads. Spot instances can be interrupted by the cloud provider with short notice if the capacity is needed for other users willing to pay higher prices. This makes them ideal for batch processing, data analysis, CI/CD pipelines, and other fault-tolerant tasks that can handle interruptions. While spot instances offer substantial savings—often up to 90% off on-demand prices—they require applications to be resilient and able to manage sudden terminations. This pricing model is used by major cloud providers, such as AWS Spot Instances, Google Cloud Preemptible VMs, and Azure Spot VMs, offering users a cost-efficient way to leverage excess capacity in the cloud.
+
+Reserved resources: The reserved resources cloud pricing model allows users to commit to using specific cloud resources, such as compute instances or storage, for a set period, typically one or three years, in exchange for a significant discount compared to on-demand pricing. By making an upfront payment or committing to a usage term, users benefit from predictable costs and substantial savings, often ranging from 30% to 75% off standard rates. This model is ideal for stable, long-term workloads where resource requirements are predictable, providing financial advantages while ensuring the availability of the reserved capacity. Major cloud providers, including AWS Reserved Instances, Google Cloud Committed Use Contracts, and Azure Reserved VM Instances, offer this model to support cost-effective, reliable resource planning for businesses.
+
+Dedicated host: The dedicated host cloud pricing model provides users with physical servers exclusively allocated to them, offering enhanced control, compliance, and performance benefits. Unlike shared infrastructure, where resources are virtualized across multiple customers, dedicated hosts ensure that all server resources are available solely to the renting organization. This model is particularly advantageous for meeting regulatory requirements, managing software licenses that are tied to physical servers, and optimizing resource allocation without the "noisy neighbor" effect. Typically, dedicated hosts come with a premium price, reflecting the exclusivity and control they offer. Cloud providers such as AWS, Azure, and Google Cloud offer dedicated hosts, enabling businesses to achieve higher security, compliance, and customization tailored to their specific needs.
+
+## Additional resources
+
++ Cloud Cost: <https://spot.io/resources/cloud-cost/cloud-cost-models-management-strategies/>
