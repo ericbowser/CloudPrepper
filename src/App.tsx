@@ -137,23 +137,19 @@ const CloudPrepApp: React.FC = () => {
                             <NavTab
                                 label="Dashboard"
                                 isActive={activeSection === 'dashboard'}
-                                onClick={() => setActiveSection('dashboard')}
-                            />
+                                onClick={() => setActiveSection('dashboard')} section={''}                            />
                             <NavTab
                                 label="Practice"
                                 isActive={activeSection === 'practice'}
-                                onClick={() => setActiveSection('practice')}
-                            />
+                                onClick={() => setActiveSection('practice')} section={''}                            />
                             <NavTab
                                 label="Analytics"
                                 isActive={activeSection === 'analytics'}
-                                onClick={() => setActiveSection('analytics')}
-                            />
+                                onClick={() => setActiveSection('analytics')} section={''}                            />
                             <NavTab
                                 label="Study Plan"
                                 isActive={activeSection === 'study-plan'}
-                                onClick={() => setActiveSection('study-plan')}
-                            />
+                                onClick={() => setActiveSection('study-plan')} section={''}                            />
                         </div>
                     </div>
                 </nav>
