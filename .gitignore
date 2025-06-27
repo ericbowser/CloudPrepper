@@ -4,3 +4,8 @@ node_modules/
 
 build
 dist
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
