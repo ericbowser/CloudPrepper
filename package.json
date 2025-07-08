@@ -16,7 +16,7 @@
   "main": "index.js",
   "scripts": {
     "tail:watch": "npx tailwindcss -i ./src/assets/styles/index.css -o ./src/assets/styles/output.css --watch",
-    "tail": "npx tailwindcss -i ./src/assets/styles/index.css -o ./src/assets/styles/output.css",
+    "tail": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css",
     "dev": "vite serve --mode development",
     "build": "vite build --mode development",
     "clean": "rm node_modules -r && rm package-lock.json && npm install"
