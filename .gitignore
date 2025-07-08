@@ -10,3 +10,6 @@ dist
 !.env.project
 !.env.vault
 /docs/
+
+/src/assets/styles/
+dist/
