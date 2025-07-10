@@ -289,8 +289,6 @@ const CloudPrepApp: React.FC = () => {
                         {/* ... right sidebar content */}
                     </div>
                 )}
-                {activeSection === 'results' && (
-                )}
             </div>
         </div>
     );
