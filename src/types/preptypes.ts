@@ -1,5 +1,7 @@
 ﻿// C:/Projects/CompTIA/src/types/preptypes.ts
 
+import React from "react";
+
 /**
  * =================================================================
  * DATA MODELS
@@ -35,6 +37,12 @@ export interface Question {
     };
 }
 
+// A specific type for recording a user's submitted answer
+export interface AnswerRecord {
+    questionIndex: number;
+    selectedOptionIndex: number;
+    isCorrect: boolean;
+}
 
 /**
  * =================================================================
