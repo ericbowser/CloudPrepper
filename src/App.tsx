@@ -9,11 +9,11 @@ import {
     DomainProgressProps,
     QuestionOptionProps,
     SectionType,
-    Question,
     AnswerRecord
 } from './types/preptypes';
 // Import using ES6 syntax
 import {QUESTIONS} from "./QuestionRepository/Questions";
+const filtered = QUESTIONS.filter(q => q.id >= 16);
 
 const CloudPrepApp: React.FC = () => {
     // 2. REFINED STATE MANAGEMENT
@@ -27,8 +27,8 @@ const CloudPrepApp: React.FC = () => {
 
     // Derived state: The current question object is derived from the index.
     // No need for a separate `useState` for the question itself.
-    const currentQuestion = QUESTIONS[currentQuestionIndex];
-    const totalQuestions = QUESTIONS.length;
+    const currentQuestion = filtered[currentQuestionIndex];
+    const totalQuestions = filtered.length;
 
     const domains: Domain[] = [
         {name: 'Cloud Architecture', progress: 0},
@@ -314,49 +314,6 @@ const CloudPrepApp: React.FC = () => {
                         {/* ... right sidebar content */}
                     </div>
                 )}
-<<<<<<< HEAD
-                {/* Results Section */}
-                {activeSection === 'results' && (
-                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
-                        <h2 className="text-3xl font-bold text-blue-600 mb-4 text-center">Quiz Results</h2>
-                        <p className="text-xl text-center mb-8">
-                            You answered
-                            <span
-                                className="font-bold text-blue-600"> {userAnswers.filter(a => a.isCorrect).length} </span>
-                            out of
-                            <span className="font-bold"> {QUESTIONS.length} </span>
-                            questions correctly.
-                        </p>
-                        <div className="space-y-4 max-w-4xl mx-auto">
-                            {QUESTIONS.map((question, index) => {
-                                const userAnswer = userAnswers.find(a => a.questionIndex === index);
-                                const correctOption = question.options.find(o => o.isCorrect);
-
-                                return (
-                                    <div key={question.id}
-                                         className={`p-4 rounded-lg border-2 ${userAnswer?.isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-                                        <p className="font-semibold mb-2">{index + 1}. {question.questionText}</p>
-                                        {userAnswer ? (
-                                            <>
-                                                <p className="text-sm">Your answer: <span
-                                                    className="font-medium">{question.options[userAnswer.selectedOptionIndex].text}</span>
-                                                </p>
-                                                {!userAnswer.isCorrect && correctOption && (
-                                                    <p className="text-sm">Correct answer: <span
-                                                        className="font-medium">{correctOption.text}</span></p>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <p className="text-sm text-gray-500">You did not answer this question.</p>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-=======
->>>>>>> 482f462d5f139787f1768eff77f1b8b3e1b6f6b6
             </div>
         </div>
     );
