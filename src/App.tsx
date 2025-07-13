@@ -314,6 +314,7 @@ const CloudPrepApp: React.FC = () => {
                         {/* ... right sidebar content */}
                     </div>
                 )}
+<<<<<<< HEAD
                 {/* Results Section */}
                 {activeSection === 'results' && (
                     <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
@@ -354,6 +355,8 @@ const CloudPrepApp: React.FC = () => {
                         </div>
                     </div>
                 )}
+=======
+>>>>>>> 482f462d5f139787f1768eff77f1b8b3e1b6f6b6
             </div>
         </div>
     );

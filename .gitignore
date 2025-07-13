@@ -9,7 +9,6 @@ dist
 .flaskenv*
 !.env.project
 !.env.vault
-/docs/
 
 /src/assets/styles/
 dist/
