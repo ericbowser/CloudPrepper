@@ -9,10 +9,11 @@ import {
     DomainProgressProps,
     QuestionOptionProps,
     SectionType,
-    Question
+    AnswerRecord
 } from './types/preptypes';
 // Import using ES6 syntax
 import {QUESTIONS} from "./QuestionRepository/Questions";
+const filtered = QUESTIONS.filter(q => q.id >= 16);
 
 const CloudPrepApp: React.FC = () => {
     // 2. REFINED STATE MANAGEMENT
@@ -21,12 +22,13 @@ const CloudPrepApp: React.FC = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
     const [isAnswered, setIsAnswered] = useState<boolean>(false);
     const [showExplanation, setShowExplanation] = useState<boolean>(false);
-    const [correctAnswers, setCorrectAnswers] = useState<Array<boolean> | null>(null);
+    // State to track all of the user's submitted answers
+    const [userAnswers, setUserAnswers] = useState<AnswerRecord[]>([]);
 
     // Derived state: The current question object is derived from the index.
     // No need for a separate `useState` for the question itself.
-    const currentQuestion = QUESTIONS[currentQuestionIndex];
-    const totalQuestions = QUESTIONS.length;
+    const currentQuestion = filtered[currentQuestionIndex];
+    const totalQuestions = filtered.length;
 
     const domains: Domain[] = [
         {name: 'Cloud Architecture', progress: 0},
@@ -42,11 +44,34 @@ const CloudPrepApp: React.FC = () => {
         setSelectedAnswer({index: optionIndex, isCorrect});
     };
 
+    // This function now records the answer and shows the explanation
     const submitAnswer = (): void => {
-        if (!selectedAnswer || isAnswered) return;
+        if (!selectedAnswer) return;
+
+        const newAnswer: AnswerRecord = {
+            questionIndex: currentQuestionIndex,
+            selectedOptionIndex: selectedAnswer.index,
+            isCorrect: selectedAnswer.isCorrect,
+        };
+
+        // Add the new answer to our list of user answers.
+        // This logic will update an existing answer if the user goes back and re-answers.
+        setUserAnswers(prevAnswers => {
+            const existingAnswerIndex = prevAnswers.findIndex(
+                ans => ans.questionIndex === currentQuestionIndex
+            );
+
+            if (existingAnswerIndex !== -1) {
+                const updatedAnswers = [...prevAnswers];
+                updatedAnswers[existingAnswerIndex] = newAnswer;
+                return updatedAnswers;
+            } else {
+                return [...prevAnswers, newAnswer];
+            }
+        });
+
         setIsAnswered(true);
         setShowExplanation(true);
-        // Here you could add logic to update domain progress or other stats
     };
 
     const nextQuestion = (): void => {
@@ -135,12 +160,12 @@ const CloudPrepApp: React.FC = () => {
     );
 
     const QuestionOption: React.FC<QuestionOptionProps> = ({
-       children,
-       isSelected,
-       isCorrect = false,
-       isIncorrect = false,
-       onClick
-    }) => (
+                                                               children,
+                                                               isSelected,
+                                                               isCorrect = false,
+                                                               isIncorrect = false,
+                                                               onClick
+                                                           }) => (
         <div
             onClick={onClick}
             className={`p-4 rounded-lg cursor-pointer transition-all duration-300 border-2 ${
@@ -163,16 +188,16 @@ const CloudPrepApp: React.FC = () => {
                 {/* Navigation - 4. CLEANUP: Removed invalid 'section' prop */}
                 <nav className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-xl border border-white/20">
                     <div className="flex justify-between items-center">
-                        <div className="text-2xl font-bold text-blue-600">CloudPrep</div>
+                        <div className="text-2xl font-bold text-blue-600">CompTIA Cloud+ Prep</div>
                         <div className="flex gap-5">
                             <NavTab label="Dashboard" isActive={activeSection === 'dashboard'}
-                                    onClick={() => setActiveSection('dashboard')} section={''}/>
+                                    onClick={() => setActiveSection('dashboard')}/>
                             <NavTab label="Practice" isActive={activeSection === 'practice'}
-                                    onClick={() => setActiveSection('practice')} section={''}/>
+                                    onClick={() => setActiveSection('practice')}/>
                             <NavTab label="Analytics" isActive={activeSection === 'analytics'}
-                                    onClick={() => setActiveSection('analytics')} section={''}/>
+                                    onClick={() => setActiveSection('analytics')}/>
                             <NavTab label="Study Plan" isActive={activeSection === 'study-plan'}
-                                    onClick={() => setActiveSection('study-plan')} section={''}/>
+                                    onClick={() => setActiveSection('study-plan')}/>
                         </div>
                     </div>
                 </nav>
@@ -182,8 +207,8 @@ const CloudPrepApp: React.FC = () => {
                     <div>
                         {/* Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                            <StatCard title="Questions Completed" value={"0"}/>
-                            <StatCard title="Overall Accuracy" value={"0%"}/>
+                            <StatCard title="Questions Completed" value={userAnswers.length.toString()}/>
+                            <StatCard title="Overall Accuracy" value={(Math.round((userAnswers.filter(x => x.isCorrect).length/QUESTIONS.length) * 100)).toString()}/>
                             <StatCard title="Study Streak" value="0" subtitle="days"/>
                             <StatCard title="Exam Readiness" value="0%"/>
                         </div>
@@ -235,7 +260,7 @@ const CloudPrepApp: React.FC = () => {
                                             isCorrect={isAnswered && option.isCorrect}
                                             // Show red if answered, this option was selected, and it's incorrect
                                             isIncorrect={isAnswered && selectedAnswer?.index === index && !selectedAnswer.isCorrect}
-                                            onClick={() => selectOption(index, option.isCorrect)} 
+                                            onClick={() => selectOption(index, option.isCorrect)}
                                         >
                                             {option.text}
                                         </QuestionOption>
@@ -270,7 +295,7 @@ const CloudPrepApp: React.FC = () => {
                                 </button>
                                 {!isAnswered ? (
                                     <button
-                                        onClick={submitAnswer}
+                                        onClick={event => submitAnswer(event)}
                                         disabled={!selectedAnswer}
                                         className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-6 rounded-lg transition-colors"
                                     >

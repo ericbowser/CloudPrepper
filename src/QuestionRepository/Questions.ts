@@ -1,4 +1,4 @@
-﻿import {Question} from "../types/preptypes";
+﻿import {Question} from "@/types/preptypes";
 
 export const QUESTIONS: Question[] = [
     // DOMAIN 1 - CLOUD ARCHITECTURE
@@ -404,8 +404,6 @@ export const QUESTIONS: Question[] = [
         isCurrentQuestion: false,
         onClick: () => console.log("Question 14 clicked")
     },
-
-    // Additional questions for comprehensive coverage
     {
         id: 15,
         questionNumber: 15,
@@ -461,5 +459,530 @@ export const QUESTIONS: Question[] = [
         children: undefined,
         isCurrentQuestion: false,
         onClick: () => console.log("Question 16 clicked")
+    },
+
+    // ADDITIONAL QUESTIONS (17-32)
+    {
+        id: 17,
+        questionNumber: 17,
+        category: 'Cloud Architecture - Service Models',
+        difficulty: 'Comprehension',
+        domain: 'Domain 1',
+        questionText: 'Your company wants to deploy a web application without managing the underlying servers, operating systems, or runtime environments. Which service model best fits this requirement?',
+        options: [
+            { text: 'A) Infrastructure as a Service (IaaS)', isCorrect: false },
+            { text: 'B) Platform as a Service (PaaS)', isCorrect: true },
+            { text: 'C) Software as a Service (SaaS)', isCorrect: false },
+            { text: 'D) Function as a Service (FaaS)', isCorrect: false }
+        ],
+        explanation: 'PaaS abstracts away infrastructure management while providing a platform for application development and deployment.',
+        explanationDetails: {
+            summary: 'PaaS characteristics for this scenario:',
+            breakdown: [
+                'Eliminates server and OS management overhead',
+                'Provides development tools and runtime environments',
+                'Allows focus on application code and business logic',
+                'Examples: Azure App Service, Google App Engine, Heroku'
+            ],
+            otherOptions: 'A) IaaS requires managing servers and OS\nC) SaaS provides complete applications\nD) FaaS is for event-driven functions'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 17 clicked")
+    },
+    {
+        id: 18,
+        questionNumber: 18,
+        category: 'Cloud Architecture - Multicloud',
+        difficulty: 'Application',
+        domain: 'Domain 1',
+        questionText: 'Your organization wants to avoid vendor lock-in while leveraging best-of-breed services from multiple cloud providers. What strategy should you implement?',
+        options: [
+            { text: 'A) Single cloud deployment with multiple regions', isCorrect: false },
+            { text: 'B) Multicloud tenancy strategy', isCorrect: true },
+            { text: 'C) Hybrid cloud with on-premises integration', isCorrect: false },
+            { text: 'D) Private cloud deployment only', isCorrect: false }
+        ],
+        explanation: 'Multicloud tenancy allows using services from multiple providers, avoiding vendor lock-in while accessing optimal services.',
+        explanationDetails: {
+            summary: 'Multicloud tenancy benefits:',
+            breakdown: [
+                'Avoids dependency on a single cloud provider',
+                'Enables selection of best services from each provider',
+                'Provides redundancy and improved reliability',
+                'Allows cost optimization through competitive pricing'
+            ],
+            otherOptions: 'A) Single cloud still creates vendor dependency\nC) Hybrid focuses on on-premises integration\nD) Private cloud limits service options'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 18 clicked")
+    },
+    {
+        id: 19,
+        questionNumber: 19,
+        category: 'Cloud Architecture - Network Components',
+        difficulty: 'Knowledge',
+        domain: 'Domain 1',
+        questionText: 'Which network component helps reduce latency for global users by caching content at edge locations closest to them?',
+        options: [
+            { text: 'A) Application load balancer', isCorrect: false },
+            { text: 'B) Network load balancer', isCorrect: false },
+            { text: 'C) Content Delivery Network (CDN)', isCorrect: true },
+            { text: 'D) Application gateway', isCorrect: false }
+        ],
+        explanation: 'CDNs distribute content across geographically dispersed servers to minimize latency for end users.',
+        explanationDetails: {
+            summary: 'CDN functionality:',
+            breakdown: [
+                'Caches static content at edge locations globally',
+                'Routes requests to nearest geographic server',
+                'Reduces bandwidth usage and server load',
+                'Improves website performance and user experience'
+            ],
+            otherOptions: 'A) ALB distributes traffic to backend servers\nB) NLB handles network layer traffic\nD) Application gateway provides secure access'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 19 clicked")
+    },
+    {
+        id: 20,
+        questionNumber: 20,
+        category: 'Cloud Architecture - Storage Types',
+        difficulty: 'Comprehension',
+        domain: 'Domain 1',
+        questionText: 'An application requires high IOPS for database operations and low-level access to storage blocks. Which storage combination is most appropriate?',
+        options: [
+            { text: 'A) Object storage with HDD', isCorrect: false },
+            { text: 'B) File storage with SSD', isCorrect: false },
+            { text: 'C) Block storage with SSD', isCorrect: true },
+            { text: 'D) Object storage with SSD', isCorrect: false }
+        ],
+        explanation: 'Block storage provides low-level access ideal for databases, while SSDs deliver the high IOPS required.',
+        explanationDetails: {
+            summary: 'Block storage with SSD advantages:',
+            breakdown: [
+                'Block-level access optimal for database workloads',
+                'SSD provides high IOPS and low latency',
+                'Direct attachment to compute instances',
+                'Suitable for transactional applications'
+            ],
+            otherOptions: 'A) Object storage lacks low-level access; HDD has lower IOPS\nB) File storage not optimal for databases\nD) Object storage doesn\'t provide block-level access'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 20 clicked")
+    },
+    {
+        id: 21,
+        questionNumber: 21,
+        category: 'Deployments - CI/CD',
+        difficulty: 'Application',
+        domain: 'Domain 2',
+        questionText: 'Your development team wants to automatically deploy code changes to production after passing all tests in the staging environment. Which CI/CD practice should be implemented?',
+        options: [
+            { text: 'A) Continuous Integration only', isCorrect: false },
+            { text: 'B) Continuous Delivery only', isCorrect: false },
+            { text: 'C) Continuous Deployment', isCorrect: true },
+            { text: 'D) Manual deployment with CI', isCorrect: false }
+        ],
+        explanation: 'Continuous Deployment automatically releases code changes to production after passing all pipeline stages.',
+        explanationDetails: {
+            summary: 'Continuous Deployment characteristics:',
+            breakdown: [
+                'Fully automated pipeline from code to production',
+                'No manual intervention required for deployment',
+                'Requires robust testing and monitoring',
+                'Enables rapid feature delivery to users'
+            ],
+            otherOptions: 'A) CI only handles code integration\nB) CD deploys to staging but requires manual production release\nD) Manual deployment contradicts automation goals'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 21 clicked")
+    },
+    {
+        id: 22,
+        questionNumber: 22,
+        category: 'Deployments - Version Control',
+        difficulty: 'Knowledge',
+        domain: 'Domain 2',
+        questionText: 'Which version control operation allows developers to propose changes for review before merging into the main branch?',
+        options: [
+            { text: 'A) Git push', isCorrect: false },
+            { text: 'B) Git commit', isCorrect: false },
+            { text: 'C) Pull request', isCorrect: true },
+            { text: 'D) Git merge', isCorrect: false }
+        ],
+        explanation: 'Pull requests enable code review and discussion before changes are merged into the main codebase.',
+        explanationDetails: {
+            summary: 'Pull request benefits:',
+            breakdown: [
+                'Facilitates peer code review process',
+                'Enables discussion and feedback on changes',
+                'Maintains code quality through review gates',
+                'Provides audit trail of changes and approvals'
+            ],
+            otherOptions: 'A) Push uploads code to repository\nB) Commit saves changes locally\nD) Merge combines branches without review'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 22 clicked")
+    },
+    {
+        id: 23,
+        questionNumber: 23,
+        category: 'Operations - Observability',
+        difficulty: 'Comprehension',
+        domain: 'Domain 3',
+        questionText: 'Your application is experiencing intermittent performance issues. Which observability practice would best help trace the request flow through your microservices architecture?',
+        options: [
+            { text: 'A) Log aggregation', isCorrect: false },
+            { text: 'B) Metrics monitoring', isCorrect: false },
+            { text: 'C) Distributed tracing', isCorrect: true },
+            { text: 'D) Alert configuration', isCorrect: false }
+        ],
+        explanation: 'Distributed tracing tracks request paths through multiple services, identifying bottlenecks and failures.',
+        explanationDetails: {
+            summary: 'Distributed tracing advantages:',
+            breakdown: [
+                'Visualizes request journey across microservices',
+                'Identifies latency bottlenecks in service chain',
+                'Correlates spans across distributed components',
+                'Enables root cause analysis for performance issues'
+            ],
+            otherOptions: 'A) Logs provide events but not request flow\nB) Metrics show performance but not trace paths\nD) Alerts notify of issues but don\'t trace flow'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 23 clicked")
+    },
+    {
+        id: 24,
+        questionNumber: 24,
+        category: 'Operations - Backup Strategies',
+        difficulty: 'Application',
+        domain: 'Domain 3',
+        questionText: 'Your organization has an RPO of 4 hours for a critical database. The database receives constant updates throughout business hours. Which backup strategy best meets this requirement?',
+        options: [
+            { text: 'A) Daily full backups at midnight', isCorrect: false },
+            { text: 'B) Weekly full backups with daily differentials', isCorrect: false },
+            { text: 'C) Full backup weekly with 4-hour incremental backups', isCorrect: true },
+            { text: 'D) Monthly full backups with weekly incrementals', isCorrect: false }
+        ],
+        explanation: 'Incremental backups every 4 hours ensure data loss is limited to the RPO requirement of 4 hours.',
+        explanationDetails: {
+            summary: 'Backup strategy for 4-hour RPO:',
+            breakdown: [
+                'Incremental backups every 4 hours meet RPO exactly',
+                'Weekly full backups provide baseline restore point',
+                'Captures all changes within acceptable data loss window',
+                'Balances storage efficiency with recovery requirements'
+            ],
+            otherOptions: 'A) Daily backups allow up to 24 hours data loss\nB) Daily differentials still allow 24 hours data loss\nD) Weekly incrementals allow up to 7 days data loss'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 24 clicked")
+    },
+    {
+        id: 25,
+        questionNumber: 25,
+        category: 'Operations - Scaling',
+        difficulty: 'Application',
+        domain: 'Domain 3',
+        questionText: 'A web application experiences 50% increased traffic every Friday during flash sales. Which scaling approach would be most cost-effective?',
+        options: [
+            { text: 'A) Vertical scaling with larger instances', isCorrect: false },
+            { text: 'B) Manual horizontal scaling on Fridays', isCorrect: false },
+            { text: 'C) Scheduled horizontal auto-scaling', isCorrect: true },
+            { text: 'D) Continuous horizontal scaling based on load', isCorrect: false }
+        ],
+        explanation: 'Scheduled scaling proactively adds resources before predictable load increases, optimizing both cost and performance.',
+        explanationDetails: {
+            summary: 'Scheduled scaling benefits:',
+            breakdown: [
+                'Anticipates predictable traffic patterns',
+                'Avoids delay in response to load spikes',
+                'Scales down automatically after events',
+                'More cost-effective than maintaining peak capacity'
+            ],
+            otherOptions: 'A) Vertical scaling requires downtime and limits scale\nB) Manual scaling is reactive and error-prone\nD) Continuous scaling may overreact to temporary spikes'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 25 clicked")
+    },
+    {
+        id: 26,
+        questionNumber: 26,
+        category: 'Security - Encryption',
+        difficulty: 'Knowledge',
+        domain: 'Domain 4',
+        questionText: 'Which type of encryption should be implemented to protect sensitive data stored in cloud databases?',
+        options: [
+            { text: 'A) Encryption in transit only', isCorrect: false },
+            { text: 'B) Encryption at rest only', isCorrect: false },
+            { text: 'C) Both encryption at rest and in transit', isCorrect: true },
+            { text: 'D) Application-level encryption only', isCorrect: false }
+        ],
+        explanation: 'Comprehensive data protection requires encrypting data both when stored (at rest) and when transmitted (in transit).',
+        explanationDetails: {
+            summary: 'Complete encryption strategy includes:',
+            breakdown: [
+                'Encryption at rest protects stored database files',
+                'Encryption in transit secures data movement',
+                'Protects against both storage and network attacks',
+                'Meets compliance requirements for data protection'
+            ],
+            otherOptions: 'A) Transit-only leaves stored data vulnerable\nB) Rest-only leaves network traffic vulnerable\nD) Application-level alone insufficient for comprehensive protection'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 26 clicked")
+    },
+    {
+        id: 27,
+        questionNumber: 27,
+        category: 'Security - IAM',
+        difficulty: 'Comprehension',
+        domain: 'Domain 4',
+        questionText: 'An application needs to access multiple AWS services. What is the most secure way to provide these permissions?',
+        options: [
+            { text: 'A) Hard-code AWS access keys in the application', isCorrect: false },
+            { text: 'B) Use IAM roles with temporary credentials', isCorrect: true },
+            { text: 'C) Share root account credentials', isCorrect: false },
+            { text: 'D) Create IAM user with permanent access keys', isCorrect: false }
+        ],
+        explanation: 'IAM roles provide temporary, automatically rotating credentials without storing long-term keys in applications.',
+        explanationDetails: {
+            summary: 'IAM roles security advantages:',
+            breakdown: [
+                'Temporary credentials reduce exposure risk',
+                'Automatic credential rotation eliminates key management',
+                'No storage of long-term secrets in code',
+                'Fine-grained permissions based on principle of least privilege'
+            ],
+            otherOptions: 'A) Hard-coded keys create security vulnerabilities\nC) Root credentials violate security best practices\nD) Permanent keys require manual rotation and storage'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 27 clicked")
+    },
+    {
+        id: 28,
+        questionNumber: 28,
+        category: 'DevOps - Containers',
+        difficulty: 'Comprehension',
+        domain: 'Domain 5',
+        questionText: 'Your team needs to deploy a microservices application that can automatically scale, handle failures, and manage service discovery. Which approach is most suitable?',
+        options: [
+            { text: 'A) Standalone containers on virtual machines', isCorrect: false },
+            { text: 'B) Container orchestration with Kubernetes', isCorrect: true },
+            { text: 'C) Virtual machines with manual deployment', isCorrect: false },
+            { text: 'D) Serverless functions only', isCorrect: false }
+        ],
+        explanation: 'Kubernetes provides comprehensive container orchestration with auto-scaling, self-healing, and service discovery capabilities.',
+        explanationDetails: {
+            summary: 'Kubernetes orchestration features:',
+            breakdown: [
+                'Automatic scaling based on resource utilization',
+                'Self-healing with pod restart and rescheduling',
+                'Built-in service discovery and load balancing',
+                'Rolling updates and rollback capabilities'
+            ],
+            otherOptions: 'A) Standalone containers lack orchestration features\nC) VMs with manual deployment don\'t provide automation\nD) Serverless alone insufficient for complex microservices'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 28 clicked")
+    },
+    {
+        id: 29,
+        questionNumber: 29,
+        category: 'DevOps - Infrastructure as Code',
+        difficulty: 'Application',
+        domain: 'Domain 5',
+        questionText: 'Your organization wants to ensure infrastructure deployments are consistent, version-controlled, and can be replicated across environments. Which practice should be implemented?',
+        options: [
+            { text: 'A) Manual infrastructure configuration through web console', isCorrect: false },
+            { text: 'B) Shell scripts for infrastructure setup', isCorrect: false },
+            { text: 'C) Infrastructure as Code (IaC) with declarative templates', isCorrect: true },
+            { text: 'D) Infrastructure documentation with manual procedures', isCorrect: false }
+        ],
+        explanation: 'IaC with declarative templates ensures consistent, version-controlled, and reproducible infrastructure deployments.',
+        explanationDetails: {
+            summary: 'IaC declarative template benefits:',
+            breakdown: [
+                'Version control for infrastructure changes',
+                'Consistent deployments across environments',
+                'Code review process for infrastructure changes',
+                'Automated rollback and deployment capabilities'
+            ],
+            otherOptions: 'A) Manual processes are inconsistent and error-prone\nB) Shell scripts lack declarative benefits and state management\nD) Documentation doesn\'t ensure consistency or automation'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 29 clicked")
+    },
+    {
+        id: 30,
+        questionNumber: 30,
+        category: 'Troubleshooting - Application Performance',
+        difficulty: 'Application',
+        domain: 'Domain 6',
+        questionText: 'Users report that a web application loads slowly during peak hours, but infrastructure monitoring shows normal CPU and memory usage. What should be your next troubleshooting step?',
+        options: [
+            { text: 'A) Increase CPU and memory resources', isCorrect: false },
+            { text: 'B) Analyze database query performance and network latency', isCorrect: true },
+            { text: 'C) Restart the application servers', isCorrect: false },
+            { text: 'D) Implement additional load balancers', isCorrect: false }
+        ],
+        explanation: 'Normal infrastructure metrics suggest the bottleneck is likely in database queries or network latency, not compute resources.',
+        explanationDetails: {
+            summary: 'Performance troubleshooting approach:',
+            breakdown: [
+                'Database queries may be inefficient or blocking',
+                'Network latency could affect user experience',
+                'External service dependencies might be slow',
+                'Application-level bottlenecks not visible in infrastructure metrics'
+            ],
+            otherOptions: 'A) CPU/memory normal indicates no resource constraint\nC) Restart addresses symptoms, not root cause\nD) Load balancers won\'t help if backend is slow'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 30 clicked")
+    },
+    {
+        id: 31,
+        questionNumber: 31,
+        category: 'Troubleshooting - Security',
+        difficulty: 'Comprehension',
+        domain: 'Domain 6',
+        questionText: 'An application suddenly cannot access a cloud storage bucket that worked fine yesterday. No code changes were made. What is the most likely cause?',
+        options: [
+            { text: 'A) Storage bucket has been deleted', isCorrect: false },
+            { text: 'B) Network connectivity issues', isCorrect: false },
+            { text: 'C) IAM permissions or security policies changed', isCorrect: true },
+            { text: 'D) Application server hardware failure', isCorrect: false }
+        ],
+        explanation: 'Sudden access failures without code changes typically indicate permission or security policy modifications.',
+        explanationDetails: {
+            summary: 'Common causes of sudden access loss:',
+            breakdown: [
+                'IAM role permissions modified or revoked',
+                'Security group rules changed',
+                'Access keys expired or rotated',
+                'Bucket policies or ACLs updated'
+            ],
+            otherOptions: 'A) Deletion would affect all access, not just this app\nB) Network issues would show connectivity errors\nD) Hardware failure would cause broader application issues'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 31 clicked")
+    },
+    {
+        id: 32,
+        questionNumber: 32,
+        category: 'Troubleshooting - Network',
+        difficulty: 'Application',
+        domain: 'Domain 6',
+        questionText: 'A multi-tier application can communicate between web and application tiers, but the application tier cannot reach the database tier. What should you check first?',
+        options: [
+            { text: 'A) Web server configuration', isCorrect: false },
+            { text: 'B) Application server logs', isCorrect: false },
+            { text: 'C) Network security groups and routing between application and database tiers', isCorrect: true },
+            { text: 'D) Database server hardware status', isCorrect: false }
+        ],
+        explanation: 'Network connectivity issues between specific tiers typically involve security group rules or routing configuration.',
+        explanationDetails: {
+            summary: 'Network troubleshooting for tier connectivity:',
+            breakdown: [
+                'Security groups may block database port access',
+                'Subnet routing tables might be misconfigured',
+                'Network ACLs could prevent tier communication',
+                'VPC peering or transit gateway issues possible'
+            ],
+            otherOptions: 'A) Web tier communication works, not a web server issue\nB) App logs won\'t show network configuration problems\nD) Hardware status wouldn\'t be tier-specific'
+        },
+        children: undefined,
+        isCurrentQuestion: false,
+        onClick: () => console.log("Question 32 clicked")
     }
 ];
+
+// Helper functions for question management
+export const getQuestionsByDomain = (domain: string): Question[] => {
+    return QUESTIONS.filter(q => q.domain === domain);
+};
+
+export const getQuestionsByDifficulty = (difficulty: string): Question[] => {
+    return QUESTIONS.filter(q => q.difficulty === difficulty);
+};
+
+export const getQuestionsByCategory = (category: string): Question[] => {
+    return QUESTIONS.filter(q => q.category.includes(category));
+};
+
+export const getRandomQuestions = (count: number): Question[] => {
+    const shuffled = [...QUESTIONS].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+};
+
+// Statistics for dashboard
+export const getQuestionStats = () => {
+    const domains = [...new Set(QUESTIONS.map(q => q.domain))];
+    const difficulties = [...new Set(QUESTIONS.map(q => q.difficulty))];
+    const categories = [...new Set(QUESTIONS.map(q => q.category))];
+    
+    return {
+        total: QUESTIONS.length,
+        byDomain: domains.map(domain => ({
+            domain,
+            count: QUESTIONS.filter(q => q.domain === domain).length
+        })),
+        byDifficulty: difficulties.map(difficulty => ({
+            difficulty,
+            count: QUESTIONS.filter(q => q.difficulty === difficulty).length
+        })),
+        categories: categories.length,
+        domainBreakdown: domains.map(domain => ({
+            domain,
+            categories: [...new Set(QUESTIONS
+                .filter(q => q.domain === domain)
+                .map(q => q.category)
+            )],
+            difficulties: difficulties.map(difficulty => ({
+                difficulty,
+                count: QUESTIONS.filter(q => q.domain === domain && q.difficulty === difficulty).length
+            }))
+        }))
+    };
+};
+
+// Helper function to get domain-specific practice set
+export const getDomainPracticeSet = (domain: string, count: number): Question[] => {
+    const domainQuestions = getQuestionsByDomain(domain);
+    const shuffled = [...domainQuestions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.min(count, domainQuestions.length));
+};
+
+// Helper function to get mixed difficulty practice set
+export const getMixedDifficultySet = (count: number): Question[] => {
+    const knowledge = QUESTIONS.filter(q => q.difficulty === 'Knowledge');
+    const comprehension = QUESTIONS.filter(q => q.difficulty === 'Comprehension');
+    const application = QUESTIONS.filter(q => q.difficulty === 'Application');
+    
+    const questionsPerDifficulty = Math.floor(count / 3);
+    const remainder = count % 3;
+    
+    const selected = [
+        ...knowledge.sort(() => 0.5 - Math.random()).slice(0, questionsPerDifficulty + (remainder > 0 ? 1 : 0)),
+        ...comprehension.sort(() => 0.5 - Math.random()).slice(0, questionsPerDifficulty + (remainder > 1 ? 1 : 0)),
+        ...application.sort(() => 0.5 - Math.random()).slice(0, questionsPerDifficulty)
+    ];
+    
+    return selected.sort(() => 0.5 - Math.random());
+};
+            
