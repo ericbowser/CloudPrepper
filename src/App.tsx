@@ -36,7 +36,44 @@ const CloudPrepApp: React.FC = () => {
         {name: 'DevOps', progress: 0},
         {name: 'Troubleshooting', progress: 0}
     ];
+    const nextQuestion = (): void => {
+        if (currentQuestionIndex < totalQuestions - 1) {
+            setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+            setIsAnswered(false);
+            setSelectedAnswer(null);
+            setShowExplanation(false); // Always reset explanation for new question
+            setQuestionStartTime(new Date());
+        } else {
+            // Quiz finished - show results
+            setActiveSection('results');
+        }
+    };
 
+    const previousQuestion = (): void => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(prevIndex => prevIndex - 1);
+
+            // Check if this question was already answered
+            const previousAnswer = userAnswers.find(answer => answer.questionIndex === currentQuestionIndex - 1);
+
+            if (previousAnswer) {
+                setIsAnswered(true);
+                setSelectedAnswer({
+                    index: previousAnswer.selectedOptionIndex,
+                    isCorrect: previousAnswer.isCorrect
+                });
+
+                // Show explanation only in inline mode
+                setShowExplanation(answerMode === AnswerMode.inline);
+            } else {
+                setIsAnswered(false);
+                setSelectedAnswer(null);
+                setShowExplanation(false);
+            }
+
+            setQuestionStartTime(new Date());
+        }
+    };
     // Quiz functions
     const selectOption = (optionIndex: number, isCorrect: boolean): void => {
         setSelectedAnswer({index: optionIndex, isCorrect});
@@ -89,40 +126,7 @@ const CloudPrepApp: React.FC = () => {
         setQuestionStartTime(new Date());
     };
 
-    const previousQuestion = (): void => {
-        if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
-            setSelectedAnswer(null);
-            setIsAnswered(false);
-            setShowExplanation(false);
-            setQuestionStartTime(new Date());
 
-            // Restore previous answer if exists
-            const previousAnswer = userAnswers.find(ans => ans.questionIndex === currentQuestionIndex - 1);
-            if (previousAnswer) {
-                setSelectedAnswer({
-                    index: previousAnswer.selectedOptionIndex,
-                    isCorrect: previousAnswer.isCorrect
-                });
-                setIsAnswered(true);
-                if (answerMode === AnswerMode.inline) {
-                    setShowExplanation(true);
-                }
-            }
-        }
-    };
-    const nextQuestion = (): void => {
-        if (currentQuestionIndex < totalQuestions - 1) {
-            setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-            setIsAnswered(false);
-            setSelectedAnswer(null);
-            setShowExplanation(false);
-            setQuestionStartTime(new Date());
-        } else {
-            // Quiz finished - show results
-            setActiveSection('results');
-        }
-    };
     const QuestionOption: React.FC<{
         children: React.ReactNode;
         isSelected: boolean;
@@ -147,31 +151,40 @@ const CloudPrepApp: React.FC = () => {
     );
 
     const handleSetAnswerMode = (mode: AnswerMode): void => {
+        console.log("Setting answer mode to:", mode);
         setAnswerMode(mode);
-        // Show explanation immediately in inline mode
-        if (mode === AnswerMode.inline) {
+
+        // Handle explanation visibility based on mode change
+        if (mode === AnswerMode.inline && isAnswered) {
+            // In inline mode, show explanation if question is already answered
             setShowExplanation(true);
+        } else if (mode === AnswerMode.endOnly) {
+            // In quiz mode, hide explanations until the end
+            setShowExplanation(false);
         }
-        // In quiz mode, automatically advance to next question after a brief delay
-        if (mode === AnswerMode.inline) {
-            setTimeout(() => {
-                nextQuestion();
-            }, 1000);
-        }
+
+        // Remove the auto-advance logic that was causing issues
+        // Let the user manually click Next
     };
 
+// Add this useEffect to handle mode changes properly
     useEffect(() => {
-        console.log("answerMode changed to:", answerMode)
-    }, [answerMode]);
+        console.log("answerMode changed to:", answerMode, "isAnswered:", isAnswered);
+
+        // If switching to inline mode and question is already answered, show explanation
+        if (answerMode === AnswerMode.inline && isAnswered) {
+            setShowExplanation(true);
+        }
+        // If switching to quiz mode, hide explanation
+        else if (answerMode === AnswerMode.endOnly) {
+            setShowExplanation(false);
+        }
+    }, [answerMode, isAnswered]);
 
     const ReviewMode: React.FC = () => {
         return (
             <div className="max-w-4xl mx-auto">
-                <AnswerModeToggle
-                    handleSetAnswerMode={handleSetAnswerMode}
-                    answerMode={answerMode}
-                    setAnswerMode={setAnswerMode}
-                />
+
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 mb-8">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold">Answer Review</h2>
@@ -243,25 +256,7 @@ const CloudPrepApp: React.FC = () => {
                                             );
                                         })}
                                     </div>
-                                    {showExplanation && isAnswered && question && question.explanationDetails && (
-                                        <div>
 
-                                            <ExplanationCard question={currentQuestion}/>
-                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                                <h4 className="font-semibold text-blue-800 mb-2">Explanation</h4>
-                                                <p className="text-gray-700 mb-3">{question.explanationDetails.summary}</p>
-                                                <ul className="list-disc pl-5 text-gray-700 mb-3 space-y-1">
-                                                    {question.explanationDetails.breakdown.map((item, i) => (
-                                                        <li key={i}>{item}</li>
-                                                    ))}
-                                                </ul>
-                                                <p className="text-gray-700 text-sm whitespace-pre-line">
-                                                    <strong>Why other options are less optimal:</strong><br/>
-                                                    {question.explanationDetails.otherOptions}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             );
                         })}
@@ -277,7 +272,10 @@ const CloudPrepApp: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-600 to-purple-800">
             <Nav setActiveSection={setActiveSection} activeSection={activeSection}/>
             <div className="max-w-7xl mx-auto p-5">
-                <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
+                <AnswerModeToggle
+                    answerMode={answerMode}
+                    setAnswerMode={setAnswerMode}  // Use your handler function
+                />
                 {activeSection === 'dashboard' && (
                     <Dashboard setActiveSection={setActiveSection} length={questions.length}/>
                 )}
@@ -308,7 +306,6 @@ const CloudPrepApp: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Question Panel */}
                         <div
                             className="lg:col-span-3 bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
                             <div className="flex justify-between items-center mb-6">
@@ -355,9 +352,13 @@ const CloudPrepApp: React.FC = () => {
                                     {currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
                                 </button>
                             </div>
+                            {showExplanation && currentQuestion && currentQuestion.explanationDetails && (
+                                <ExplanationCard question={currentQuestion}/>
+                            )}
                         </div>
                     </div>
                 )}
+
                 {/* Show explanation in inline mode */}
                 {/* Results Section */}
                 {activeSection === 'results' && <QuizResults/>}
