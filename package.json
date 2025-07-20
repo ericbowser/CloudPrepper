@@ -22,11 +22,13 @@
     "clean": "rm node_modules -r && rm package-lock.json && npm install"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.11",
+    "@types/lodash": "^4.17.20",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "dotenv": "^16.6.0",

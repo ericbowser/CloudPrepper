@@ -85,6 +85,7 @@ export interface QuizSession {
     currentMode: AnswerMode;
 }
 
-export type AnswerMode = 'inline' | 'end-only';
+export enum AnswerMode { 'inline' = 0, 'endOnly' = 1 }
+
 export type SectionType = 'dashboard' | 'practice' | 'analytics' | 'study-plan' | 'results' | 'review';
 export type QuizMode = 'quiz' | 'review';

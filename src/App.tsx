@@ -1,34 +1,32 @@
-﻿import React, {useState, useEffect} from 'react';
-import {AnswerMode, AnswerRecord, Domain, Question, QuizMode, SectionType, SelectedAnswer} from "@/types/preptypes";
+﻿import React, {useEffect, useState} from 'react';
+import {AnswerMode, AnswerRecord, Domain, Question, QuizMode, SectionType, SelectedAnswer} from "./types/preptypes";
 import {QUESTIONS} from "./QuestionRepository/Questions";
 import {QuizResults} from "./components/QuizResults";
 import Nav from "./components/Nav";
 import {Dashboard} from "./components/Dashboard";
+import {ExplanationCard} from "./components/ExplanationCard";
+import {AnswerModeToggle} from "./components/AnswerModeToggle";
 
 const CloudPrepApp: React.FC = () => {
     // Main application state
     const [activeSection, setActiveSection] = useState<SectionType>('practice');
     const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
-    const [answerMode, setAnswerMode] = useState<AnswerMode | null>('inline');
+
 
     // Quiz state
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
     const [userAnswers, setUserAnswers] = useState<AnswerRecord[]>([]);
     const [quizStartTime, setQuizStartTime] = useState<Date>(new Date());
     const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
     const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
-    const [showExplanation, setShowExplanation] = useState<boolean | null>(null);
-
+    const [answerMode, setAnswerMode] = React.useState<AnswerMode | number>(AnswerMode.inline);
+    const [showExplanation, setShowExplanation] = React.useState<boolean>(false);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const currentQuestion = QUESTIONS[currentQuestionIndex];
 
     // Quiz configuration
     const [questions] = useState<Question[]>(QUESTIONS);
     const totalQuestions = questions.length;
-    const currentQuestion = questions[currentQuestionIndex];
-
-    useEffect(() => {
-        console.log("currentQuestion", currentQuestion);
-    }, [activeSection])
 
     const domains: Domain[] = [
         {name: 'Cloud Architecture', progress: 0},
@@ -67,112 +65,14 @@ const CloudPrepApp: React.FC = () => {
 
         setIsAnswered(true);
 
-        // Show explanation immediately in inline mode
-        if (answerMode === 'inline') {
+
+        if (answerMode === AnswerMode.inline) {
             setShowExplanation(true);
-        }
-
-        // In quiz mode, automatically advance to next question after a brief delay
-        if (answerMode === 'end-only') {
-            setTimeout(() => {
-                nextQuestion();
-            }, 1000);
+        } else { // 'end-only' mode
+            setTimeout(() => nextQuestion(), 300); // Auto-advance
         }
     };
 
-    // Modified nextQuestion function
-    const nextQuestion = (): void => {
-        if (currentQuestionIndex < totalQuestions - 1) {
-            setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-            setIsAnswered(false);
-            setSelectedAnswer(null);
-            setShowExplanation(false);
-            setQuestionStartTime(new Date());
-        } else {
-            // Quiz finished - show results
-            setActiveSection('results');
-        }
-    };
-    const previousQuestion = (): void => {
-        if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
-            setSelectedAnswer(null);
-            setIsAnswered(false);
-            setShowExplanation(false);
-            setQuestionStartTime(new Date());
-
-            // Restore previous answer if exists
-            const previousAnswer = userAnswers.find(ans => ans.questionIndex === currentQuestionIndex - 1);
-            if (previousAnswer) {
-                setSelectedAnswer({
-                    index: previousAnswer.selectedOptionIndex,
-                    isCorrect: previousAnswer.isCorrect
-                });
-                setIsAnswered(true);
-                if (answerMode === 'inline') {
-                    setShowExplanation(true);
-                }
-            }
-        }
-    };
-
-    // Components
-    const AnswerModeToggle = () => (
-        <div className="flex items-center gap-3 mb-6">
-            <span className="text-sm font-medium text-gray-700">Answer Mode:</span>
-            <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                    onClick={() => setAnswerMode('inline')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        answerMode === 'inline'
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                    }`}
-                >
-                    📝 Study Mode
-                </button>
-                <button
-                    onClick={() => setAnswerMode('end-only')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        answerMode === 'end-only'
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                    }`}
-                >
-                    🎯 Quiz Mode
-                </button>
-            </div>
-            <div className="text-xs text-gray-500 ml-2">
-                {answerMode === 'inline' ? 'See explanations immediately' : 'Review all answers at the end'}
-            </div>
-        </div>
-    );
-    const ExplanationCard: React.FC<{ question: Question }> = ({question}) => (
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
-                💡 Explanation
-            </h4>
-            <p className="text-gray-700 mb-4">{question.explanation}</p>
-
-            {question.explanationDetails && (
-                <>
-                    <div className="mb-4">
-                        <h5 className="font-medium text-blue-700 mb-2">{question.explanationDetails.summary}</h5>
-                        <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                            {question.explanationDetails.breakdown.map((item, i) => (
-                                <li key={i}>{item}</li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                        <strong>Why other options are incorrect:</strong>
-                        <div className="mt-1 whitespace-pre-line">{question.explanationDetails.otherOptions}</div>
-                    </div>
-                </>
-            )}
-        </div>
-    );
 
     const startReview = (): void => {
         setActiveSection('review');
@@ -189,7 +89,40 @@ const CloudPrepApp: React.FC = () => {
         setQuestionStartTime(new Date());
     };
 
+    const previousQuestion = (): void => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(prev => prev - 1);
+            setSelectedAnswer(null);
+            setIsAnswered(false);
+            setShowExplanation(false);
+            setQuestionStartTime(new Date());
 
+            // Restore previous answer if exists
+            const previousAnswer = userAnswers.find(ans => ans.questionIndex === currentQuestionIndex - 1);
+            if (previousAnswer) {
+                setSelectedAnswer({
+                    index: previousAnswer.selectedOptionIndex,
+                    isCorrect: previousAnswer.isCorrect
+                });
+                setIsAnswered(true);
+                if (answerMode === AnswerMode.inline) {
+                    setShowExplanation(true);
+                }
+            }
+        }
+    };
+    const nextQuestion = (): void => {
+        if (currentQuestionIndex < totalQuestions - 1) {
+            setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+            setIsAnswered(false);
+            setSelectedAnswer(null);
+            setShowExplanation(false);
+            setQuestionStartTime(new Date());
+        } else {
+            // Quiz finished - show results
+            setActiveSection('results');
+        }
+    };
     const QuestionOption: React.FC<{
         children: React.ReactNode;
         isSelected: boolean;
@@ -213,10 +146,32 @@ const CloudPrepApp: React.FC = () => {
         </div>
     );
 
+    const handleSetAnswerMode = (mode: AnswerMode): void => {
+        setAnswerMode(mode);
+        // Show explanation immediately in inline mode
+        if (mode === AnswerMode.inline) {
+            setShowExplanation(true);
+        }
+        // In quiz mode, automatically advance to next question after a brief delay
+        if (mode === AnswerMode.inline) {
+            setTimeout(() => {
+                nextQuestion();
+            }, 1000);
+        }
+    };
+
+    useEffect(() => {
+        console.log("answerMode changed to:", answerMode)
+    }, [answerMode]);
 
     const ReviewMode: React.FC = () => {
         return (
             <div className="max-w-4xl mx-auto">
+                <AnswerModeToggle
+                    handleSetAnswerMode={handleSetAnswerMode}
+                    answerMode={answerMode}
+                    setAnswerMode={setAnswerMode}
+                />
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 mb-8">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold">Answer Review</h2>
@@ -288,38 +243,41 @@ const CloudPrepApp: React.FC = () => {
                                             );
                                         })}
                                     </div>
-                                    {answerMode === 'inline' && showExplanation && isAnswered && (
-                                        <ExplanationCard question={currentQuestion}/>
-                                    )}
-                                    {question.explanationDetails && (
-                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                            <h4 className="font-semibold text-blue-800 mb-2">Explanation</h4>
-                                            <p className="text-gray-700 mb-3">{question.explanationDetails.summary}</p>
-                                            <ul className="list-disc pl-5 text-gray-700 mb-3 space-y-1">
-                                                {question.explanationDetails.breakdown.map((item, i) => (
-                                                    <li key={i}>{item}</li>
-                                                ))}
-                                            </ul>
-                                            <p className="text-gray-700 text-sm whitespace-pre-line">
-                                                <strong>Why other options are less optimal:</strong><br/>
-                                                {question.explanationDetails.otherOptions}
-                                            </p>
+                                    {showExplanation && isAnswered && question && question.explanationDetails && (
+                                        <div>
+
+                                            <ExplanationCard question={currentQuestion}/>
+                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                <h4 className="font-semibold text-blue-800 mb-2">Explanation</h4>
+                                                <p className="text-gray-700 mb-3">{question.explanationDetails.summary}</p>
+                                                <ul className="list-disc pl-5 text-gray-700 mb-3 space-y-1">
+                                                    {question.explanationDetails.breakdown.map((item, i) => (
+                                                        <li key={i}>{item}</li>
+                                                    ))}
+                                                </ul>
+                                                <p className="text-gray-700 text-sm whitespace-pre-line">
+                                                    <strong>Why other options are less optimal:</strong><br/>
+                                                    {question.explanationDetails.otherOptions}
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             );
                         })}
                     </div>
+
                 </div>
             </div>
         );
     };
 
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-600 to-purple-800">
             <Nav setActiveSection={setActiveSection} activeSection={activeSection}/>
             <div className="max-w-7xl mx-auto p-5">
-                <AnswerModeToggle/>
+                <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
                 {activeSection === 'dashboard' && (
                     <Dashboard setActiveSection={setActiveSection} length={questions.length}/>
                 )}
@@ -401,9 +359,6 @@ const CloudPrepApp: React.FC = () => {
                     </div>
                 )}
                 {/* Show explanation in inline mode */}
-                {answerMode === 'inline' && isAnswered && showExplanation && currentQuestion && (
-                    <ExplanationCard question={currentQuestion}/>
-                )}
                 {/* Results Section */}
                 {activeSection === 'results' && <QuizResults/>}
 

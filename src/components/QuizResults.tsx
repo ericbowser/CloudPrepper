@@ -1,6 +1,12 @@
 ﻿import React from 'react';
-import {UserAnswer, Question} from "@/types/preptypes";
-
+import {Question, AnswerRecord} from "../types/preptypes";
+export interface UserAnswer {
+    questionId: number,
+    selectedIndex: number,
+    isCorrect: boolean,
+    timeSpent: number,
+    userAnswers?: AnswerRecord[]
+}
 // QuizResults Component
 export const QuizResults: React.FC<{
     userAnswers: UserAnswer[];
