@@ -1,5 +1,4 @@
-import React, {ReactElement, useState, useEffect} from 'react';
-import {SectionType} from "@/types/preptypes";
+import React from 'react';
 
 const Nav: React.FC<{ setActiveSection: (section: string) => void; activeSection: string }> = ({ setActiveSection, activeSection }) => {
     return (

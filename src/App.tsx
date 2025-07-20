@@ -9,7 +9,7 @@ const CloudPrepApp: React.FC = () => {
     // Main application state
     const [activeSection, setActiveSection] = useState<SectionType>('practice');
     const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
-    const [answerMode, setAnswerMode] = useState<AnswerMode | null>(null);
+    const [answerMode, setAnswerMode] = useState<AnswerMode | null>('inline');
 
     // Quiz state
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -45,7 +45,7 @@ const CloudPrepApp: React.FC = () => {
     };
 
     const submitAnswer = (): void => {
-        if (!selectedAnswer) return;
+        if (!selectedAnswer || isAnswered) return;
 
         const timeTaken = new Date().getTime() - questionStartTime.getTime();
         const newAnswer: AnswerRecord = {
@@ -65,14 +65,18 @@ const CloudPrepApp: React.FC = () => {
             return [...prev, newAnswer];
         });
 
-        // Move to next question or finish quiz
-        if (currentQuestionIndex < totalQuestions - 1) {
-            setCurrentQuestionIndex(prev => prev + 1);
-            setSelectedAnswer(null);
-            setQuestionStartTime(new Date());
-        } else {
-            // Quiz finished - show results
-            setActiveSection('results');
+        setIsAnswered(true);
+
+        // Show explanation immediately in inline mode
+        if (answerMode === 'inline') {
+            setShowExplanation(true);
+        }
+
+        // In quiz mode, automatically advance to next question after a brief delay
+        if (answerMode === 'end-only') {
+            setTimeout(() => {
+                nextQuestion();
+            }, 1000);
         }
     };
 
@@ -89,10 +93,13 @@ const CloudPrepApp: React.FC = () => {
             setActiveSection('results');
         }
     };
-
     const previousQuestion = (): void => {
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(prev => prev - 1);
+            setSelectedAnswer(null);
+            setIsAnswered(false);
+            setShowExplanation(false);
+            setQuestionStartTime(new Date());
 
             // Restore previous answer if exists
             const previousAnswer = userAnswers.find(ans => ans.questionIndex === currentQuestionIndex - 1);
@@ -101,38 +108,69 @@ const CloudPrepApp: React.FC = () => {
                     index: previousAnswer.selectedOptionIndex,
                     isCorrect: previousAnswer.isCorrect
                 });
-            } else {
-                setSelectedAnswer(null);
+                setIsAnswered(true);
+                if (answerMode === 'inline') {
+                    setShowExplanation(true);
+                }
             }
         }
     };
 
-    // Add mode toggle to your navigation/settings
-    const AnswerModeToggle: React.FC = () => (
-        <div className="flex items-center gap-3 mb-4">
-            <span className="text-sm font-medium">Answer Mode:</span>
+    // Components
+    const AnswerModeToggle = () => (
+        <div className="flex items-center gap-3 mb-6">
+            <span className="text-sm font-medium text-gray-700">Answer Mode:</span>
             <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
                     onClick={() => setAnswerMode('inline')}
-                    className={`px-3 py-1 rounded text-sm transition-all ${
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                         answerMode === 'inline'
-                            ? 'bg-blue-500 text-white'
-                            : 'text-gray-600 hover:text-blue-600'
+                            ? 'bg-blue-500 text-white shadow-sm'
+                            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
                     }`}
                 >
-                    Inline Answers
+                    📝 Study Mode
                 </button>
                 <button
                     onClick={() => setAnswerMode('end-only')}
-                    className={`px-3 py-1 rounded text-sm transition-all ${
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                         answerMode === 'end-only'
-                            ? 'bg-blue-500 text-white'
-                            : 'text-gray-600 hover:text-blue-600'
+                            ? 'bg-blue-500 text-white shadow-sm'
+                            : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
                     }`}
                 >
-                    Quiz Mode
+                    🎯 Quiz Mode
                 </button>
             </div>
+            <div className="text-xs text-gray-500 ml-2">
+                {answerMode === 'inline' ? 'See explanations immediately' : 'Review all answers at the end'}
+            </div>
+        </div>
+    );
+    const ExplanationCard: React.FC<{ question: Question }> = ({question}) => (
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
+                💡 Explanation
+            </h4>
+            <p className="text-gray-700 mb-4">{question.explanation}</p>
+
+            {question.explanationDetails && (
+                <>
+                    <div className="mb-4">
+                        <h5 className="font-medium text-blue-700 mb-2">{question.explanationDetails.summary}</h5>
+                        <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                            {question.explanationDetails.breakdown.map((item, i) => (
+                                <li key={i}>{item}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                        <strong>Why other options are incorrect:</strong>
+                        <div className="mt-1 whitespace-pre-line">{question.explanationDetails.otherOptions}</div>
+                    </div>
+                </>
+            )}
         </div>
     );
 
@@ -250,7 +288,9 @@ const CloudPrepApp: React.FC = () => {
                                             );
                                         })}
                                     </div>
-
+                                    {answerMode === 'inline' && showExplanation && isAnswered && (
+                                        <ExplanationCard question={currentQuestion}/>
+                                    )}
                                     {question.explanationDetails && (
                                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                             <h4 className="font-semibold text-blue-800 mb-2">Explanation</h4>
@@ -280,97 +320,100 @@ const CloudPrepApp: React.FC = () => {
             <Nav setActiveSection={setActiveSection} activeSection={activeSection}/>
             <div className="max-w-7xl mx-auto p-5">
                 <AnswerModeToggle/>
-                {activeSection === 'dashboard' &&  (
-                    <Dashboard setActiveSection={setActiveSection} length={questions.length} />
+                {activeSection === 'dashboard' && (
+                    <Dashboard setActiveSection={setActiveSection} length={questions.length}/>
                 )}
                 {activeSection === 'practice' && quizMode === 'quiz' && currentQuestion && (
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Progress Sidebar */}
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                    <h3 className="text-xl font-bold text-blue-600 mb-4">Progress</h3>
-                    <div className="mb-6">
-                        <div className="flex justify-between text-sm mb-2">
-                            <span>Question {currentQuestionIndex + 1} of {totalQuestions}</span>
-                            <span>{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%</span>
+                        {/* Progress Sidebar */}
+                        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
+                            <h3 className="text-xl font-bold text-blue-600 mb-4">Progress</h3>
+                            <div className="mb-6">
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span>Question {currentQuestionIndex + 1} of {totalQuestions}</span>
+                                    <span>{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%</span>
+                                </div>
+                                <div className="bg-blue-100 h-2 rounded-full">
+                                    <div
+                                        className="bg-blue-500 h-full rounded-full transition-all duration-300"
+                                        style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="text-sm text-gray-600">
+                                    Answered: {userAnswers.length} / {totalQuestions}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    Correct: {userAnswers.filter(a => a.isCorrect).length}
+                                </div>
+                            </div>
                         </div>
-                        <div className="bg-blue-100 h-2 rounded-full">
-                            <div
-                                className="bg-blue-500 h-full rounded-full transition-all duration-300"
-                                style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <div className="text-sm text-gray-600">
-                            Answered: {userAnswers.length} / {totalQuestions}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                            Correct: {userAnswers.filter(a => a.isCorrect).length}
-                        </div>
-                    </div>
-                </div>
 
-                {/* Question Panel */}
-                <div
-                    className="lg:col-span-3 bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-xl font-bold">{currentQuestion.category}</h3>
-                        <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600">
-                            {currentQuestion.domain} • {currentQuestion.difficulty}
-                        </div>
-                    </div>
+                        {/* Question Panel */}
+                        <div
+                            className="lg:col-span-3 bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold">{currentQuestion.category}</h3>
+                                <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600">
+                                    {currentQuestion.domain} • {currentQuestion.difficulty}
+                                </div>
+                            </div>
 
-                    <div className="mb-6">
-                        <p className="text-lg leading-relaxed mb-6">{currentQuestion.questionText}</p>
+                            <div className="mb-6">
+                                <p className="text-lg leading-relaxed mb-6">{currentQuestion.questionText}</p>
 
-                        <div className="space-y-3">
-                            {currentQuestion.options.map((option, index) => (
-                                <QuestionOption
-                                    key={index}
-                                    isSelected={selectedAnswer?.index === index}
-                                    onClick={() => selectOption(index, option.isCorrect)}
+                                <div className="space-y-3">
+                                    {currentQuestion.options.map((option, index) => (
+                                        <QuestionOption
+                                            key={index}
+                                            isSelected={selectedAnswer?.index === index}
+                                            onClick={() => selectOption(index, option.isCorrect)}
+                                        >
+                                            {option.text}
+                                        </QuestionOption>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                                <button
+                                    onClick={previousQuestion}
+                                    disabled={currentQuestionIndex === 0}
+                                    className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 py-2 px-6 rounded-lg transition-colors"
                                 >
-                                    {option.text}
-                                </QuestionOption>
-                            ))}
+                                    Previous
+                                </button>
+
+                                <div className="text-sm text-gray-500">
+                                    No explanations until quiz is complete
+                                </div>
+
+                                <button
+                                    onClick={submitAnswer}
+                                    disabled={!selectedAnswer}
+                                    className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-6 rounded-lg transition-colors"
+                                >
+                                    {currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
+                                </button>
+                            </div>
                         </div>
                     </div>
+                )}
+                {/* Show explanation in inline mode */}
+                {answerMode === 'inline' && isAnswered && showExplanation && currentQuestion && (
+                    <ExplanationCard question={currentQuestion}/>
+                )}
+                {/* Results Section */}
+                {activeSection === 'results' && <QuizResults/>}
 
-                    <div className="flex justify-between items-center">
-                        <button
-                            onClick={previousQuestion}
-                            disabled={currentQuestionIndex === 0}
-                            className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 py-2 px-6 rounded-lg transition-colors"
-                        >
-                            Previous
-                        </button>
+                {/* Review Section */}
+                {activeSection === 'review' && <ReviewMode/>}
 
-                        <div className="text-sm text-gray-500">
-                            No explanations until quiz is complete
-                        </div>
-
-                        <button
-                            onClick={submitAnswer}
-                            disabled={!selectedAnswer}
-                            className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-6 rounded-lg transition-colors"
-                        >
-                            {currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
-                        </button>
-                    </div>
-                </div>
+                {/* {activeSection === 'selection' && <QuizResults/>} */}
             </div>
-            )}
-
-            {/* Results Section */}
-            {activeSection === 'results' && <QuizResults/>}
-
-            {/* Review Section */}
-            {activeSection === 'review' && <ReviewMode/>}
-
-            {/* {activeSection === 'selection' && <QuizResults/>} */}
         </div>
-</div>
-)
+    )
 
 };
 

@@ -13,22 +13,6 @@ export interface QuestionOptionData {
     isCorrect: boolean;
 }
 
-export interface Question {
-    id: number;
-    questionNumber: number;
-    category: string;
-    difficulty: string;
-    domain: string;
-    questionText: string;
-    options: QuestionOptionData[];
-    explanation: string;
-    explanationDetails?: {
-        summary: string;
-        breakdown: string[];
-        otherOptions: string;
-    };
-}
-
 export interface SelectedAnswer {
     index: number;
     isCorrect: boolean;

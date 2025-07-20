@@ -5,6 +5,9 @@ node_modules/
 build
 dist
 
+Folder.DotSettings.user
+src/assets/styles/output.css
+
 .env*
 .flaskenv*
 !.env.project
