@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "tail:watch": "npx tailwindcss -i ./src/assets/styles/index.css -o ./src/assets/styles/output.css --watch",
+    "tail:watch": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css --watch",
     "tail": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css",
     "dev": "vite serve --mode development",
     "build": "vite build --mode development",

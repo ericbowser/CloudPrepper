@@ -1,4 +1,18 @@
 {
     "amVim.bindCtrlCommands": false,
-    "amVim.mimicVimSearchBehavior": false
+    "amVim.mimicVimSearchBehavior": false,
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "claudeCodeChat.permissions.yoloMode": true,
+    "claudeCodeChat.thinking.intensity": "think-hard",
+    "claudeCodeChat.wsl.enabled": true,
+    "vim.autoSwitchInputMethod.enable": true,
+    "vim.camelCaseMotion.enable": true,
+    "vim.changeWordIncludesWhitespace": true,
+    "vim.cursorStylePerMode.insert": "line",
+    "vim.cursorStylePerMode.normal": "block",
+    "vim.cursorStylePerMode.replace": "line-thin",
+    "vim.easymotion": true,
+    "vim.cursorStylePerMode.visual": "block-outline",
+    "vim.cursorStylePerMode.visualline": "underline-thin"
 }

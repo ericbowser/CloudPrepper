@@ -2,15 +2,7 @@
 
 import React from "react";
 
-/**
- * =================================================================
- * DATA MODELS
- *
- * These interfaces define the core data structures of your application.
- * They should be pure data, without any UI-specific logic.
- * =================================================================
- */
-
+// Types
 export interface Domain {
     name: string;
     progress: number;
@@ -18,6 +10,27 @@ export interface Domain {
 
 export interface QuestionOptionData {
     text: string;
+    isCorrect: boolean;
+}
+
+export interface Question {
+    id: number;
+    questionNumber: number;
+    category: string;
+    difficulty: string;
+    domain: string;
+    questionText: string;
+    options: QuestionOptionData[];
+    explanation: string;
+    explanationDetails?: {
+        summary: string;
+        breakdown: string[];
+        otherOptions: string;
+    };
+}
+
+export interface SelectedAnswer {
+    index: number;
     isCorrect: boolean;
 }
 
@@ -42,34 +55,8 @@ export interface AnswerRecord {
     questionIndex: number;
     selectedOptionIndex: number;
     isCorrect: boolean;
+    timeTaken: number;
 }
-
-/**
- * =================================================================
- * UI & STATE MODELS
- *
- * These types define the shape of state variables and UI-related
- * concepts used throughout the application.
- * =================================================================
- */
-
-export interface SelectedAnswer {
-    index: number;
-    isCorrect: boolean;
-}
-
-// Added 'results' to support the quiz summary view.
-export type SectionType = 'dashboard' | 'practice' | 'analytics' | 'study-plan' | 'results';
-
-
-/**
- * =================================================================
- * COMPONENT PROP INTERFACES
- *
- * These interfaces define the "props" for each React component,
- * acting as a contract for how components receive data and functions.
- * =================================================================
- */
 
 export interface NavTabProps {
     label: string;
@@ -82,7 +69,7 @@ export interface ProgressCircleProps {
 }
 
 export interface StatCardProps {
-    title:string;
+    title: string;
     value: string;
     subtitle?: string;
 }
@@ -99,3 +86,21 @@ export interface QuestionOptionProps {
     isIncorrect?: boolean;
     onClick: () => void;
 }
+
+export interface UserAnswer {
+    questionId: number,
+    selectedIndex: number,
+    isCorrect: boolean,
+    timeSpent: number,
+    userAnswers?: AnswerRecord[]
+}
+
+export interface QuizSession {
+    answers: UserAnswer[];
+    startTime: Date;
+    currentMode: AnswerMode;
+}
+
+export type AnswerMode = 'inline' | 'end-only';
+export type SectionType = 'dashboard' | 'practice' | 'analytics' | 'study-plan' | 'results' | 'review';
+export type QuizMode = 'quiz' | 'review';
