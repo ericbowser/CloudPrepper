@@ -3,18 +3,10 @@ import {Question} from "../types/preptypes";
 
 interface ExplanationCardProps {
 	question: Question;
-	doneStudying: boolean;
-	setDoneStudying: (doneStudying: boolean) => void;
 };
 
-export const ExplanationCard: React.FC<ExplanationCardProps> = ({
-	                                                                question,
-	                                                                doneStudying,
-	                                                                setDoneStudying
-                                                                }: ExplanationCardProps): React.ReactElement<any, string | React.JSXElementConstructor<any>> => {
-	const handleCheckboxChange = () => {
-		setDoneStudying(!doneStudying);
-	};
+export const ExplanationCard: React.FC<ExplanationCardProps> = ({question}: ExplanationCardProps)
+	: React.ReactElement<any, string | React.JSXElementConstructor<any>> => {
 
 	return (
 		<div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6 animate-fade-in">
@@ -37,10 +29,6 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({
 					<div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
 						<strong>Why other options are incorrect:</strong>
 						<div className="mt-1 whitespace-pre-line">{question.explanationDetails.otherOptions}</div>
-					</div>
-					<div>
-						<label>Done Studying: </label>
-						<input type={'checkbox'} checked={doneStudying} onChange={handleCheckboxChange}/>
 					</div>
 				</>
 			)}

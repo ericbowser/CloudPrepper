@@ -1,6 +1,6 @@
 import { Question } from "@/types/preptypes";
 
-export const AWS_SAA_QUESTIONS: Question[] = [
+export const AWS_QUESTIONS: Question[] = [
     // DOMAIN 1 - DESIGN RESILIENT ARCHITECTURES (26%)
     
     // Multi-AZ and High Availability
@@ -530,27 +530,298 @@ export const AWS_SAA_QUESTIONS: Question[] = [
             ],
             otherOptions: 'A) 15 minutes is the maximum timeout\nC) SQS helps with async processing but doesn\'t solve timeout\nD) ECS Fargate valid but Step Functions more serverless-native'
         }
+    },
+    // Additional questions for AWS_QUESTIONS array
+
+    // DOMAIN 4 - COST OPTIMIZATION (Priority - Under-represented)
+
+    {
+        id: 121,
+        questionNumber: 21,
+        category: 'AWS Cost Optimization - Compute Savings',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A company runs a web application with the following pattern: 2 instances minimum 24/7, scales to 10 instances during business hours (9 AM-5 PM weekdays), and spikes to 50 instances during monthly sales (first 3 days). Current monthly On-Demand costs are $15,000. Which purchasing strategy provides MAXIMUM cost savings while maintaining performance?',
+        options: [
+            { text: 'A) All-Upfront Reserved Instances for 10 instances, On-Demand for the rest', isCorrect: false },
+            { text: 'B) Reserved Instances for 2 instances, Savings Plans for business hours capacity, Spot for sales spikes', isCorrect: true },
+            { text: 'C) Compute Savings Plans for all capacity needs', isCorrect: false },
+            { text: 'D) Scheduled Reserved Instances for business hours, On-Demand for spikes', isCorrect: false }
+        ],
+        explanation: 'Layered purchasing strategy: RIs for baseline (70% savings), Savings Plans for predictable scaling (66% savings), Spot for spikes (up to 90% savings).',
+        explanationDetails: {
+            summary: 'Optimal cost strategy for variable workloads:',
+            breakdown: [
+                'Reserved Instances: 2 baseline instances (24/7) - 70% savings',
+                'Savings Plans: 8 additional instances for business hours - 66% savings',
+                'Spot Instances: 40 instances for monthly sales - up to 90% savings',
+                'Total savings: Approximately 75% reduction from $15,000'
+            ],
+            otherOptions: 'A) Over-provisioning RIs for 10 instances wastes money nights/weekends\nC) Savings Plans less discount than RIs for baseline\nD) Scheduled RIs discontinued, wouldn\'t cover spikes'
+        }
+    },
+
+    {
+        id: 122,
+        questionNumber: 22,
+        category: 'AWS Cost Optimization - Data Processing',
+        difficulty: 'Application',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A data analytics company processes 10TB of log files daily using EMR clusters. Processing takes 4 hours and runs once daily at 2 AM. The current approach uses On-Demand instances costing $8,000/month. Which architecture change provides the BEST cost optimization?',
+        options: [
+            { text: 'A) Migrate to AWS Glue for serverless ETL processing', isCorrect: false },
+            { text: 'B) Use EMR on Spot Instances with diverse instance types across multiple AZs', isCorrect: true },
+            { text: 'C) Pre-process data with Lambda before EMR to reduce cluster size', isCorrect: false },
+            { text: 'D) Use smaller EMR cluster running 24/7 with Reserved Instances', isCorrect: false }
+        ],
+        explanation: 'EMR on Spot Instances can provide 50-80% cost savings for batch processing workloads that can tolerate interruptions.',
+        explanationDetails: {
+            summary: 'EMR Spot Instance optimization:',
+            breakdown: [
+                'Spot savings: 50-80% reduction from On-Demand pricing',
+                'Instance diversity: Reduces interruption risk',
+                'Multiple AZs: Ensures capacity availability',
+                '4-hour processing window: Perfect for Spot reliability'
+            ],
+            otherOptions: 'A) Glue more expensive for 10TB daily processing\nC) Lambda timeout and cost limitations for TB-scale data\nD) 24/7 cluster wasteful for 4-hour daily job'
+        }
+    },
+
+    {
+        id: 123,
+        questionNumber: 23,
+        category: 'AWS Cost Optimization - Storage Optimization',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A media company stores 500TB of video content in S3 Standard. Analytics show: 10% accessed daily (hot), 30% accessed weekly (warm), 60% accessed rarely but unpredictably. Retrieval must complete within 12 hours. Current cost is $11,500/month. Which storage strategy provides optimal cost reduction?',
+        options: [
+            { text: 'A) S3 Intelligent-Tiering for all content with archive configuration', isCorrect: true },
+            { text: 'B) S3 Standard for hot, S3 IA for warm, S3 Glacier for cold data', isCorrect: false },
+            { text: 'C) S3 One Zone-IA for all content to reduce costs', isCorrect: false },
+            { text: 'D) S3 Standard for hot, S3 Glacier Instant Retrieval for all other content', isCorrect: false }
+        ],
+        explanation: 'S3 Intelligent-Tiering automatically optimizes storage costs for unpredictable access patterns without retrieval fees, perfect for this use case.',
+        explanationDetails: {
+            summary: 'Intelligent-Tiering benefits for unpredictable access:',
+            breakdown: [
+                'Automatic tiering: No manual lifecycle policies needed',
+                'No retrieval fees: Critical for unpredictable access',
+                'Archive configuration: Moves rarely accessed objects to archive tiers',
+                'Cost savings: Up to 70% reduction while maintaining performance'
+            ],
+            otherOptions: 'B) Manual lifecycle rules don\'t handle unpredictable access well\nC) One Zone-IA risky for 500TB of valuable content\nD) Glacier Instant Retrieval has retrieval fees for 60% of content'
+        }
+    },
+
+    // DOMAIN 3 - SECURITY (Including new ML services)
+
+    {
+        id: 124,
+        questionNumber: 24,
+        category: 'AWS Security - ML Data Protection',
+        difficulty: 'Application',
+        domain: 'Domain 3: Design Secure Applications',
+        questionText: 'A healthcare company uses Amazon Comprehend Medical to analyze patient records and Amazon Textract for insurance form processing. They must ensure HIPAA compliance and data isolation. Which security configuration is MOST appropriate?',
+        options: [
+            { text: 'A) Use default service encryption and enable CloudTrail logging', isCorrect: false },
+            { text: 'B) Enable VPC endpoints, use customer-managed KMS keys, and create separate IAM roles per service', isCorrect: true },
+            { text: 'C) Process all data in a single private subnet with network ACLs', isCorrect: false },
+            { text: 'D) Use AWS managed keys and restrict access with S3 bucket policies', isCorrect: false }
+        ],
+        explanation: 'VPC endpoints ensure private connectivity, customer-managed KMS keys provide encryption control, and separate IAM roles enable least privilege access for HIPAA compliance.',
+        explanationDetails: {
+            summary: 'HIPAA-compliant ML service configuration:',
+            breakdown: [
+                'VPC endpoints: Keep data traffic within AWS network',
+                'Customer-managed KMS: Full control over encryption keys',
+                'Separate IAM roles: Least privilege per service',
+                'Audit trail: CloudTrail logs all API calls for compliance'
+            ],
+            otherOptions: 'A) Default encryption insufficient for HIPAA requirements\nC) Network ACLs don\'t provide service-level isolation\nD) AWS managed keys don\'t provide sufficient control'
+        }
+    },
+
+    {
+        id: 125,
+        questionNumber: 25,
+        category: 'AWS Security - Container Security',
+        difficulty: 'Expert',
+        domain: 'Domain 3: Design Secure Applications',
+        questionText: 'A fintech application runs on EKS with sensitive payment processing workloads. The security team requires pod-level network isolation, secrets rotation every 30 days, and runtime threat detection. Which solution meets ALL requirements?',
+        options: [
+            { text: 'A) Calico network policies, AWS Secrets Manager, and Amazon Inspector', isCorrect: false },
+            { text: 'B) AWS App Mesh, Systems Manager Parameter Store, and CloudWatch Container Insights', isCorrect: false },
+            { text: 'C) EKS security groups for pods, AWS Secrets Manager with rotation, and Amazon GuardDuty EKS protection', isCorrect: true },
+            { text: 'D) Network ACLs, HashiCorp Vault, and AWS Config rules', isCorrect: false }
+        ],
+        explanation: 'EKS security groups provide pod-level isolation, Secrets Manager handles automatic rotation, and GuardDuty EKS protection offers runtime threat detection.',
+        explanationDetails: {
+            summary: 'Comprehensive EKS security architecture:',
+            breakdown: [
+                'Security groups for pods: Fine-grained network isolation at pod level',
+                'Secrets Manager: Automatic 30-day rotation with EKS integration',
+                'GuardDuty EKS: Runtime threat detection and anomaly detection',
+                'Native AWS integration: Simplified management and compliance'
+            ],
+            otherOptions: 'A) Inspector scans vulnerabilities, not runtime threats\nB) App Mesh is service mesh, not security focused\nD) Network ACLs too coarse for pod-level control'
+        }
+    },
+
+    // DOMAIN 1 - RESILIENT ARCHITECTURES (Modern patterns)
+
+    {
+        id: 126,
+        questionNumber: 26,
+        category: 'AWS Architecture - Event-Driven Resilience',
+        difficulty: 'Expert',
+        domain: 'Domain 1: Design Resilient Architectures',
+        questionText: 'An e-commerce platform must process orders from multiple channels (web, mobile, partners) with different formats. The system must handle 50,000 orders/hour during sales, ensure no order loss, and enable new channel integration without affecting existing ones. Which architecture provides the BEST resilience and scalability?',
+        options: [
+            { text: 'A) API Gateway with Lambda functions writing directly to DynamoDB', isCorrect: false },
+            { text: 'B) Amazon EventBridge with channel-specific rules routing to SQS queues and containerized processors', isCorrect: true },
+            { text: 'C) Kinesis Data Streams with Lambda consumers for each channel', isCorrect: false },
+            { text: 'D) Application Load Balancer with Auto Scaling EC2 instances', isCorrect: false }
+        ],
+        explanation: 'EventBridge provides event routing with schema registry, SQS ensures message durability, and containerized processors enable independent scaling per channel.',
+        explanationDetails: {
+            summary: 'Event-driven architecture benefits:',
+            breakdown: [
+                'EventBridge: Central event router with content-based filtering',
+                'Schema Registry: Validates events and enables discovery',
+                'SQS queues: Guaranteed message delivery and buffering',
+                'Container isolation: Each channel processor scales independently'
+            ],
+            otherOptions: 'A) Direct writes risk data loss during high load\nC) Kinesis overkill for transactional data, complex scaling\nD) Monolithic approach, difficult to add new channels'
+        }
+    },
+
+    {
+        id: 127,
+        questionNumber: 27,
+        category: 'AWS Architecture - Disaster Recovery',
+        difficulty: 'Application',
+        domain: 'Domain 1: Design Resilient Architectures',
+        questionText: 'A financial services application requires RPO of 1 hour and RTO of 4 hours. The application uses Aurora PostgreSQL, EC2 instances with custom AMIs, and stores documents in S3. The DR solution must be cost-effective. Which approach meets these requirements?',
+        options: [
+            { text: 'A) Aurora Global Database with standby EC2 instances in secondary region', isCorrect: false },
+            { text: 'B) Aurora backups to secondary region, AMIs copied cross-region, S3 cross-region replication, and AWS Backup', isCorrect: true },
+            { text: 'C) Multi-region active-active deployment with Route 53 failover', isCorrect: false },
+            { text: 'D) Database snapshots and EC2 snapshots copied hourly to secondary region', isCorrect: false }
+        ],
+        explanation: 'Backup-based DR meets RPO/RTO requirements cost-effectively: Aurora automated backups (continuous), AMIs ready for quick launch, S3 CRR for documents.',
+        explanationDetails: {
+            summary: 'Cost-effective DR strategy components:',
+            breakdown: [
+                'Aurora backups: Point-in-time recovery within 5 minutes (meets 1-hour RPO)',
+                'Cross-region AMI copies: Ready for quick EC2 launch',
+                'S3 CRR: Near real-time replication for documents',
+                'AWS Backup: Centralized backup management and compliance'
+            ],
+            otherOptions: 'A) Global Database expensive for 4-hour RTO requirement\nC) Active-active overkill and complex for these requirements\nD) Manual snapshots miss continuous data changes'
+        }
+    },
+
+    // DOMAIN 2 - HIGH-PERFORMING ARCHITECTURES (Modern services)
+
+    {
+        id: 128,
+        questionNumber: 28,
+        category: 'AWS Performance - API Optimization',
+        difficulty: 'Application',
+        domain: 'Domain 2: Design High-Performing Architectures',
+        questionText: 'A mobile app backend serves personalized content to 10 million users globally. The API Gateway shows high latency for data aggregation from multiple microservices. Each request makes 5-7 service calls with 200ms average latency per call. Which solution provides the BEST performance improvement?',
+        options: [
+            { text: 'A) Implement API Gateway caching for all endpoints', isCorrect: false },
+            { text: 'B) Use AWS AppSync with GraphQL to batch and parallelize service calls', isCorrect: true },
+            { text: 'C) Add ElastiCache in front of each microservice', isCorrect: false },
+            { text: 'D) Increase Lambda memory allocation for faster processing', isCorrect: false }
+        ],
+        explanation: 'AppSync with GraphQL reduces API calls through query batching and parallel resolution, dramatically reducing overall latency for aggregated data.',
+        explanationDetails: {
+            summary: 'AppSync optimization benefits:',
+            breakdown: [
+                'Query batching: Single request instead of 5-7 calls',
+                'Parallel resolution: Service calls execute simultaneously',
+                'Reduced latency: From 1000-1400ms to 200-300ms total',
+                'Caching built-in: Further performance improvements'
+            ],
+            otherOptions: 'A) Caching doesn\'t help with personalized content\nC) Still requires serial service calls\nD) Lambda memory doesn\'t solve aggregation latency'
+        }
+    },
+
+    {
+        id: 129,
+        questionNumber: 29,
+        category: 'AWS Performance - ML Inference',
+        difficulty: 'Expert',
+        domain: 'Domain 2: Design High-Performing Architectures',
+        questionText: 'A video streaming platform needs real-time content moderation using computer vision ML models. They process 1,000 concurrent streams with <100ms inference latency requirement. Current SageMaker endpoint shows 300ms latency. Which optimization provides the required performance?',
+        options: [
+            { text: 'A) Use larger SageMaker instance types with more GPUs', isCorrect: false },
+            { text: 'B) Deploy models to Lambda with Provisioned Concurrency', isCorrect: false },
+            { text: 'C) Implement SageMaker multi-model endpoints with edge deployment using AWS IoT Greengrass', isCorrect: false },
+            { text: 'D) Use Amazon EC2 Inf1 instances with AWS Neuron for optimized inference', isCorrect: true }
+        ],
+        explanation: 'EC2 Inf1 instances with AWS Inferentia chips provide the lowest latency and highest throughput for real-time ML inference at scale.',
+        explanationDetails: {
+            summary: 'Inf1 instance optimization benefits:',
+            breakdown: [
+                'AWS Inferentia chips: Purpose-built for ML inference',
+                'Sub-100ms latency: Achievable with optimized models',
+                'High throughput: Handle 1,000 concurrent streams',
+                'Cost-effective: Up to 70% lower cost than GPU instances'
+            ],
+            otherOptions: 'A) Larger instances don\'t guarantee latency reduction\nB) Lambda cold starts and limits prevent consistent <100ms\nC) Edge deployment adds complexity without meeting core requirement'
+        }
+    },
+
+    // DOMAIN 4 - Additional Cost Optimization
+
+    {
+        id: 130,
+        questionNumber: 30,
+        category: 'AWS Cost Optimization - Hybrid Architecture',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A company wants to modernize their on-premises data warehouse (50TB) to AWS. They need to maintain some on-premises reporting tools while enabling cloud analytics. Budget is limited to $5,000/month. Query patterns: 20% hot data (daily), 30% warm (weekly), 50% cold (monthly). Which architecture provides the BEST cost optimization?',
+        options: [
+            { text: 'A) Migrate everything to Redshift with Reserved Instances', isCorrect: false },
+            { text: 'B) Use Redshift for hot data, Redshift Spectrum for warm/cold data in S3, with AWS Direct Connect', isCorrect: true },
+            { text: 'C) Keep all data on-premises and use Athena federated queries', isCorrect: false },
+            { text: 'D) Use RDS PostgreSQL with read replicas for all data', isCorrect: false }
+        ],
+        explanation: 'Tiered approach with Redshift for hot data and Spectrum for S3-based warm/cold data provides optimal price-performance within budget constraints.',
+        explanationDetails: {
+            summary: 'Hybrid data warehouse optimization:',
+            breakdown: [
+                'Redshift (10TB): ~$2,500/month for hot data performance',
+                'S3 + Spectrum (40TB): ~$1,000/month for warm/cold storage',
+                'Direct Connect: ~$1,500/month for reliable hybrid connectivity',
+                'Total: ~$5,000/month within budget with optimal performance'
+            ],
+            otherOptions: 'A) Full Redshift for 50TB exceeds budget significantly\nC) Athena federated queries too slow for hot data needs\nD) RDS not optimized for analytics workloads, would exceed budget'
+        }
     }
 ];
 
 // Helper functions for AWS question management
 export const getAWSQuestionsByDomain = (domain: string): Question[] => {
-    return AWS_SAA_QUESTIONS.filter(q => q.domain.includes(domain));
+    return AWS_QUESTIONS.filter(q => q.domain.includes(domain));
 };
 
 export const getAWSQuestionsByDifficulty = (difficulty: string): Question[] => {
-    return AWS_SAA_QUESTIONS.filter(q => q.difficulty === difficulty);
+    return AWS_QUESTIONS.filter(q => q.difficulty === difficulty);
 };
 
 export const getAWSQuestionsByService = (service: string): Question[] => {
-    return AWS_SAA_QUESTIONS.filter(q => 
+    return AWS_QUESTIONS.filter(q => 
         q.category.toLowerCase().includes(service.toLowerCase()) ||
         q.questionText.toLowerCase().includes(service.toLowerCase())
     );
 };
 
 export const getRandomAWSQuestions = (count: number): Question[] => {
-    const shuffled = [...AWS_SAA_QUESTIONS].sort(() => 0.5 - Math.random());
+    const shuffled = [...AWS_QUESTIONS].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
 };
 
@@ -573,20 +844,20 @@ export const getAWSPracticeTest = (): Question[] => {
 
 // AWS-specific statistics
 export const getAWSQuestionStats = () => {
-    const domains = [...new Set(AWS_SAA_QUESTIONS.map(q => q.domain))];
-    const difficulties = [...new Set(AWS_SAA_QUESTIONS.map(q => q.difficulty))];
-    const services = [...new Set(AWS_SAA_QUESTIONS.map(q => q.category))];
+    const domains = [...new Set(AWS_QUESTIONS.map(q => q.domain))];
+    const difficulties = [...new Set(AWS_QUESTIONS.map(q => q.difficulty))];
+    const services = [...new Set(AWS_QUESTIONS.map(q => q.category))];
     
     return {
-        total: AWS_SAA_QUESTIONS.length,
+        total: AWS_QUESTIONS.length,
         byDomain: domains.map(domain => ({
             domain,
-            count: AWS_SAA_QUESTIONS.filter(q => q.domain === domain).length,
-            percentage: Math.round((AWS_SAA_QUESTIONS.filter(q => q.domain === domain).length / AWS_SAA_QUESTIONS.length) * 100)
+            count: AWS_QUESTIONS.filter(q => q.domain === domain).length,
+            percentage: Math.round((AWS_QUESTIONS.filter(q => q.domain === domain).length / AWS_QUESTIONS.length) * 100)
         })),
         byDifficulty: difficulties.map(difficulty => ({
             difficulty,
-            count: AWS_SAA_QUESTIONS.filter(q => q.difficulty === difficulty).length
+            count: AWS_QUESTIONS.filter(q => q.difficulty === difficulty).length
         })),
         awsServices: services.length,
         examSimulation: {

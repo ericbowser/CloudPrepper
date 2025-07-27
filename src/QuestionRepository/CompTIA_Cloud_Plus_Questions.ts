@@ -1,6 +1,6 @@
 ﻿import { Question } from "@/types/preptypes";
 
-export const QUESTIONS: Question[] = [
+export const COMPTIA_QUESTIONS: Question[] = [
     // DOMAIN 1 - CLOUD ARCHITECTURE (40+ questions)
 
     // Service Models

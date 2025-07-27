@@ -1,13 +1,58 @@
-﻿// C:/Projects/CompTIA/src/types/preptypes.ts
+﻿// src/types/preptypes.ts - Updated with domain-based question system
 
 import React from "react";
 
-// Types
+// Enhanced Domain interface with embedded questions
 export interface Domain {
+    id: string;
     name: string;
+    description: string;
     progress: number;
+    questions: Question[];
+    categories: string[];
+    totalQuestions: number;
+    weight?: number; // For exam weighting (e.g., 25% of exam)
+    icon?: string;
+    studyProgress?: {
+        attempted: number;
+        correct: number;
+        accuracy: number;
+        timeSpent: number; // in minutes
+        lastStudied?: Date;
+        weakCategories: string[];
+    };
 }
 
+// Quiz configuration interface
+export interface QuizConfig {
+    testType: string;
+    selectedDomains: string[];
+    difficulty: string;
+    category: string;
+    questionCount: number;
+    certification: 'comptia' | 'aws';
+}
+
+// Certification data structure
+export interface CertificationData {
+    id: 'comptia' | 'aws';
+    name: string;
+    fullName: string;
+    code: string;
+    icon: string;
+    domains: Domain[];
+    examInfo: {
+        questionCount: number;
+        timeLimit: number; // in minutes
+        passingScore?: number;
+    };
+    totalQuestions: number;
+}
+
+// Updated section types to include question selection
+export type SectionType = 'dashboard' | 'practice' | 'analytics' | 'study-plan' | 'results' | 'review' | 'question-selection';
+
+// Existing interfaces (keep these unchanged)
 export interface QuestionOptionData {
     text: string;
     isCorrect: boolean;
@@ -87,5 +132,4 @@ export interface QuizSession {
 
 export enum AnswerMode { 'inline' = 0, 'endOnly' = 1 }
 
-export type SectionType = 'dashboard' | 'practice' | 'analytics' | 'study-plan' | 'results' | 'review';
 export type QuizMode = 'quiz' | 'review';

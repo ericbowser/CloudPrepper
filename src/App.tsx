@@ -1,17 +1,22 @@
-﻿import React, {useEffect, useState} from 'react';
-import {AnswerMode, AnswerRecord, Domain, Question, QuizMode, SectionType, SelectedAnswer} from "./types/preptypes";
-import {QUESTIONS} from "./QuestionRepository/Questions";
-import {QuizResults} from "./components/QuizResults";
+﻿// src/App.tsx - Updated to use domain-based question system
+import React, { useEffect, useState } from 'react';
+import { AnswerMode, AnswerRecord, Question, QuizMode, SectionType, SelectedAnswer } from "./types/preptypes";
+import { CERTIFICATIONS } from "./config/domainConfig";
+import { DomainQuestionSelection } from "./components/DomainQuestionSelection";
+import { QuizResults } from "./components/QuizResults";
 import Nav from "./components/Nav";
-import {Dashboard} from "./components/Dashboard";
 import ExplanationCard from "./components/ExplanationCard";
-import {AnswerModeToggle} from "./components/AnswerModeToggle";
+import { AnswerModeToggle } from "./components/AnswerModeToggle";
+import {COMPTIA_QUESTIONS} from "@/QuestionRepository/CompTIA_Cloud_Plus_Questions";
+import {AWS_QUESTIONS} from "@/QuestionRepository/AWS_Certified_Architect_Associate_Questions";
 
 const CloudPrepApp: React.FC = () => {
-	// Main application state
-	const [activeSection, setActiveSection] = useState<SectionType>('practice');
-	const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
+	// Certification management
+	const [currentCertification, setCurrentCertification] = useState<'comptia' | 'aws'>('comptia');
 
+	// Main application state
+	const [activeSection, setActiveSection] = useState<SectionType>('question-selection');
+	const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
 
 	// Quiz state
 	const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
@@ -22,46 +27,53 @@ const CloudPrepApp: React.FC = () => {
 	const [answerMode, setAnswerMode] = React.useState<AnswerMode | number>(AnswerMode.inline);
 	const [showExplanation, setShowExplanation] = React.useState<boolean>(false);
 	const [doneStudying, setDoneStudying] = React.useState<boolean>(false);
-	
+
+	// Current quiz questions and index
+	const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-	const currentQuestion = QUESTIONS[currentQuestionIndex];
+	const [currentQuizConfig, setCurrentQuizConfig] = useState<any>(null);
 
-	// Quiz configuration
-	const [questions] = useState<Question[]>(QUESTIONS);
-	const totalQuestions = questions.length;
+	// Get current question safely
+	const currentQuestion = currentQuizQuestions[currentQuestionIndex];
+	const totalQuestions = currentQuizQuestions.length;
 
-	const domains: Domain[] = [
-		{name: 'Cloud Architecture', progress: 0},
-		{name: 'Deployments', progress: 0},
-		{name: 'Operations', progress: 0},
-		{name: 'Security', progress: 0},
-		{name: 'DevOps', progress: 0},
-		{name: 'Troubleshooting', progress: 0}
-	];
-	
-// Add this useEffect to handle mode changes properly
-	useEffect(() => {
-		console.log("answerMode changed to:", answerMode, "isAnswered:", isAnswered, "done studying", doneStudying);
+	// Get current certification data
+	const getCurrentCertification = () => CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
 
-		// If switching to inline mode and question is already answered, show explanation
-		if (answerMode === AnswerMode.inline && isAnswered) {
-			setShowExplanation(true);
-		}
-		// If switching to quiz mode, hide explanation
-		else if (answerMode === AnswerMode.endOnly) {
-			setShowExplanation(false);
-		}
-	}, [answerMode, isAnswered, doneStudying]);
-	
+	// Handle starting a new quiz from domain selection
+	const handleStartQuiz = (questions: Question[], config: any) => {
+		setCurrentQuizQuestions(questions);
+		setCurrentQuizConfig(config);
+		setCurrentQuestionIndex(0);
+		setSelectedAnswer(null);
+		setUserAnswers([]);
+		setIsAnswered(false);
+		setShowExplanation(false);
+		setDoneStudying(false);
+		setQuizStartTime(new Date());
+		setQuestionStartTime(new Date());
+		setActiveSection('practice');
+	};
+
+	// Handle certification change
+	const handleCertificationChange = (newCert: 'comptia' | 'aws') => {
+		setCurrentCertification(newCert);
+		setCurrentQuizQuestions([]);
+		setUserAnswers([]);
+		setCurrentQuestionIndex(0);
+		setCurrentQuizConfig(null);
+		setActiveSection('question-selection');
+	};
+
+	// Your existing quiz logic (keep all of this)
 	const nextQuestion = (): void => {
 		if (currentQuestionIndex < totalQuestions - 1) {
 			setCurrentQuestionIndex(prevIndex => prevIndex + 1);
 			setIsAnswered(false);
 			setSelectedAnswer(null);
-			setShowExplanation(false); // Always reset explanation for new question
+			setShowExplanation(false);
 			setQuestionStartTime(new Date());
 		} else {
-			// Quiz finished - show results
 			setActiveSection('results');
 		}
 	};
@@ -69,8 +81,6 @@ const CloudPrepApp: React.FC = () => {
 	const previousQuestion = (): void => {
 		if (currentQuestionIndex > 0) {
 			setCurrentQuestionIndex(prevIndex => prevIndex - 1);
-
-			// Check if this question was already answered
 			const previousAnswer = userAnswers.find(answer => answer.questionIndex === currentQuestionIndex - 1);
 
 			if (previousAnswer) {
@@ -79,15 +89,12 @@ const CloudPrepApp: React.FC = () => {
 					index: previousAnswer.selectedOptionIndex,
 					isCorrect: previousAnswer.isCorrect
 				});
-
-				// Show explanation only in inline mode
 				setShowExplanation(answerMode === AnswerMode.inline);
 			} else {
 				setIsAnswered(false);
 				setSelectedAnswer(null);
 				setShowExplanation(false);
 			}
-
 			setQuestionStartTime(new Date());
 		}
 	};
@@ -96,7 +103,9 @@ const CloudPrepApp: React.FC = () => {
 		setSelectedAnswer({index: optionIndex, isCorrect});
 	};
 
-	const submitAnswer = (event: Event): void => {
+	const submitAnswer = (): void => {
+		if (!selectedAnswer) return;
+
 		const timeTaken = new Date().getTime() - questionStartTime.getTime();
 		const newAnswer: AnswerRecord = {
 			questionIndex: currentQuestionIndex,
@@ -117,11 +126,10 @@ const CloudPrepApp: React.FC = () => {
 
 		setIsAnswered(true);
 
-
 		if (answerMode === AnswerMode.inline) {
 			setShowExplanation(true);
 			setDoneStudying(false);
-		} else { // 'end-only' mode
+		} else {
 			setShowExplanation(false);
 			setDoneStudying(true);
 		}
@@ -132,23 +140,6 @@ const CloudPrepApp: React.FC = () => {
 			setTimeout(() => nextQuestion(), 300);
 		}
 	};
-
-
-	const startReview = (): void => {
-		setActiveSection('review');
-		setQuizMode('review');
-	};
-
-	const restartQuiz = (): void => {
-		setActiveSection('practice');
-		setQuizMode('quiz');
-		setCurrentQuestionIndex(0);
-		setSelectedAnswer(null);
-		setUserAnswers([]);
-		setQuizStartTime(new Date());
-		setQuestionStartTime(new Date());
-	};
-
 
 	const QuestionOption: React.FC<{
 		children: React.ReactNode;
@@ -173,218 +164,258 @@ const CloudPrepApp: React.FC = () => {
 		</div>
 	);
 
-	const handleSetAnswerMode = (mode: AnswerMode): void => {
-		console.log("Setting answer mode to:", mode);
-		setAnswerMode(mode);
-
-		// Handle explanation visibility based on mode change
-		if (mode === AnswerMode.inline && isAnswered) {
-			// In inline mode, show explanation if question is already answered
-			setShowExplanation(true);
-			setDoneStudying(false);
-		} else if (mode === AnswerMode.endOnly) {
-			// In quiz mode, hide explanations until the end
-			setShowExplanation(false);
-		}
-
-		// Remove the auto-advance logic that was causing issues
-		// Let the user manually click Next
-	};
-
-
-	const ReviewMode: React.FC = () => {
-		return (
-			<div className="max-w-4xl mx-auto">
-
-				<div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 mb-8">
-					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-2xl font-bold">Answer Review</h2>
-						<button
-							onClick={restartQuiz}
-							className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-						>
-							Take New Quiz
-						</button>
-					</div>
-
-					<div className="space-y-8">
-						{questions.map((question, index) => {
-							const userAnswer = userAnswers.find(a => a.questionIndex === index);
-							const correctOption = question.options.find(opt => opt.isCorrect);
-							const userSelectedOption = userAnswer ? question.options[userAnswer.selectedOptionIndex] : null;
-							const isCorrect = userAnswer?.isCorrect || false;
-
-							return (
-								<div key={question.id} className="border border-gray-200 rounded-lg p-6">
-									<div className="flex items-start justify-between mb-4">
-										<div className="flex-1">
-											<div className="flex items-center gap-3 mb-2">
-												<span className="font-bold text-lg">Question {index + 1}</span>
-												<span className={`px-3 py-1 rounded-full text-sm font-medium ${
-													isCorrect
-														? 'bg-green-100 text-green-800'
-														: 'bg-red-100 text-red-800'
-												}`}>
-                                                    {isCorrect ? 'Correct' : 'Incorrect'}
-                                                </span>
-											</div>
-											<div className="text-sm text-gray-600 mb-3">
-												{question.category} • {question.difficulty}
-											</div>
-										</div>
-									</div>
-
-									<p className="text-gray-800 mb-4 font-medium">{question.questionText}</p>
-
-									<div className="space-y-2 mb-4">
-										{question.options.map((option, optionIndex) => {
-											const isUserChoice = userAnswer?.selectedOptionIndex === optionIndex;
-											const isCorrectOption = option.isCorrect;
-
-											return (
-												<div
-													key={optionIndex}
-													className={`p-3 rounded-lg border-2 ${
-														isCorrectOption
-															? 'bg-green-100 border-green-500 text-green-800'
-															: isUserChoice && !isCorrectOption
-																? 'bg-red-100 border-red-500 text-red-800'
-																: 'bg-gray-50 border-gray-200'
-													}`}
-												>
-													<div className="flex items-center gap-2">
-														{option.text}
-														{isCorrectOption && (
-															<span
-																className="text-green-600 font-medium">✓ Correct</span>
-														)}
-														{isUserChoice && !isCorrectOption && (
-															<span
-																className="text-red-600 font-medium">✗ Your Answer</span>
-														)}
-													</div>
-												</div>
-											);
-										})}
-									</div>
-
-								</div>
-							);
-						})}
-					</div>
-
-				</div>
-			</div>
-		);
-	};
-
-
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-600 to-purple-800">
-			<Nav setActiveSection={setActiveSection} activeSection={activeSection}/>
+		<div className="min-h-screen bg-gradient-to-br from-blue-500 to-black to-white">
+			{/* Enhanced Navigation */}
+			<nav className="bg-white/10 backdrop-blur-sm border-b border-white/20">
+				<div className="max-w-7xl mx-auto px-4">
+					<div className="flex justify-between items-center h-16">
+						<div className="flex items-center space-x-8">
+							<div className="text-white font-bold text-xl">
+								{getCurrentCertification().icon} {getCurrentCertification().name}
+							</div>
+							<div className="hidden md:flex space-x-6">
+								<button
+									onClick={() => setActiveSection('question-selection')}
+									className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+										activeSection === 'question-selection' ? 'bg-white/20' : ''
+									}`}
+								>
+									📚 Study
+								</button>
+								<button
+									onClick={() => setActiveSection('practice')}
+									disabled={currentQuizQuestions.length === 0}
+									className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
+										activeSection === 'practice' ? 'bg-white/20' : ''
+									}`}
+								>
+									✏️ Practice
+								</button>
+								<button
+									onClick={() => setActiveSection('results')}
+									disabled={userAnswers.length === 0}
+									className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
+										activeSection === 'results' ? 'bg-white/20' : ''
+									}`}
+								>
+									📊 Results
+								</button>
+							</div>
+						</div>
+
+						{/* Certification Switcher */}
+						<select
+							value={currentCertification}
+							onChange={(e) => handleCertificationChange(e.target.value as 'comptia' | 'aws')}
+							className="bg-white/20 text-white border border-white/30 rounded-lg px-3 py-1 text-sm backdrop-blur-sm"
+						>
+							<option value="comptia" className="text-gray-800">☁️ CompTIA Cloud+</option>
+							<option value="aws" className="text-gray-800">🏗️ AWS Solutions Architect</option>
+						</select>
+					</div>
+				</div>
+			</nav>
+
 			<div className="max-w-7xl mx-auto p-5">
-				<AnswerModeToggle
-					answerMode={answerMode}
-					setAnswerMode={handleSetAnswerMode}  // Use your handler function
-				/>
-				{activeSection === 'dashboard' && (
-					<Dashboard setActiveSection={setActiveSection} length={questions.length}/>
+				{/* Answer Mode Toggle for practice sessions */}
+				{(activeSection === 'practice' || activeSection === 'review') && (
+					<AnswerModeToggle
+						answerMode={answerMode}
+						setAnswerMode={(mode) => setAnswerMode(mode)}
+					/>
 				)}
+
+				{/* Domain-Based Question Selection */}
+				{activeSection === 'question-selection' && (
+					<DomainQuestionSelection
+						certification={getCurrentCertification()}
+						userAnswers={userAnswers}
+						onStartQuiz={handleStartQuiz}
+						onCertificationChange={handleCertificationChange}
+					/>
+				)}
+
+				{/* Practice Mode */}
 				{activeSection === 'practice' && quizMode === 'quiz' && currentQuestion && (
 					<div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 						{/* Progress Sidebar */}
 						<div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-							<h3 className="text-xl font-bold text-blue-600 mb-4">Progress</h3>
 							<div className="mb-6">
-								<div className="flex justify-between text-sm mb-2">
-									<span>Question {currentQuestionIndex + 1} of {totalQuestions}</span>
-									<span>{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%</span>
+								<div className="flex justify-between items-center mb-2">
+									<span className="text-sm text-gray-600">Progress</span>
+									<span className="text-sm font-medium text-gray-800">
+                                        {currentQuestionIndex + 1} of {totalQuestions}
+                                    </span>
 								</div>
-								<div className="bg-blue-100 h-2 rounded-full">
+								<div className="w-full bg-gray-200 rounded-full h-2">
 									<div
-										className="bg-blue-500 h-full rounded-full transition-all duration-300"
-										style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
+										className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+										style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
 									/>
 								</div>
 							</div>
-							<div className="space-y-2">
-								<div className="text-sm text-gray-600">
-									Answered: {userAnswers.length} / {totalQuestions}
+
+							{/* Quiz Config Info */}
+							{currentQuizConfig && (
+								<div className="mb-6 p-4 bg-blue-50 rounded-lg">
+									<h3 className="font-semibold text-blue-800 mb-2">Quiz Details</h3>
+									<div className="text-sm text-blue-700 space-y-1">
+										<div>Type: {currentQuizConfig.testType}</div>
+										<div>Questions: {totalQuestions}</div>
+										<div>Certification: {getCurrentCertification().code}</div>
+									</div>
 								</div>
-								<div className="text-sm text-gray-600">
-									Correct: {userAnswers.filter(a => a.isCorrect).length}
+							)}
+
+							{/* Quick Actions */}
+							<div className="space-y-3">
+								<button
+									onClick={() => setActiveSection('question-selection')}
+									className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-purple-700 transition-colors"
+								>
+									📝 New Quiz
+								</button>
+
+								{/* Current Question Info */}
+								<div className="p-3 bg-gray-50 rounded-lg">
+									<div className="text-sm text-gray-600 space-y-1">
+										<div><strong>Domain:</strong> {currentQuestion.domain}</div>
+										<div><strong>Difficulty:</strong> {currentQuestion.difficulty}</div>
+										<div><strong>Category:</strong> {currentQuestion.category}</div>
+									</div>
 								</div>
 							</div>
 						</div>
 
-						<div
-							className="lg:col-span-3 bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
-							<div className="flex justify-between items-center mb-6">
-								<h3 className="text-xl font-bold">{currentQuestion.category}</h3>
-								<div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600">
-									{currentQuestion.domain} • {currentQuestion.difficulty}
+						{/* Question Content */}
+						<div className="lg:col-span-3">
+							<div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+								<div className="mb-6">
+									<div className="flex justify-between items-center mb-4">
+                                        <span className="text-sm text-gray-500">
+                                            Question {currentQuestionIndex + 1} of {totalQuestions}
+                                        </span>
+										<div className="flex gap-2">
+                                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                                {currentQuestion.difficulty}
+                                            </span>
+											<span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                                                {currentQuestion.domain}
+                                            </span>
+										</div>
+									</div>
+									<h2 className="text-xl font-semibold text-gray-800 mb-4">
+										{currentQuestion.questionText}
+									</h2>
 								</div>
-							</div>
 
-							<div className="mb-6">
-								<p className="text-lg leading-relaxed mb-6">{currentQuestion.questionText}</p>
-
-								<div className="space-y-3">
-									{currentQuestion && currentQuestion.options.map((option, index) => (
+								<div className="space-y-3 mb-8">
+									{currentQuestion.options.map((option, index) => (
 										<QuestionOption
 											key={index}
 											isSelected={selectedAnswer?.index === index}
-											onClick={() => selectOption(index, option.isCorrect)}
+											isCorrect={isAnswered && option.isCorrect}
+											isIncorrect={isAnswered && selectedAnswer?.index === index && !option.isCorrect}
+											onClick={() => !isAnswered && selectOption(index, option.isCorrect)}
 										>
 											{option.text}
 										</QuestionOption>
 									))}
 								</div>
+
+								<div className="flex justify-between items-center">
+									<button
+										onClick={previousQuestion}
+										disabled={currentQuestionIndex === 0}
+										className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									>
+										Previous
+									</button>
+
+									{!isAnswered ? (
+										<button
+											onClick={submitAnswer}
+											disabled={!selectedAnswer}
+											className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+										>
+											Submit Answer
+										</button>
+									) : (
+										<button
+											onClick={nextQuestion}
+											className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+										>
+											{currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
+										</button>
+									)}
+								</div>
+
+								{showExplanation && answerMode === AnswerMode.inline && (
+									<ExplanationCard
+										setDoneStudying={setDoneStudying}
+										doneStudying={doneStudying}
+										question={currentQuestion}
+									/>
+								)}
 							</div>
-
-							<div className="flex justify-between items-center">
-								<button
-									onClick={previousQuestion}
-									disabled={currentQuestionIndex === 0}
-									className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 py-2 px-6 rounded-lg transition-colors"
-								>
-									Previous
-								</button>
-
-								{answerMode === AnswerMode.endOnly && (
-										<div className="text-sm text-gray-500">
-											No explanations until quiz is complete
-										</div>
-									)
-								}
-
-								<button
-									onClick={submitAnswer}
-									disabled={!selectedAnswer}
-									className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-6 rounded-lg transition-colors"
-								>
-									{currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
-								</button>
-							</div>
-							{showExplanation && answerMode === AnswerMode.inline && (
-								<ExplanationCard setDoneStudying={setDoneStudying} doneStudying={doneStudying} question={currentQuestion}/>
-							)}
 						</div>
 					</div>
 				)}
 
-				{/* Show explanation in inline mode */}
 				{/* Results Section */}
-				{activeSection === 'results' && <QuizResults/>}
+				{activeSection === 'results' && (
+					<div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+						<h2 className="text-2xl font-bold mb-6">Quiz Results</h2>
 
-				{/* Review Section */}
-				{activeSection === 'review' && <ReviewMode/>}
+						{/* Quick Stats */}
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+							<div className="bg-blue-50 rounded-lg p-6 text-center">
+								<div className="text-3xl font-bold text-blue-600 mb-2">{userAnswers.length}</div>
+								<div className="text-blue-800">Questions Answered</div>
+							</div>
+							<div className="bg-green-50 rounded-lg p-6 text-center">
+								<div className="text-3xl font-bold text-green-600 mb-2">
+									{userAnswers.length > 0 ? Math.round((userAnswers.filter(a => a.isCorrect).length / userAnswers.length) * 100) : 0}%
+								</div>
+								<div className="text-green-800">Accuracy</div>
+							</div>
+							<div className="bg-purple-50 rounded-lg p-6 text-center">
+								<div className="text-3xl font-bold text-purple-600 mb-2">
+									{Math.round(userAnswers.reduce((sum, ans) => sum + ans.timeTaken, 0) / 60000)}
+								</div>
+								<div className="text-purple-800">Minutes Spent</div>
+							</div>
+						</div>
 
-				{/* {activeSection === 'selection' && <QuizResults/>} */}
+						{/* Actions */}
+						<div className="flex gap-4 justify-center">
+							<button
+								onClick={() => setActiveSection('question-selection')}
+								className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+							>
+								📚 Take Another Quiz
+							</button>
+							<button
+								onClick={() => setActiveSection('practice')}
+								disabled={currentQuizQuestions.length === 0}
+								className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+							>
+								🔄 Review Questions
+							</button>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
-	)
-
+	);
 };
 
 export default CloudPrepApp;
+
+// INTEGRATION NOTES:
+// 1. Replace your current domains array with the COMPTIA_DOMAINS from domainConfig.ts
+// 2. Update your questions to have proper domain matching (or use the organizeQuestionsByDomain function)
+// 3. Replace the old utils.ts functions with the new domainUtils functions
+// 4. The DomainQuestionSelection component replaces your current quiz config
+// 5. All existing quiz logic (submitAnswer, nextQuestion, etc.) works unchanged!

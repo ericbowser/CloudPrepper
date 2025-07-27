@@ -1,4 +1,5 @@
-import {QUESTIONS} from "../QuestionRepository/Questions";
+import {QUESTIONS} from "../QuestionRepository/AWS_Certified_Architect_Associate_Questions";
+import {QUESTIONS} from "../QuestionRepository/CompTIA_Cloud_Plus_Questions";
 import {Question} from "../types/preptypes";
 // Helper functions for question management
 export const getQuestionsByDomain = (domain: string): Question[] => {
