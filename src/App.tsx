@@ -38,7 +38,11 @@ const CloudPrepApp: React.FC = () => {
 	const totalQuestions = currentQuizQuestions.length;
 
 	// Get current certification data
-	const getCurrentCertification = () => CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
+	const getCurrentCertification = () => {
+		const cert =CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
+		console.log("current certification: ", cert);
+		return cert;
+	}
 
 	// Handle starting a new quiz from domain selection
 	const handleStartQuiz = (questions: Question[], config: any) => {
@@ -57,6 +61,7 @@ const CloudPrepApp: React.FC = () => {
 
 	// Handle certification change
 	const handleCertificationChange = (newCert: 'comptia' | 'aws') => {
+		console.log("Setting certification to:", newCert);
 		setCurrentCertification(newCert);
 		setCurrentQuizQuestions([]);
 		setUserAnswers([]);
