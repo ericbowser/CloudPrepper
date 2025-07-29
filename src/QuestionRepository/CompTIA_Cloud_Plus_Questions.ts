@@ -1562,24 +1562,285 @@ export const COMPTIA_QUESTIONS: Question[] = [
             ],
             otherOptions: 'A) SOC 2 is for service organizations\nB) GDPR is for data privacy\nD) HIPAA is for healthcare data'
         }
+    },
+    // CompTIA Cloud+ Additional Questions
+
+    {
+        id: 61,
+        questionNumber: 61,
+        category: 'Cloud Migration and Capacity Planning',
+        difficulty: 'Application',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A retail company with 200 stores operates a legacy inventory system requiring 48 CPU cores, 256GB RAM, and 10TB storage with 15,000 IOPS. The system experiences 300% load increase during Black Friday sales. They want to migrate to the cloud with the ability to handle peak loads cost-effectively. Which migration strategy best meets these requirements?',
+        options: [
+            { text: 'A) Lift-and-shift to cloud with 3x capacity provisioned year-round', isCorrect: false },
+            { text: 'B) Re-architect as microservices with auto-scaling and cloud-native database', isCorrect: true },
+            { text: 'C) Hybrid approach keeping database on-premises with cloud compute', isCorrect: false },
+            { text: 'D) Containerize the application as-is and deploy to managed Kubernetes', isCorrect: false }
+        ],
+        explanation: 'Re-architecting as microservices enables auto-scaling for the 300% peak load without over-provisioning year-round, while cloud-native databases provide elastic IOPS scaling.',
+        explanationDetails: {
+            summary: 'Microservices migration benefits for variable loads:',
+            breakdown: [
+                'Auto-scaling handles 300% peak without year-round costs',
+                'Cloud-native database scales IOPS on demand',
+                'Service isolation allows scaling only needed components',
+                'Pay-per-use model optimizes costs during normal operations'
+            ],
+            otherOptions: 'A) 3x capacity year-round wastes resources and budget\nC) Hybrid approach doesn\'t solve IOPS scaling challenge\nD) Containerizing monolith doesn\'t enable granular scaling'
+        }
+    },
+
+    {
+        id: 62,
+        questionNumber: 62,
+        category: 'Cloud Security and Compliance',
+        difficulty: 'Analysis',
+        domain: 'Domain 2: Security',
+        questionText: 'A healthcare provider must implement cloud storage for patient records with these requirements: data encrypted at rest and in transit, 7-year retention for compliance, access logs retained for 1 year, and automatic deletion after retention period. They need to prove compliance during audits. Which security controls combination ensures all requirements are met?',
+        options: [
+            { text: 'A) Client-side encryption, manual lifecycle policies, and quarterly access reviews', isCorrect: false },
+            { text: 'B) Cloud provider encryption, automated lifecycle rules, immutable audit logs, and compliance certificates', isCorrect: true },
+            { text: 'C) Third-party encryption tools, backup to tape, and annual compliance audits', isCorrect: false },
+            { text: 'D) Database encryption, daily backups, and manual log reviews', isCorrect: false }
+        ],
+        explanation: 'Automated lifecycle rules ensure compliant retention and deletion, immutable audit logs provide tamper-proof evidence, and cloud provider compliance certificates demonstrate adherence to healthcare standards.',
+        explanationDetails: {
+            summary: 'Healthcare compliance in cloud storage requires:',
+            breakdown: [
+                'Automated lifecycle policies prevent human error in retention',
+                'Immutable audit logs ensure tamper-proof compliance evidence',
+                'Provider encryption meets regulatory requirements efficiently',
+                'Compliance certificates (HIPAA, SOC2) simplify audit process'
+            ],
+            otherOptions: 'A) Manual processes risk non-compliance through human error\nC) Tape backups don\'t provide automated deletion\nD) Manual reviews insufficient for audit requirements'
+        }
+    },
+
+    {
+        id: 63,
+        questionNumber: 63,
+        category: 'Cloud Automation and Orchestration',
+        difficulty: 'Application',
+        domain: 'Domain 3: Deployment',
+        questionText: 'A development team deploys applications across dev, test, and prod environments in multiple cloud regions. They currently spend 15 hours weekly on manual deployments with a 5% error rate causing rollbacks. Which automation approach would best reduce deployment time and errors while maintaining environment-specific configurations?',
+        options: [
+            { text: 'A) Shell scripts with environment variables for each deployment', isCorrect: false },
+            { text: 'B) Infrastructure as Code with parameterized templates and CI/CD pipelines', isCorrect: true },
+            { text: 'C) Configuration management tools with manual approval gates', isCorrect: false },
+            { text: 'D) Container images with hardcoded environment settings', isCorrect: false }
+        ],
+        explanation: 'Infrastructure as Code with parameterized templates enables consistent deployments across environments while CI/CD pipelines automate the process, reducing both time and error rates.',
+        explanationDetails: {
+            summary: 'IaC and CI/CD benefits for multi-environment deployments:',
+            breakdown: [
+                'Parameterized templates handle environment-specific configs',
+                'Version control tracks all infrastructure changes',
+                'Automated testing catches errors before production',
+                'Consistent deployments reduce error rate from 5% to <1%'
+            ],
+            otherOptions: 'A) Shell scripts lack version control and testing capabilities\nC) Manual approvals don\'t reduce deployment time\nD) Hardcoded settings prevent environment flexibility'
+        }
+    },
+
+    {
+        id: 64,
+        questionNumber: 64,
+        category: 'Cloud Performance Optimization',
+        difficulty: 'Analysis',
+        domain: 'Domain 4: Operations and Support',
+        questionText: 'A SaaS application experiences intermittent performance issues reported by 15% of users. Monitoring shows normal CPU (40%), memory (60%), and network (30%) utilization. However, user session recordings reveal 3-second delays during specific database queries. What combination of tools and techniques would best identify and resolve the root cause?',
+        options: [
+            { text: 'A) Increase server resources and implement load balancing', isCorrect: false },
+            { text: 'B) Enable database query profiling, analyze execution plans, and implement query optimization with caching', isCorrect: true },
+            { text: 'C) Add more monitoring agents and create utilization alerts', isCorrect: false },
+            { text: 'D) Migrate to faster storage and increase network bandwidth', isCorrect: false }
+        ],
+        explanation: 'Database query profiling identifies specific slow queries, execution plan analysis reveals inefficiencies, and strategic caching prevents repeated expensive operations.',
+        explanationDetails: {
+            summary: 'Database performance troubleshooting approach:',
+            breakdown: [
+                'Query profiling pinpoints exact problematic queries',
+                'Execution plans reveal missing indexes or inefficient joins',
+                'Query optimization reduces 3-second delays to milliseconds',
+                'Caching frequently accessed data prevents repeated slow queries'
+            ],
+            otherOptions: 'A) Resources aren\'t the issue (40% CPU, 60% memory)\nC) More monitoring won\'t fix identified query delays\nD) Hardware upgrades don\'t address query inefficiency'
+        }
+    },
+
+    {
+        id: 65,
+        questionNumber: 65,
+        category: 'Cloud Business Continuity',
+        difficulty: 'Application',
+        domain: 'Domain 5: Troubleshooting',
+        questionText: 'During a cloud provider outage, a company\'s primary region becomes unavailable. Their disaster recovery plan activates, but the failover process takes 6 hours instead of the planned 2 hours. Post-incident analysis reveals DNS propagation delays and cold database replicas. Which improvements would most effectively achieve the 2-hour RTO target?',
+        options: [
+            { text: 'A) Increase backup frequency and add more regions', isCorrect: false },
+            { text: 'B) Implement DNS pre-staging with low TTL and maintain warm database replicas', isCorrect: true },
+            { text: 'C) Create detailed runbooks and conduct monthly drills', isCorrect: false },
+            { text: 'D) Purchase dedicated network connections between regions', isCorrect: false }
+        ],
+        explanation: 'DNS pre-staging with low TTL ensures rapid traffic redirection while warm database replicas eliminate lengthy data loading and cache warming during failover.',
+        explanationDetails: {
+            summary: 'Achieving 2-hour RTO requires addressing specific bottlenecks:',
+            breakdown: [
+                'Low TTL DNS (5 minutes) enables quick traffic switching',
+                'DNS pre-staging eliminates record creation time during disaster',
+                'Warm replicas maintain recent data and cache, ready for traffic',
+                'Combined approach reduces failover from 6 hours to under 2 hours'
+            ],
+            otherOptions: 'A) More backups don\'t address DNS or cold replica issues\nC) Runbooks help execution but don\'t fix technical delays\nD) Network connections don\'t solve DNS propagation delays'
+        }
+    },
+
+    {
+        id: 66,
+        questionNumber: 66,
+        category: 'Cloud Cost Management',
+        difficulty: 'Analysis',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A company\'s cloud bill increased 150% over 6 months despite stable user numbers. Investigation reveals: 500 unused elastic IPs, 200TB of orphaned snapshots, 50 stopped but not terminated instances, and development databases running 24/7 on production-grade hardware. Which cost optimization strategy would yield the greatest immediate savings?',
+        options: [
+            { text: 'A) Negotiate enterprise discounts and purchase reserved capacity', isCorrect: false },
+            { text: 'B) Implement resource tagging and automated cleanup policies for unused resources', isCorrect: true },
+            { text: 'C) Migrate to a different cloud provider with lower rates', isCorrect: false },
+            { text: 'D) Reduce application features to decrease resource usage', isCorrect: false }
+        ],
+        explanation: 'Automated cleanup policies immediately eliminate costs from unused resources (IPs, snapshots, stopped instances) while resource tagging enables ongoing cost visibility and management.',
+        explanationDetails: {
+            summary: 'Immediate cost reduction through resource hygiene:',
+            breakdown: [
+                'Unused elastic IPs: $0.005/hour each = $1,800/month savings',
+                'Orphaned snapshots: $0.05/GB/month = $10,000/month savings',
+                'Stopped instances: Still incur storage costs, termination saves 100%',
+                'Automated policies prevent future resource accumulation'
+            ],
+            otherOptions: 'A) Reserved capacity doesn\'t address unused resources\nC) Migration costs outweigh potential savings\nD) Feature reduction impacts business unnecessarily'
+        }
+    },
+
+    {
+        id: 67,
+        questionNumber: 67,
+        category: 'Cloud Network Architecture',
+        difficulty: 'Application',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A global company needs to connect 15 branch offices to their cloud infrastructure. Each office has different bandwidth requirements (10Mbps to 1Gbps) and varying security policies. Current MPLS costs are $50,000/month. Which cloud networking solution provides the most flexible and cost-effective approach?',
+        options: [
+            { text: 'A) Individual site-to-site VPNs for each branch office', isCorrect: false },
+            { text: 'B) SD-WAN overlay with cloud backbone and local internet breakout', isCorrect: true },
+            { text: 'C) Direct dedicated connections from each office to cloud', isCorrect: false },
+            { text: 'D) Hub-and-spoke topology with central data center', isCorrect: false }
+        ],
+        explanation: 'SD-WAN provides flexible bandwidth allocation, policy-based routing, and leverages cost-effective internet connections while maintaining security and performance.',
+        explanationDetails: {
+            summary: 'SD-WAN advantages for multi-site cloud connectivity:',
+            breakdown: [
+                'Dynamic bandwidth allocation based on real-time needs',
+                'Local internet breakout reduces backhaul costs',
+                'Policy-based routing enforces security requirements per site',
+                'Typical 40-60% cost reduction versus MPLS'
+            ],
+            otherOptions: 'A) 15 individual VPNs create management complexity\nC) Dedicated connections too expensive for small sites\nD) Hub-and-spoke creates bottlenecks and latency'
+        }
+    },
+
+    {
+        id: 68,
+        questionNumber: 68,
+        category: 'Cloud Monitoring and Logging',
+        difficulty: 'Analysis',
+        domain: 'Domain 4: Operations and Support',
+        questionText: 'An e-commerce platform processes 1 million transactions daily across 50 microservices. The ops team struggles to troubleshoot issues due to distributed logs, missing correlation IDs, and 10TB daily log volume. Which observability strategy best addresses these challenges?',
+        options: [
+            { text: 'A) Centralize all logs to a single database with full-text search', isCorrect: false },
+            { text: 'B) Implement distributed tracing, structured logging with correlation IDs, and intelligent log sampling', isCorrect: true },
+            { text: 'C) Increase log retention and add more verbose logging', isCorrect: false },
+            { text: 'D) Create service-specific dashboards with custom metrics', isCorrect: false }
+        ],
+        explanation: 'Distributed tracing provides end-to-end visibility, correlation IDs link related events across services, and intelligent sampling reduces volume while preserving important events.',
+        explanationDetails: {
+            summary: 'Modern observability for microservices requires:',
+            breakdown: [
+                'Distributed tracing shows complete request flow across services',
+                'Correlation IDs enable tracking single transactions through 50 services',
+                'Structured logging improves queryability and reduces storage',
+                'Intelligent sampling keeps important events while reducing volume 80%'
+            ],
+            otherOptions: 'A) Single database can\'t handle 10TB daily efficiently\nC) More logs worsen the volume problem\nD) Dashboards don\'t solve log correlation issues'
+        }
+    },
+
+    {
+        id: 69,
+        questionNumber: 69,
+        category: 'Cloud Identity Management',
+        difficulty: 'Application',
+        domain: 'Domain 2: Security',
+        questionText: 'A company acquires three subsidiaries, each with different identity providers (AD, Google Workspace, Okta). They need unified cloud access for 5,000 total users while maintaining each subsidiary\'s existing identity system. Compliance requires MFA and privileged access management. Which identity architecture best meets these requirements?',
+        options: [
+            { text: 'A) Migrate all users to a single corporate identity provider', isCorrect: false },
+            { text: 'B) Implement federated identity with SAML/OIDC, centralized MFA, and PAM solution', isCorrect: true },
+            { text: 'C) Create cloud accounts for each subsidiary with separate identity systems', isCorrect: false },
+            { text: 'D) Sync all identities to cloud provider\'s native directory service', isCorrect: false }
+        ],
+        explanation: 'Federation allows each subsidiary to maintain their identity provider while SAML/OIDC provides secure cloud access. Centralized MFA and PAM ensure consistent security controls.',
+        explanationDetails: {
+            summary: 'Federated identity architecture benefits:',
+            breakdown: [
+                'SAML/OIDC federation preserves existing identity investments',
+                'Users maintain single credentials (reduced password fatigue)',
+                'Centralized MFA policy applies regardless of source IdP',
+                'PAM solution provides consistent privileged access controls'
+            ],
+            otherOptions: 'A) Migration disrupts 5,000 users and requires retraining\nC) Separate accounts prevent unified access and compliance\nD) Sync creates password management and security challenges'
+        }
+    },
+
+    {
+        id: 70,
+        questionNumber: 70,
+        category: 'Cloud Service Models',
+        difficulty: 'Comprehension',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A software startup needs to choose between IaaS, PaaS, and SaaS solutions for their new mobile app backend. They have 3 developers, limited DevOps experience, need to reach market in 3 months, and have $10,000 monthly budget. Which approach best balances their constraints?',
+        options: [
+            { text: 'A) IaaS with full control over infrastructure and custom configuration', isCorrect: false },
+            { text: 'B) PaaS for backend services with managed databases and authentication', isCorrect: true },
+            { text: 'C) SaaS solutions only with no custom development', isCorrect: false },
+            { text: 'D) Hybrid approach with IaaS compute and SaaS databases', isCorrect: false }
+        ],
+        explanation: 'PaaS provides the right abstraction level for a small team, offering managed services that accelerate development while staying within budget and timeline constraints.',
+        explanationDetails: {
+            summary: 'PaaS advantages for startups:',
+            breakdown: [
+                'Managed infrastructure reduces DevOps burden on 3-person team',
+                'Built-in services (auth, databases) accelerate 3-month timeline',
+                'Pay-per-use model fits $10,000 budget with room to scale',
+                'Focus remains on app development, not infrastructure'
+            ],
+            otherOptions: 'A) IaaS requires DevOps expertise they lack\nC) Pure SaaS too limiting for custom mobile backend\nD) Hybrid approach adds unnecessary complexity'
+        }
     }
 ];
 
 // Helper functions for question management
 export const getQuestionsByDomain = (domain: string): Question[] => {
-    return COMPTIA_CLOUD_QUESTIONS.filter(q => q.domain === domain);
+    return COMPTIA_QUESTIONS.filter(q => q.domain === domain);
 };
 
 export const getQuestionsByDifficulty = (difficulty: string): Question[] => {
-    return COMPTIA_CLOUD_QUESTIONS.filter(q => q.difficulty === difficulty);
+    return COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty);
 };
 
 export const getQuestionsByCategory = (category: string): Question[] => {
-    return COMPTIA_CLOUD_QUESTIONS.filter(q => q.category.includes(category));
+    return COMPTIA_QUESTIONS.filter(q => q.category.includes(category));
 };
 
 export const getRandomQuestions = (count: number): Question[] => {
-    const shuffled = [...COMPTIA_CLOUD_QUESTIONS].sort(() => 0.5 - Math.random());
+    const shuffled = [...COMPTIA_QUESTIONS].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
 };
 
@@ -1604,30 +1865,30 @@ export const getDifficultyPracticeTest = (difficulty: string): Question[] => {
 
 // Statistics for dashboard
 export const getQuestionStats = () => {
-    const domains = [...new Set(COMPTIA_CLOUD_QUESTIONS.map(q => q.domain))];
-    const difficulties = [...new Set(COMPTIA_CLOUD_QUESTIONS.map(q => q.difficulty))];
-    const categories = [...new Set(COMPTIA_CLOUD_QUESTIONS.map(q => q.category))];
+    const domains = [...new Set(Questions.map(q => q.domain))];
+    const difficulties = [...new Set(COMPTIA_QUESTIONS.map(q => q.difficulty))];
+    const categories = [...new Set(COMPTIA_QUESTIONS.map(q => q.category))];
 
     return {
-        total: COMPTIA_CLOUD_QUESTIONS.length,
+        total: COMPTIA_QUESTIONS.length,
         byDomain: domains.map(domain => ({
             domain,
-            count: COMPTIA_CLOUD_QUESTIONS.filter(q => q.domain === domain).length
+            count: COMPTIA_QUESTIONS.filter(q => q.domain === domain).length
         })),
         byDifficulty: difficulties.map(difficulty => ({
             difficulty,
-            count: COMPTIA_CLOUD_QUESTIONS.filter(q => q.difficulty === difficulty).length
+            count: COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty).length
         })),
         categories: categories.length,
         domainBreakdown: domains.map(domain => ({
             domain,
-            categories: [...new Set(COMPTIA_CLOUD_QUESTIONS
+            categories: [...new Set(COMPTIA_QUESTIONS
                 .filter(q => q.domain === domain)
                 .map(q => q.category)
             )],
             difficulties: difficulties.map(difficulty => ({
                 difficulty,
-                count: COMPTIA_CLOUD_QUESTIONS.filter(q => q.domain === domain && q.difficulty === difficulty).length
+                count: COMPTIA_QUESTIONS.filter(q => q.domain === domain && q.difficulty === difficulty).length
             }))
         }))
     };

@@ -801,6 +801,267 @@ export const AWS_QUESTIONS: Question[] = [
             ],
             otherOptions: 'A) Full Redshift for 50TB exceeds budget significantly\nC) Athena federated queries too slow for hot data needs\nD) RDS not optimized for analytics workloads, would exceed budget'
         }
+    },
+    // AWS SAA-C03 Additional Questions (Focus on Domain 4 and Modern Services)
+
+    {
+        id: 131,
+        questionNumber: 31,
+        category: 'AWS Cost Optimization - Serverless Economics',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A news aggregation service processes 50 million articles monthly with unpredictable spikes during breaking news (up to 10x normal load). Current EC2-based architecture costs $12,000/month and struggles with spike handling. Articles average 5KB, require text analysis, and must be searchable within 1 minute. Which serverless architecture provides the best cost optimization while meeting requirements?',
+        options: [
+            { text: 'A) API Gateway → Lambda → DynamoDB with ElasticSearch', isCorrect: false },
+            { text: 'B) EventBridge → SQS → Lambda with concurrent execution limits → S3 → Athena with Glue crawlers', isCorrect: true },
+            { text: 'C) Kinesis Data Streams → Kinesis Analytics → RDS', isCorrect: false },
+            { text: 'D) Step Functions orchestrating multiple Lambda functions → Aurora Serverless', isCorrect: false }
+        ],
+        explanation: 'EventBridge with SQS provides event buffering for spikes, Lambda with concurrency limits controls costs, S3 offers cheap storage, and Athena enables SQL searches without database costs.',
+        explanationDetails: {
+            summary: 'Serverless architecture cost optimization:',
+            breakdown: [
+                'EventBridge + SQS: Handles 10x spikes without over-provisioning',
+                'Lambda concurrency limits: Prevents runaway costs during spikes',
+                'S3 storage: $0.023/GB vs database storage at $0.10/GB',
+                'Athena queries: Pay-per-query ($5/TB scanned) vs always-on database'
+            ],
+            otherOptions: 'A) ElasticSearch cluster costs $3000+/month minimum\nC) Kinesis Analytics expensive for sporadic spikes\nD) Aurora Serverless still has minimum capacity costs'
+        }
+    },
+
+    {
+        id: 132,
+        questionNumber: 32,
+        category: 'AWS Cost Optimization - Container Right-Sizing',
+        difficulty: 'Application',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A microservices application runs 40 containers on ECS with varying resource needs: 10 containers need 4 vCPU/8GB (API servers), 20 need 1 vCPU/2GB (workers), and 10 need 0.5 vCPU/1GB (sidecars). Current costs using m5.4xlarge instances are $8,000/month with 35% CPU utilization. Which optimization strategy provides maximum cost savings?',
+        options: [
+            { text: 'A) Switch to larger instances for better CPU:memory ratio', isCorrect: false },
+            { text: 'B) Use ECS capacity providers with mixed instance types and Spot for workers', isCorrect: true },
+            { text: 'C) Migrate all containers to Fargate with right-sized task definitions', isCorrect: false },
+            { text: 'D) Implement cluster auto-scaling based on CPU utilization', isCorrect: false }
+        ],
+        explanation: 'Capacity providers enable mixing instance types optimized for different workloads, while Spot instances for stateless workers can reduce costs by 70-90%.',
+        explanationDetails: {
+            summary: 'Container cost optimization strategy:',
+            breakdown: [
+                'Mixed instances: c5 for CPU-intensive, r5 for memory-intensive',
+                'Spot for workers: 70% savings on 20 containers (stateless)',
+                'Better bin packing: Increases utilization from 35% to 75%',
+                'Total savings: Approximately 60% reduction from $8,000'
+            ],
+            otherOptions: 'A) Larger instances worsen utilization problems\nC) Fargate more expensive for predictable workloads\nD) Auto-scaling doesn\'t address instance type mismatch'
+        }
+    },
+
+    {
+        id: 133,
+        questionNumber: 33,
+        category: 'AWS ML Services Integration',
+        difficulty: 'Application',
+        domain: 'Domain 3: Design Secure Applications',
+        questionText: 'A social media platform needs to detect inappropriate content in user posts (text and images) in real-time. They process 1 million posts daily and must comply with COPPA regulations for users under 13. Which combination of AWS services provides comprehensive content moderation with compliance controls?',
+        options: [
+            { text: 'A) Amazon Comprehend for text and custom SageMaker model for images', isCorrect: false },
+            { text: 'B) Amazon Rekognition Content Moderation, Amazon Comprehend toxicity detection, with Lambda age-gating logic', isCorrect: true },
+            { text: 'C) Amazon Textract for text extraction and Amazon Personalize for content filtering', isCorrect: false },
+            { text: 'D) AWS Glue for data preparation and Amazon Forecast for predicting inappropriate content', isCorrect: false }
+        ],
+        explanation: 'Rekognition provides pre-trained image moderation, Comprehend detects toxic text, and Lambda implements age-appropriate filtering logic for COPPA compliance.',
+        explanationDetails: {
+            summary: 'Content moderation architecture components:',
+            breakdown: [
+                'Rekognition: Detects inappropriate images (violence, adult content)',
+                'Comprehend: Identifies toxic text, PII, and sentiment',
+                'Lambda age-gating: Applies stricter rules for users under 13',
+                'Real-time processing: Sub-second moderation decisions'
+            ],
+            otherOptions: 'A) Custom models require training data and maintenance\nC) Textract is for document processing, not moderation\nD) Forecast predicts time-series data, not content issues'
+        }
+    },
+
+    {
+        id: 134,
+        questionNumber: 34,
+        category: 'AWS Architecture - IoT and Edge',
+        difficulty: 'Expert',
+        domain: 'Domain 1: Design Resilient Architectures',
+        questionText: 'A manufacturing company operates 500 factories with 100 IoT sensors each, generating 1KB messages every second. They need local anomaly detection with sub-second response, cloud-based analytics, and must operate during internet outages. Which architecture provides the required edge computing capabilities?',
+        options: [
+            { text: 'A) Direct IoT Core ingestion with Kinesis Analytics for anomaly detection', isCorrect: false },
+            { text: 'B) AWS IoT Greengrass with Lambda functions, local message routing, and intermittent cloud sync', isCorrect: true },
+            { text: 'C) EC2 instances in each factory with VPN connections to cloud', isCorrect: false },
+            { text: 'D) AWS Outposts in each factory for local processing', isCorrect: false }
+        ],
+        explanation: 'IoT Greengrass enables local Lambda execution for sub-second anomaly detection, continues operating offline, and synchronizes with cloud when connected.',
+        explanationDetails: {
+            summary: 'Edge computing with IoT Greengrass benefits:',
+            breakdown: [
+                'Local Lambda: Sub-second anomaly detection at edge',
+                'Offline operation: Continues processing during outages',
+                'Efficient sync: Batches data for cloud analytics when connected',
+                'Cost-effective: No need for servers in 500 locations'
+            ],
+            otherOptions: 'A) Requires constant internet, no local processing\nC) Managing 500 EC2 instances operationally complex\nD) Outposts overkill and expensive for IoT workloads'
+        }
+    },
+
+    {
+        id: 135,
+        questionNumber: 35,
+        category: 'AWS Cost Optimization - Streaming Data',
+        difficulty: 'Application',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A ride-sharing app ingests 100,000 location updates per second during peak hours (6-9 AM, 5-8 PM) but only 5,000 per second during off-peak. Current Kinesis Data Streams with provisioned shards costs $15,000/month. Real-time processing is required only during peak hours; batch processing is acceptable off-peak. Which architecture reduces costs while meeting requirements?',
+        options: [
+            { text: 'A) Kinesis Data Streams with auto-scaling shards based on traffic', isCorrect: false },
+            { text: 'B) Kinesis Data Streams On-Demand for peaks, Kinesis Firehose to S3 for off-peak batch', isCorrect: true },
+            { text: 'C) Replace with SQS queues and Lambda functions', isCorrect: false },
+            { text: 'D) DynamoDB Streams with Lambda triggers', isCorrect: false }
+        ],
+        explanation: 'Kinesis On-Demand eliminates over-provisioning costs while Firehose to S3 provides cost-effective batch processing during off-peak hours.',
+        explanationDetails: {
+            summary: 'Streaming cost optimization strategy:',
+            breakdown: [
+                'Kinesis On-Demand: Pay only for actual throughput',
+                'Peak hours: Real-time processing as required',
+                'Off-peak Firehose: 90% cheaper than real-time streams',
+                'Estimated savings: 65% reduction from $15,000/month'
+            ],
+            otherOptions: 'A) Auto-scaling still requires minimum shards\nC) SQS lacks streaming semantics for real-time\nD) DynamoDB Streams tied to table operations'
+        }
+    },
+
+    {
+        id: 136,
+        questionNumber: 36,
+        category: 'AWS Architecture - Multi-Region',
+        difficulty: 'Expert',
+        domain: 'Domain 1: Design Resilient Architectures',
+        questionText: 'A global trading platform requires <10ms latency for 99% of users across US, EU, and APAC regions. The platform processes 1 million trades daily with strict consistency requirements. Each trade must be reflected globally within 100ms. Current single-region deployment shows 150ms+ latency for distant users. Which multi-region architecture best meets these requirements?',
+        options: [
+            { text: 'A) Deploy full stack in each region with eventual consistency', isCorrect: false },
+            { text: 'B) Aurora Global Database with local read replicas, Route 53 geolocation routing, and DynamoDB Global Tables for session data', isCorrect: true },
+            { text: 'C) Single region with CloudFront caching for static content', isCorrect: false },
+            { text: 'D) Active-active regions with asynchronous replication', isCorrect: false }
+        ],
+        explanation: 'Aurora Global Database provides <1 second replication with strong consistency, local read replicas ensure <10ms reads, while DynamoDB Global Tables handle session state with automatic conflict resolution.',
+        explanationDetails: {
+            summary: 'Multi-region architecture for low latency trading:',
+            breakdown: [
+                'Aurora Global: <1 second cross-region replication',
+                'Local read replicas: <10ms read latency per region',
+                'Write forwarding: Maintains consistency for trades',
+                'DynamoDB Global Tables: Multi-master for session data'
+            ],
+            otherOptions: 'A) Eventual consistency violates trade requirements\nC) CloudFront doesn\'t help with dynamic trade data\nD) Async replication can\'t guarantee 100ms consistency'
+        }
+    },
+
+    {
+        id: 137,
+        questionNumber: 37,
+        category: 'AWS Security - Zero Trust Architecture',
+        difficulty: 'Expert',
+        domain: 'Domain 3: Design Secure Applications',
+        questionText: 'A financial services company needs to implement zero-trust access to their AWS environment for 500 developers across 50 teams. Requirements include: no long-lived credentials, audit trail of all actions, team-based access boundaries, and integration with existing Okta SSO. Which solution provides the most comprehensive zero-trust implementation?',
+        options: [
+            { text: 'A) IAM users with MFA and IP restrictions for each developer', isCorrect: false },
+            { text: 'B) AWS SSO with Okta integration, Permission Sets with session tags, and CloudTrail with EventBridge rules', isCorrect: true },
+            { text: 'C) Cognito user pools with custom authorizers', isCorrect: false },
+            { text: 'D) IAM roles with external ID and session policies', isCorrect: false }
+        ],
+        explanation: 'AWS SSO provides temporary credentials, Okta integration enables SAML-based authentication, Permission Sets with session tags enforce team boundaries, while CloudTrail ensures complete audit trails.',
+        explanationDetails: {
+            summary: 'Zero-trust implementation components:',
+            breakdown: [
+                'AWS SSO: No long-lived credentials, automatic rotation',
+                'Permission Sets: Team-based access with session tags',
+                'Okta SAML: Leverages existing identity provider',
+                'CloudTrail + EventBridge: Real-time audit and alerting'
+            ],
+            otherOptions: 'A) IAM users require long-lived access keys\nC) Cognito designed for application users, not AWS access\nD) Missing centralized management for 500 developers'
+        }
+    },
+
+    {
+        id: 138,
+        questionNumber: 38,
+        category: 'AWS Performance - Hybrid Networking',
+        difficulty: 'Application',
+        domain: 'Domain 2: Design High-Performing Architectures',
+        questionText: 'A media company needs to transfer 50TB of daily video content from on-premises editing stations to S3 for processing. Current internet upload takes 20 hours, causing production delays. The solution must complete transfers within 4 hours and support 100 concurrent editor workstations. Which approach best meets these performance requirements?',
+        options: [
+            { text: 'A) Multiple Site-to-Site VPN connections with ECMP', isCorrect: false },
+            { text: 'B) AWS Direct Connect with Virtual Interfaces and S3 Transfer Acceleration', isCorrect: true },
+            { text: 'C) Storage Gateway File Gateway with local cache', isCorrect: false },
+            { text: 'D) Daily AWS Snowball Edge shipments', isCorrect: false }
+        ],
+        explanation: 'Direct Connect provides dedicated bandwidth for consistent transfer speeds, VIFs enable private S3 connectivity, and Transfer Acceleration optimizes the upload path for concurrent workstations.',
+        explanationDetails: {
+            summary: 'High-performance hybrid transfer solution:',
+            breakdown: [
+                'Direct Connect: 10Gbps dedicated bandwidth',
+                'VIF to S3: Private connectivity, no internet congestion',
+                'Transfer Acceleration: Optimizes for 100 concurrent uploads',
+                '50TB in 4 hours: Requires ~3.5Gbps sustained throughput'
+            ],
+            otherOptions: 'A) VPN limited to ~1.25Gbps aggregate bandwidth\nC) File Gateway adds latency and cache limitations\nD) Snowball shipping time exceeds 4-hour requirement'
+        }
+    },
+
+    {
+        id: 139,
+        questionNumber: 39,
+        category: 'AWS Architecture - Event-Driven Serverless',
+        difficulty: 'Expert',
+        domain: 'Domain 2: Design High-Performing Architectures',
+        questionText: 'An e-commerce platform needs to process order events with multiple downstream systems: inventory (must process once), shipping (at-least-once), analytics (can tolerate duplicates), and email (exactly-once). Order volume varies from 100/minute to 10,000/minute during flash sales. Which event-driven architecture ensures correct delivery semantics for each consumer?',
+        options: [
+            { text: 'A) SNS with SQS queues for all consumers', isCorrect: false },
+            { text: 'B) EventBridge with rules routing to SQS FIFO for inventory, standard SQS for shipping, Kinesis for analytics, and Step Functions for email', isCorrect: true },
+            { text: 'C) Kinesis Data Streams with Lambda consumers', isCorrect: false },
+            { text: 'D) Direct Lambda invocations with error handling', isCorrect: false }
+        ],
+        explanation: 'EventBridge provides content-based routing, SQS FIFO ensures exactly-once processing, standard SQS handles at-least-once, Kinesis supports analytics replay, and Step Functions manages email workflow state.',
+        explanationDetails: {
+            summary: 'Event delivery semantics per consumer:',
+            breakdown: [
+                'SQS FIFO: Exactly-once for critical inventory updates',
+                'Standard SQS: At-least-once with retry for shipping',
+                'Kinesis: Replay capability for analytics reprocessing',
+                'Step Functions: Manages email state to prevent duplicates'
+            ],
+            otherOptions: 'A) SNS+SQS doesn\'t provide exactly-once semantics\nC) Kinesis requires all consumers to process in order\nD) Direct invocations lack delivery guarantees'
+        }
+    },
+
+    {
+        id: 140,
+        questionNumber: 40,
+        category: 'AWS Cost Optimization - Modern Architectures',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A SaaS company runs 200 customer environments, each with identical architecture: ALB, 2-10 EC2 instances, RDS MySQL, and 50GB of S3 storage. Monthly costs are $400,000 with only 30% resource utilization. Customers require isolation for compliance. Which modernization approach provides maximum cost reduction while maintaining isolation?',
+        options: [
+            { text: 'A) Containerize applications and run all customers on shared EKS cluster', isCorrect: false },
+            { text: 'B) AWS App Runner with customer-specific environments, Aurora Serverless v2, and S3 bucket policies', isCorrect: true },
+            { text: 'C) Lambda functions with RDS Proxy and separate VPCs', isCorrect: false },
+            { text: 'D) Consolidate all customers into a single multi-tenant application', isCorrect: false }
+        ],
+        explanation: 'App Runner provides serverless compute with environment isolation, Aurora Serverless v2 scales database resources based on actual usage, eliminating overprovisioning while maintaining compliance isolation.',
+        explanationDetails: {
+            summary: 'Serverless multi-tenant cost optimization:',
+            breakdown: [
+                'App Runner: Pay-per-request pricing, no idle EC2 costs',
+                'Aurora Serverless v2: Scales down to 0.5 ACU when idle',
+                'Environment isolation: Separate App Runner services per customer',
+                'Estimated savings: 70% reduction through utilization-based pricing'
+            ],
+            otherOptions: 'A) Shared cluster violates compliance isolation requirements\nC) Lambda cold starts problematic for web applications\nD) Multi-tenant architecture breaks compliance requirements'
+        }
     }
 ];
 

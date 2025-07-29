@@ -1,6 +1,7 @@
 // src/components/DomainQuestionSelection.tsx
 import React, { useState, useEffect } from 'react';
 import { Question, AnswerRecord, Domain, CertificationData, QuizConfig } from '../types/preptypes';
+import {getAwsQuestionsByCategory, getAwsQuestionStats, getAwsQuestionsByDifficulty, getCompTiaQuestionsByCategory, getCompTiaQuestionsByDifficulty, getCompTiaQuestionStats} from '../helpers/utils';
 
 interface DomainQuestionSelectionProps {
 	certification: CertificationData;
