@@ -3,70 +3,88 @@ import {COMPTIA_QUESTIONS} from "../QuestionRepository/CompTIA_Cloud_Plus_Questi
 import {Question} from "../types/preptypes";
 // Helper functions for question management
 export const getAwsQuestionsByDomain = (domain: string): Question[] => {
-    return AWS_QUESTIONS.filter(q => q.domain === domain);
+	const awsdomain = AWS_QUESTIONS.filter(q => q.domain === domain);
+	console.log("AWS Domomain Questions:", awsdomain.length);
+	return awsdomain;
 };
 export const getCompTiaQuestionsByDomain = (domain: string): Question[] => {
-    return COMPTIA_QUESTIONS.filter(q => q.domain === domain);
+	const comptiadomain = COMPTIA_QUESTIONS.filter(q => q.domain === domain);
+	console.log("CompTIA Domain Questions:", comptiadomain.length);
+	return comptiadomain;
 };
 
 export const getAwsQuestionsByDifficulty = (difficulty: string): Question[] => {
-    return AWS_QUESTIONS.filter(q => q.difficulty === difficulty);
+	const awsdifficulty = AWS_QUESTIONS.filter(q => q.difficulty === difficulty);
+	console.log("AWS Difficulty Questions:", awsdifficulty.length);
+	return awsdifficulty;
 };
 export const getCompTiaQuestionsByDifficulty = (difficulty: string): Question[] => {
-    return COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty);
+	const comptiadifficulty = COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty);
+	console.log("CompTIA Difficulty Questions:", comptiadifficulty.length);
+	return comptiadifficulty;
+};
+export const getAllQuestionsByDifficulty = (difficulty: string): Question[] => {
+	const x = [...AWS_QUESTIONS, ...COMPTIA_QUESTIONS].filter(q => q.difficulty === difficulty);
+	console.log("CompTIA Difficulty Questions:", x.length);
+	return x;
 };
 
 export const getAwsQuestionsByCategory = (category: string): Question[] => {
-    return AWS_QUESTIONS.filter(q => q.category.includes(category));
+	const awscategory = AWS_QUESTIONS.filter(q => q.category.includes(category));
+	console.log("AWS Category Questions:", awscategory.length);
+	return awscategory;
 };
 export const getCompTiaQuestionsByCategory = (category: string): Question[] => {
-    return COMPTIA_QUESTIONS.filter(q => q.category.includes(category));
+	const comptiacategory = COMPTIA_QUESTIONS.filter(q => q.category.includes(category));
+	console.log("CompTIA Category Questions:", comptiacategory.length);
+	return comptiacategory;
 };
 export const getRandomQuestions = (count: number): Question[] => {
-    const shuffled = [...COMPTIA_QUESTIONS, ...AWS_QUESTIONS].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+	const shuffled = [...COMPTIA_QUESTIONS, ...AWS_QUESTIONS].sort(() => 0.5 - Math.random());
+	console.log("Shuffled Questions:", shuffled.length);
+	return shuffled.slice(0, count);
 };
 
 // Statistics for dashboard
 export const getAwsQuestionStats = () => {
-    const domains = [...new Set(AWS_QUESTIONS.map(q => q.domain))];
-    const difficulties = [...new Set(AWS_QUESTIONS.map(q => q.difficulty))];
-    const categories = [...new Set(AWS_QUESTIONS.map(q => q.category))];
+	const domains = [...new Set(AWS_QUESTIONS.map(q => q.domain))];
+	const difficulties = [...new Set(AWS_QUESTIONS.map(q => q.difficulty))];
+	const categories = [...new Set(AWS_QUESTIONS.map(q => q.category))];
 
-    console.log('AWS Domain Question Count', domains.length);
-    console.log('AWS Difficulty Question Count', difficulties.length);
-    console.log('AWS Categories Question Count', categories.length);
-    return {
-        total: AWS_QUESTIONS.length,
-        byDomain: domains.map(domain => ({
-            domain,
-            count: AWS_QUESTIONS.filter(q => q.domain === domain).length
-        })),
-        byDifficulty: difficulties.map(difficulty => ({
-            difficulty,
-            count: AWS_QUESTIONS.filter(q => q.difficulty === difficulty).length
-        })),
-        categories: categories.length
-    };
+	console.log('AWS Domain Question Count', domains.length);
+	console.log('AWS Difficulty Question Count', difficulties.length);
+	console.log('AWS Categories Question Count', categories.length);
+	return {
+		total: AWS_QUESTIONS.length,
+		byDomain: domains.map(domain => ({
+			domain,
+			count: AWS_QUESTIONS.filter(q => q.domain === domain).length
+		})),
+		byDifficulty: difficulties.map(difficulty => ({
+			difficulty,
+			count: AWS_QUESTIONS.filter(q => q.difficulty === difficulty).length
+		})),
+		categories: categories.length
+	};
 };
 export const getCompTiaQuestionStats = () => {
-    const domains = [...new Set(COMPTIA_QUESTIONS.map(q => q.domain))];
-    const difficulties = [...new Set(COMPTIA_QUESTIONS.map(q => q.difficulty))];
-    const categories = [...new Set(COMPTIA_QUESTIONS.map(q => q.category))];
+	const domains = [...new Set(COMPTIA_QUESTIONS.map(q => q.domain))];
+	const difficulties = [...new Set(COMPTIA_QUESTIONS.map(q => q.difficulty))];
+	const categories = [...new Set(COMPTIA_QUESTIONS.map(q => q.category))];
 
-    console.log('CompTIA Domain Question Count', domains.length);
-    console.log('CompTIA Difficulty Question Count', difficulties.length);
-    console.log('CompTIA Categories Question Count', categories.length);
-    return {
-        total: COMPTIA_QUESTIONS.length,
-        byDomain: domains.map(domain => ({
-            domain,
-            count: COMPTIA_QUESTIONS.filter(q => q.domain === domain).length
-        })),
-        byDifficulty: difficulties.map(difficulty => ({
-            difficulty,
-            count: COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty).length
-        })),
-        categories: categories.length
-    };
+	console.log('CompTIA Domain Question Count', domains.length);
+	console.log('CompTIA Difficulty Question Count', difficulties.length);
+	console.log('CompTIA Categories Question Count', categories.length);
+	return {
+		total: COMPTIA_QUESTIONS.length,
+		byDomain: domains.map(domain => ({
+			domain,
+			count: COMPTIA_QUESTIONS.filter(q => q.domain === domain).length
+		})),
+		byDifficulty: difficulties.map(difficulty => ({
+			difficulty,
+			count: COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty).length
+		})),
+		categories: categories.length
+	};
 };

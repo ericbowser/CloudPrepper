@@ -4,7 +4,7 @@ const Nav: React.FC<{ setActiveSection: (section: string) => void; activeSection
     return (
         <nav className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-xl border border-white/20">
             <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold text-blue-600">CompTIA Cloud+ Prep</div>
+                <div className="text-2xl font-bold text-blue-600">{activeSection}</div>
                 <div className="flex gap-5">
                     <NavTab
                         label="Dashboard"
