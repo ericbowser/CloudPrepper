@@ -1062,7 +1062,494 @@ export const AWS_QUESTIONS: Question[] = [
             ],
             otherOptions: 'A) Shared cluster violates compliance isolation requirements\nC) Lambda cold starts problematic for web applications\nD) Multi-tenant architecture breaks compliance requirements'
         }
-    }
+    },
+    {
+        id: 141,
+        questionNumber: 41,
+        category: 'Design Resilient Architectures - Multi-AZ Deployments',
+        difficulty: 'Knowledge',
+        domain: 'Domain 1',
+        questionText: 'A company wants to ensure their RDS database can automatically failover to another Availability Zone in case of an outage. Which feature should they enable?',
+        options: [
+            { text: 'A) Read Replicas', isCorrect: false },
+            { text: 'B) Multi-AZ Deployment', isCorrect: true },
+            { text: 'C) Cross-Region Replication', isCorrect: false },
+            { text: 'D) Database Snapshots', isCorrect: false }
+        ],
+        explanation: 'Multi-AZ deployment provides automatic failover capability by maintaining a synchronous standby replica in a different Availability Zone.',
+        explanationDetails: {
+            summary: 'Multi-AZ provides automatic failover for high availability:',
+            breakdown: [
+                'Synchronous data replication to standby instance',
+                'Automatic failover in case of primary instance failure',
+                'Minimal downtime during failover (typically 60-120 seconds)',
+                'No manual intervention required for failover'
+            ],
+            otherOptions: 'A) Read Replicas provide scaling, not automatic failover\nC) Cross-Region is for disaster recovery, not automatic failover\nD) Snapshots are for backup, not high availability'
+        }
+    },
+    {
+        id: 142,
+        questionNumber: 42,
+        category: 'Design Resilient Architectures - Load Balancing',
+        difficulty: 'Comprehension',
+        domain: 'Domain 1',
+        questionText: 'An application requires load balancing at the network layer (Layer 4) with ultra-low latency and the ability to handle millions of requests per second. Which AWS service is most appropriate?',
+        options: [
+            { text: 'A) Application Load Balancer (ALB)', isCorrect: false },
+            { text: 'B) Network Load Balancer (NLB)', isCorrect: true },
+            { text: 'C) Classic Load Balancer', isCorrect: false },
+            { text: 'D) CloudFront', isCorrect: false }
+        ],
+        explanation: 'Network Load Balancer operates at Layer 4, provides ultra-low latency, and can handle millions of requests per second with static IP addresses.',
+        explanationDetails: {
+            summary: 'NLB characteristics for high-performance applications:',
+            breakdown: [
+                'Operates at Layer 4 (Transport layer)',
+                'Ultra-low latency performance',
+                'Handles millions of requests per second',
+                'Provides static IP addresses',
+                'Preserves source IP address'
+            ],
+            otherOptions: 'A) ALB operates at Layer 7, higher latency\nC) Classic LB is legacy, not optimized for high performance\nD) CloudFront is a CDN, not a load balancer'
+        }
+    },
+    {
+        id: 143,
+        questionNumber: 43,
+        category: 'Design Resilient Architectures - Auto Scaling',
+        difficulty: 'Application',
+        domain: 'Domain 1',
+        questionText: 'Your web application experiences predictable traffic spikes every weekday from 9 AM to 5 PM. What Auto Scaling strategy would be most cost-effective?',
+        options: [
+            { text: 'A) Reactive scaling based on CPU utilization', isCorrect: false },
+            { text: 'B) Scheduled scaling with time-based policies', isCorrect: true },
+            { text: 'C) Manual scaling during business hours', isCorrect: false },
+            { text: 'D) Maintaining constant high capacity', isCorrect: false }
+        ],
+        explanation: 'Scheduled scaling allows you to proactively scale based on predictable patterns, ensuring capacity is available before demand increases.',
+        explanationDetails: {
+            summary: 'Scheduled scaling benefits for predictable workloads:',
+            breakdown: [
+                'Proactive scaling before demand increases',
+                'Eliminates lag time of reactive scaling',
+                'More cost-effective than maintaining constant capacity',
+                'Ensures adequate capacity during known peak periods'
+            ],
+            otherOptions: 'A) Reactive scaling has lag time, may not handle sudden spikes\nC) Manual scaling is not automated and error-prone\nD) Constant high capacity wastes money during low-demand periods'
+        }
+    },
+
+    // Design High-Performing Architectures
+    {
+        id: 144,
+        questionNumber: 44,
+        category: 'Design High-Performing Architectures - Storage',
+        difficulty: 'Knowledge',
+        domain: 'Domain 2',
+        questionText: 'Which EBS volume type provides the highest IOPS performance for latency-sensitive workloads?',
+        options: [
+            { text: 'A) General Purpose SSD (gp3)', isCorrect: false },
+            { text: 'B) Provisioned IOPS SSD (io2)', isCorrect: true },
+            { text: 'C) Throughput Optimized HDD (st1)', isCorrect: false },
+            { text: 'D) Cold HDD (sc1)', isCorrect: false }
+        ],
+        explanation: 'Provisioned IOPS SSD (io2) provides the highest IOPS performance with consistent, low-latency performance for I/O-intensive applications.',
+        explanationDetails: {
+            summary: 'io2 volume characteristics:',
+            breakdown: [
+                'Up to 64,000 IOPS per volume',
+                'Consistent, low-latency performance',
+                'Designed for I/O-intensive applications',
+                '99.999% durability',
+                'Sub-millisecond latency'
+            ],
+            otherOptions: 'A) gp3 provides good performance but lower max IOPS\nC) st1 is optimized for throughput, not IOPS\nD) sc1 is designed for infrequent access'
+        }
+    },
+    {
+        id: 145,
+        questionNumber: 45,
+        category: 'Design High-Performing Architectures - Caching',
+        difficulty: 'Comprehension',
+        domain: 'Domain 2',
+        questionText: 'An application needs to cache frequently accessed database query results with sub-millisecond latency. Which AWS service is most appropriate?',
+        options: [
+            { text: 'A) Amazon S3', isCorrect: false },
+            { text: 'B) Amazon ElastiCache', isCorrect: true },
+            { text: 'C) Amazon RDS Read Replicas', isCorrect: false },
+            { text: 'D) Amazon CloudFront', isCorrect: false }
+        ],
+        explanation: 'ElastiCache provides in-memory caching with sub-millisecond latency, perfect for caching database query results.',
+        explanationDetails: {
+            summary: 'ElastiCache for database caching:',
+            breakdown: [
+                'In-memory data store with sub-millisecond latency',
+                'Supports Redis and Memcached engines',
+                'Reduces database load by caching frequent queries',
+                'Scales to handle millions of requests per second'
+            ],
+            otherOptions: 'A) S3 is object storage, not designed for caching\nC) Read Replicas reduce load but still have database latency\nD) CloudFront caches static content, not database queries'
+        }
+    },
+    {
+        id: 146,
+        questionNumber: 46,
+        category: 'Design High-Performing Architectures - CDN',
+        difficulty: 'Application',
+        domain: 'Domain 2',
+        questionText: 'A global e-commerce website wants to reduce latency for users worldwide while reducing bandwidth costs. The site serves both static content and dynamic API responses. What combination provides the best solution?',
+        options: [
+            { text: 'A) CloudFront for static content only', isCorrect: false },
+            { text: 'B) CloudFront for static content + API Gateway caching for dynamic content', isCorrect: true },
+            { text: 'C) Multiple S3 buckets in different regions', isCorrect: false },
+            { text: 'D) ElastiCache in multiple regions', isCorrect: false }
+        ],
+        explanation: 'CloudFront reduces latency for static content globally, while API Gateway caching handles dynamic content caching close to users.',
+        explanationDetails: {
+            summary: 'Comprehensive caching strategy:',
+            breakdown: [
+                'CloudFront edge locations serve static content globally',
+                'API Gateway caching reduces backend load for dynamic content',
+                'Combined solution addresses both static and dynamic content',
+                'Reduces bandwidth costs and improves user experience'
+            ],
+            otherOptions: 'A) Doesn\'t address dynamic content caching\nC) S3 alone doesn\'t provide edge caching\nD) ElastiCache doesn\'t provide global edge locations'
+        }
+    },
+
+    // Design Secure Applications and Architectures
+    {
+        id: 147,
+        questionNumber: 47,
+        category: 'Design Secure Applications - IAM',
+        difficulty: 'Knowledge',
+        domain: 'Domain 3',
+        questionText: 'Which IAM feature allows you to grant temporary credentials to external users without creating permanent IAM users?',
+        options: [
+            { text: 'A) IAM Groups', isCorrect: false },
+            { text: 'B) IAM Roles with Trust Policies', isCorrect: true },
+            { text: 'C) IAM Policies', isCorrect: false },
+            { text: 'D) Access Keys', isCorrect: false }
+        ],
+        explanation: 'IAM Roles with Trust Policies allow external entities to assume temporary credentials without permanent IAM users.',
+        explanationDetails: {
+            summary: 'IAM Roles for temporary access:',
+            breakdown: [
+                'Temporary credentials with configurable expiration',
+                'Trust policies define who can assume the role',
+                'No permanent credentials to manage',
+                'Supports cross-account access and federated users'
+            ],
+            otherOptions: 'A) Groups organize users, don\'t provide external access\nC) Policies define permissions, not temporary access\nD) Access Keys are permanent credentials'
+        }
+    },
+    {
+        id: 148,
+        questionNumber: 48,
+        category: 'Design Secure Applications - Encryption',
+        difficulty: 'Comprehension',
+        domain: 'Domain 3',
+        questionText: 'A company needs to encrypt sensitive data in S3 with customer-managed encryption keys and audit trails of key usage. Which solution meets these requirements?',
+        options: [
+            { text: 'A) S3 Server-Side Encryption with Amazon S3-Managed Keys (SSE-S3)', isCorrect: false },
+            { text: 'B) S3 Server-Side Encryption with AWS KMS (SSE-KMS)', isCorrect: true },
+            { text: 'C) S3 Client-Side Encryption', isCorrect: false },
+            { text: 'D) S3 Bucket Policies', isCorrect: false }
+        ],
+        explanation: 'SSE-KMS provides customer-managed keys through AWS KMS with detailed audit trails via CloudTrail.',
+        explanationDetails: {
+            summary: 'SSE-KMS benefits for compliance:',
+            breakdown: [
+                'Customer-managed encryption keys in AWS KMS',
+                'Detailed audit trails through CloudTrail',
+                'Automatic key rotation capabilities',
+                'Fine-grained access control for encryption keys'
+            ],
+            otherOptions: 'A) SSE-S3 uses AWS-managed keys, not customer-managed\nC) Client-side encryption requires application changes\nD) Bucket policies control access, not encryption'
+        }
+    },
+    {
+        id: 149,
+        questionNumber: 49,
+        category: 'Design Secure Applications - Network Security',
+        difficulty: 'Application',
+        domain: 'Domain 3',
+        questionText: 'You need to implement defense-in-depth for a web application with the following requirements: DDoS protection, WAF capabilities, and SSL termination. What combination provides the most comprehensive solution?',
+        options: [
+            { text: 'A) CloudFront + AWS Shield + AWS WAF + ALB', isCorrect: true },
+            { text: 'B) Just AWS WAF on ALB', isCorrect: false },
+            { text: 'C) CloudFront + ALB only', isCorrect: false },
+            { text: 'D) AWS Shield Advanced only', isCorrect: false }
+        ],
+        explanation: 'This combination provides comprehensive protection: CloudFront for global distribution and basic DDoS protection, Shield for advanced DDoS protection, WAF for application-layer filtering, and ALB for SSL termination and load balancing.',
+        explanationDetails: {
+            summary: 'Defense-in-depth architecture:',
+            breakdown: [
+                'CloudFront: Global edge locations and basic DDoS protection',
+                'AWS Shield: Advanced DDoS protection',
+                'AWS WAF: Application-layer attack filtering',
+                'ALB: SSL termination and intelligent load balancing'
+            ],
+            otherOptions: 'B) WAF alone doesn\'t provide DDoS protection\nC) Missing WAF and Shield protection\nD) Shield alone doesn\'t provide WAF or SSL termination'
+        }
+    },
+
+    // Design Cost-Optimized Architectures
+    {
+        id: 150,
+        questionNumber: 50,
+        category: 'Design Cost-Optimized Architectures - Instance Types',
+        difficulty: 'Knowledge',
+        domain: 'Domain 4',
+        questionText: 'Which EC2 pricing model offers the highest discount for steady-state workloads with flexible instance types?',
+        options: [
+            { text: 'A) On-Demand Instances', isCorrect: false },
+            { text: 'B) Reserved Instances', isCorrect: false },
+            { text: 'C) Savings Plans', isCorrect: true },
+            { text: 'D) Spot Instances', isCorrect: false }
+        ],
+        explanation: 'Savings Plans offer the highest discounts (up to 72%) with flexibility across instance types, sizes, and regions.',
+        explanationDetails: {
+            summary: 'Savings Plans advantages:',
+            breakdown: [
+                'Up to 72% discount compared to On-Demand pricing',
+                'Flexibility across instance types, sizes, OS, and regions',
+                'Automatic application to eligible usage',
+                'Lower commitment complexity than Reserved Instances'
+            ],
+            otherOptions: 'A) On-Demand has no discount\nB) Reserved Instances have less flexibility\nD) Spot Instances can be interrupted'
+        }
+    },
+    {
+        id: 151,
+        questionNumber: 51,
+        category: 'Design Cost-Optimized Architectures - Storage',
+        difficulty: 'Comprehension',
+        domain: 'Domain 4',
+        questionText: 'A company has 100 TB of data that is accessed once per year for compliance purposes. Which S3 storage class provides the most cost-effective solution?',
+        options: [
+            { text: 'A) S3 Standard', isCorrect: false },
+            { text: 'B) S3 Standard-IA', isCorrect: false },
+            { text: 'C) S3 Glacier Deep Archive', isCorrect: true },
+            { text: 'D) S3 One Zone-IA', isCorrect: false }
+        ],
+        explanation: 'S3 Glacier Deep Archive is the most cost-effective storage class for long-term archival with retrieval times of 12 hours or less.',
+        explanationDetails: {
+            summary: 'Glacier Deep Archive for compliance data:',
+            breakdown: [
+                'Lowest cost storage class in S3',
+                'Designed for data accessed once or twice per year',
+                'Retrieval time of 12 hours or less',
+                '99.999999999% (11 9s) durability'
+            ],
+            otherOptions: 'A) Standard is for frequent access\nB) Standard-IA for monthly access\nD) One Zone-IA for infrequent but faster access'
+        }
+    },
+    {
+        id: 152,
+        questionNumber: 52,
+        category: 'Design Cost-Optimized Architectures - Monitoring',
+        difficulty: 'Application',
+        domain: 'Domain 4',
+        questionText: 'Your organization wants to implement cost monitoring and automatically stop resources when budgets are exceeded. What combination of AWS services accomplishes this?',
+        options: [
+            { text: 'A) AWS Budgets + Lambda functions + CloudWatch Events', isCorrect: true },
+            { text: 'B) Cost Explorer only', isCorrect: false },
+            { text: 'C) CloudWatch Alarms only', isCorrect: false },
+            { text: 'D) AWS Config Rules', isCorrect: false }
+        ],
+        explanation: 'AWS Budgets can trigger alerts, Lambda functions can execute cost control actions, and CloudWatch Events coordinates the automation.',
+        explanationDetails: {
+            summary: 'Automated cost control architecture:',
+            breakdown: [
+                'AWS Budgets: Set spending thresholds and alerts',
+                'Lambda functions: Execute automated responses (stop instances, etc.)',
+                'CloudWatch Events: Trigger actions based on budget alerts',
+                'Comprehensive automation for cost control'
+            ],
+            otherOptions: 'B) Cost Explorer only provides reporting, no automation\nC) CloudWatch Alarms don\'t monitor costs directly\nD) Config Rules are for compliance, not cost control'
+        }
+    },
+
+    // Additional Mixed Domain Questions
+    {
+        id: 153,
+        questionNumber: 53,
+        category: 'Design Resilient Architectures - Disaster Recovery',
+        difficulty: 'Application',
+        domain: 'Domain 1',
+        questionText: 'A critical application requires an RTO of 1 hour and RPO of 15 minutes. The application runs on EC2 instances with data stored in RDS. What disaster recovery strategy is most appropriate?',
+        options: [
+            { text: 'A) Backup and Restore', isCorrect: false },
+            { text: 'B) Pilot Light', isCorrect: false },
+            { text: 'C) Warm Standby', isCorrect: true },
+            { text: 'D) Multi-Site Active/Active', isCorrect: false }
+        ],
+        explanation: 'Warm Standby meets the 1-hour RTO requirement while being more cost-effective than Multi-Site Active/Active.',
+        explanationDetails: {
+            summary: 'Warm Standby characteristics:',
+            breakdown: [
+                'Scaled-down version of production running in DR region',
+                'Can meet RTO of minutes to hours',
+                'Continuous data replication for low RPO',
+                'More cost-effective than full active/active setup'
+            ],
+            otherOptions: 'A) Backup/Restore takes hours, exceeds RTO\nB) Pilot Light might not meet 1-hour RTO\nD) Multi-Site is more expensive than needed'
+        }
+    },
+    {
+        id: 154,
+        questionNumber: 54,
+        category: 'Design High-Performing Architectures - Database',
+        difficulty: 'Comprehension',
+        domain: 'Domain 2',
+        questionText: 'An application performs mostly read operations with occasional writes. The read workload is 10x higher than writes. What database configuration optimizes performance?',
+        options: [
+            { text: 'A) Single RDS instance with Multi-AZ', isCorrect: false },
+            { text: 'B) RDS with Read Replicas', isCorrect: true },
+            { text: 'C) DynamoDB with Global Tables', isCorrect: false },
+            { text: 'D) ElastiCache only', isCorrect: false }
+        ],
+        explanation: 'Read Replicas distribute read traffic across multiple database instances while the primary handles writes.',
+        explanationDetails: {
+            summary: 'Read Replicas for read-heavy workloads:',
+            breakdown: [
+                'Offload read traffic from primary database',
+                'Multiple read replicas can scale read capacity',
+                'Primary instance dedicated to write operations',
+                'Improves overall application performance'
+            ],
+            otherOptions: 'A) Single instance can\'t handle high read volume\nC) DynamoDB Global Tables are for multi-region, not read scaling\nD) ElastiCache alone can\'t handle writes'
+        }
+    },
+    {
+        id: 155,
+        questionNumber: 55,
+        category: 'Design Secure Applications - Data Protection',
+        difficulty: 'Application',
+        domain: 'Domain 3',
+        questionText: 'A healthcare application must ensure PHI (Protected Health Information) is encrypted in transit and at rest, with detailed access logging. Which combination meets HIPAA compliance requirements?',
+        options: [
+            { text: 'A) HTTPS + S3 SSE-S3 + CloudTrail', isCorrect: false },
+            { text: 'B) HTTPS + S3 SSE-KMS + CloudTrail + VPC Flow Logs', isCorrect: true },
+            { text: 'C) TLS + S3 Default Encryption', isCorrect: false },
+            { text: 'D) HTTPS + S3 Bucket Policies', isCorrect: false }
+        ],
+        explanation: 'This combination provides comprehensive encryption and logging: HTTPS for transit, SSE-KMS for detailed key management, CloudTrail for API logging, and VPC Flow Logs for network monitoring.',
+        explanationDetails: {
+            summary: 'HIPAA-compliant architecture components:',
+            breakdown: [
+                'HTTPS: Encryption in transit',
+                'SSE-KMS: Customer-managed encryption at rest',
+                'CloudTrail: Detailed API access logging',
+                'VPC Flow Logs: Network traffic monitoring'
+            ],
+            otherOptions: 'A) SSE-S3 doesn\'t provide customer key management\nC) Missing comprehensive logging\nD) Bucket policies don\'t provide encryption'
+        }
+    },
+    // Add these questions to your AWS_Certified_Architect_Associate_Questions.ts file
+
+    {
+        id: 156,
+        questionNumber: 56,
+        category: 'AWS Cost Optimization - Storage Lifecycle',
+        difficulty: 'Application',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A media production company generates 5TB of raw video footage daily. This footage is actively accessed by editors for the first 7 days, then rarely accessed for the next 90 days, and must be retained for 5 years for legal compliance. Which S3 lifecycle policy and storage class combination provides the most cost-effective solution?',
+        options: [
+            { text: 'A) S3 Standard for 7 days, then S3 One Zone-IA for 90 days, then S3 Glacier Deep Archive for 5 years.', isCorrect: false },
+            { text: 'B) S3 Intelligent-Tiering with Archival Access Tier for 5 years.', isCorrect: false },
+            { text: 'C) S3 Standard for 7 days, then S3 Standard-IA for 90 days, then S3 Glacier Flexible Retrieval for 5 years.', isCorrect: true },
+            { text: 'D) Direct upload to S3 Glacier Deep Archive for all footage.', isCorrect: false }
+        ],
+        explanation: 'S3 Standard-IA is cost-effective for infrequently accessed data. S3 Glacier Flexible Retrieval (formerly S3 Glacier) is suitable for long-term archives that are rarely accessed but need retrieval within hours, meeting the 5-year retention requirement cost-effectively. S3 Intelligent-Tiering adds a small monitoring fee, and while it automates tiering, for predictable access patterns, explicit lifecycle rules are often more cost-efficient. S3 One Zone-IA lacks multi-AZ resilience. Direct upload to Glacier Deep Archive would make active editing impractical due to retrieval times and costs.',
+        explanationDetails: {
+            summary: 'Optimizing video storage costs based on access patterns and compliance:',
+            breakdown: [
+                '**S3 Standard (Days 1-7):** For active editing and frequent access, ensuring low latency.',
+                '**S3 Standard-IA (Days 8-97):** For infrequently accessed but readily available data, offering lower storage costs per GB.',
+                '**S3 Glacier Flexible Retrieval (Days 98-5 years):** For long-term archiving with flexible retrieval times (minutes to hours), providing the lowest storage costs while meeting compliance for 5 years.',
+                'This tiered approach minimizes overall costs by matching storage class to access frequency.',
+            ],
+            otherOptions: 'A) S3 One Zone-IA is not recommended for critical data due to lower durability (single AZ). \nB) S3 Intelligent-Tiering is good for unknown or changing access patterns, but for *predictable* patterns, explicit lifecycle rules can be more cost-optimized. \nD) Direct upload to Glacier Deep Archive has retrieval times of hours to days, which is incompatible with the first 7 days of active access.'
+        }
+    },
+    {
+        id: 157,
+        questionNumber: 57/* Assign next sequential number */,
+        category: 'AWS Cost Optimization - Compute Instance Selection',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A media rendering farm needs to process large video files. The jobs are interruptible and can be restarted from checkpoints. They require massive parallel processing capacity, but only during off-peak hours (10 PM - 6 AM local time). Which EC2 purchasing option offers the most significant cost savings for this workload?',
+        options: [
+            { text: 'A) Reserved Instances with a 1-year No Upfront payment option.', isCorrect: false },
+            { text: 'B) On-Demand Instances with Auto Scaling based on queue depth.', isCorrect: false },
+            { text: 'C) Spot Instances across multiple Availability Zones with diversified instance types.', isCorrect: true },
+            { text: 'D) Dedicated Hosts for maximum performance isolation.', isCorrect: false }
+        ],
+        explanation: 'Spot Instances provide the largest discount (up to 90%) and are ideal for fault-tolerant, flexible workloads that can handle interruptions and specific time windows. Using them across multiple AZs and with diverse instance types further minimizes the risk of interruption by allowing the Auto Scaling Group to acquire capacity from various pools.',
+        explanationDetails: {
+            summary: 'Spot Instances for interruptible, flexible workloads:',
+            breakdown: [
+                '**Cost Savings:** Spot Instances can offer up to 90% savings compared to On-Demand prices.',
+                '**Fault Tolerance:** The workload is interruptible and can resume from checkpoints, making it suitable for Spot Instances.',
+                '**Capacity Diversification:** Using multiple AZs and diversified instance types increases the likelihood of obtaining and maintaining Spot capacity.',
+                '**Time-Specific Needs:** The off-peak hour requirement aligns well with the availability of Spot capacity.',
+            ],
+            otherOptions: 'A) Reserved Instances offer significant savings (up to 75%) but are for *consistent*, predictable usage, and are less flexible for burstable or interruptible workloads. \nB) On-Demand instances are expensive and do not offer the substantial savings needed for a massive, cost-optimized rendering farm. \nD) Dedicated Hosts are the most expensive option, primarily used for licensing or strict compliance requirements, not cost optimization for this type of workload.'
+        }
+    },
+    {
+        id: 158,
+        questionNumber: 58,
+        category: 'AWS Cost Optimization - Data Transfer',
+        difficulty: 'Comprehension',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'An application hosted on EC2 instances in `us-east-1` frequently retrieves large static files (several GBs each) stored in an S3 bucket in the same region. Users accessing the application globally complain about high latency and slow downloads, contributing to increased data transfer costs. Which solution provides the best balance of performance improvement and cost reduction for serving these files to global users?',
+        options: [
+            { text: 'A) Move the S3 bucket to a region closer to the majority of users (e.g., `eu-central-1`).', isCorrect: false },
+            { text: 'B) Implement Amazon CloudFront with the S3 bucket as the origin.', isCorrect: true },
+            { text: 'C) Use S3 Transfer Acceleration for file downloads.', isCorrect: false },
+            { text: 'D) Increase the bandwidth of the EC2 instances.', isCorrect: false }
+        ],
+        explanation: 'Amazon CloudFront, a Content Delivery Network (CDN), caches static content at edge locations globally. This reduces latency by serving content closer to users and significantly reduces data transfer costs out of AWS regions by leveraging CloudFront\'s lower egress rates and caching efficiencies.',
+        explanationDetails: {
+            summary: 'CloudFront benefits for global static content delivery:',
+            breakdown: [
+                '**Reduced Latency:** Content is served from CloudFront edge locations, geographically closer to users, improving download speeds.',
+                '**Cost Reduction:** CloudFront egress rates are typically lower than direct EC2 or S3 egress rates to the internet. Caching also reduces repeated requests to the S3 origin, further lowering costs.',
+                '**Scalability:** CloudFront automatically scales to handle large numbers of concurrent users and traffic spikes.',
+                '**Security:** Integrates with AWS WAF and Shield for DDoS protection.',
+            ],
+            otherOptions: 'A) Moving the S3 bucket helps users in one specific region but does not solve global latency or cost issues for users in other regions. \nC) S3 Transfer Acceleration is primarily for *uploading* data to S3 over long distances, not for serving content for download. \nD) Increasing EC2 instance bandwidth would increase costs without addressing global latency, as data would still egress directly from the EC2 region across the internet to distant users.'
+        }
+    },
+    {
+        id: 160,
+        questionNumber: 60,
+        category: 'AWS Cost Optimization - Right-Sizing',
+        difficulty: 'Application',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A development team is using an Amazon RDS PostgreSQL database for their non-production environment. Usage patterns show that the database is actively used during business hours (9 AM - 6 PM weekdays) but remains almost entirely idle overnight and on weekends. Current costs are high due to continuous running of a `db.m5.large` instance. Which cost optimization strategy provides the most significant savings while ensuring availability during active development periods?',
+        options: [
+            { text: 'A) Migrate to a larger `db.r5.xlarge` instance for better performance during peak times.', isCorrect: false },
+            { text: 'B) Implement RDS Scheduled Scaling to scale down the instance size overnight and on weekends.', isCorrect: false },
+            { text: 'C) Migrate to Amazon Aurora Serverless v2 for automatic start/stop and scaling based on demand.', isCorrect: true },
+            { text: 'D) Take daily snapshots of the database and restore it only when needed.', isCorrect: false }
+        ],
+        explanation: 'Aurora Serverless v2 is specifically designed for unpredictable and intermittent workloads, offering automatic start/stop and scaling based on actual demand, which eliminates costs during idle periods and scales up instantly when needed. This is far more cost-effective for non-production environments with variable usage than continuously running provisioned instances or even scheduled scaling, which might still incur costs during low-use periods if not perfectly tuned.',
+        explanationDetails: {
+            summary: 'Aurora Serverless v2 for unpredictable non-production workloads:',
+            breakdown: [
+                '**Automatic Start/Stop:** Eliminates costs during idle periods (nights and weekends) when the database is not in use.',
+                '**Fine-grained Scaling:** Scales compute capacity up and down very quickly (from 0.5 ACU) based on real-time demand, preventing over-provisioning.',
+                '**PostgreSQL Compatibility:** Maintains compatibility with the existing database engine.',
+                '**Cost Savings:** Significant cost reduction compared to continuously running a provisioned instance for intermittent workloads.',
+            ],
+            otherOptions: 'A) A larger instance would increase costs, not reduce them, and would still be running 24/7. \nB) RDS Scheduled Scaling can help, but it requires manual configuration of schedules and may not be as granular or cost-effective as Aurora Serverless v2, which can scale to zero compute units when idle. \nD) Taking daily snapshots and manually restoring is a high operational overhead and would not meet the "ensuring availability during active development periods" requirement due to restoration time.'
+        }
+    } 
 ];
 
 // Helper functions for AWS question management

@@ -52,22 +52,24 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
 		});
 		setDomainStats(stats);
 	}, [certification, userAnswers]);
-	
-	// Replace these manual methods:
-	const getDifficulties = (): string[] => {
-		// Use the stats functions instead
-		if (certification.id === 'comptia' || certification.id === 'aws') {
-			return getAllQuestionsByDifficulty('Knowledge');
+
+	const getAllDifficulties = (): string[] => {
+		if (certification.id === 'comptia') {
+			const stats = getCompTiaQuestionStats();
+			return Object.keys(stats.byDifficulty); // Convert object keys to array
 		} else {
-			return getAwsQuestionStats();
+			const stats = getAwsQuestionStats();
+			return Object.keys(stats.byDifficulty); // Convert object keys to array
 		}
 	};
 
 	const getAllCategories = (): string[] => {
 		if (certification.id === 'comptia') {
-			return getCompTiaQuestionsByCategory('Knowledge');
+			const stats = getCompTiaQuestionStats();
+			return stats.categories; // Should already be an array
 		} else {
-			return getAwsQuestionStats();
+			const stats = getAwsQuestionStats();
+			return stats.categories; // Should already be an array
 		}
 	};
 
