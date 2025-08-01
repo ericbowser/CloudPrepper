@@ -1,16 +1,13 @@
-import { defineConfig } from 'vite'
-import fs from 'fs';
-import https from 'https';
-import path from 'path';
-
-const httpConfig = {
-    key: fs.readFileSync(path.resolve(__dirname, './ssl_cert/localhost+2-key.pem')),
-    cert: fs.readFileSync(path.resolve(__dirname, './ssl_cert/localhost+2.pem')),
-}
+// vite.config.js
+import { defineConfig } from 'vite';
+import fs from "fs"; // Import the file system module
 
 export default defineConfig({
     server: {
-      https: httpConfig  
+        https: {
+            key: fs.readFileSync('./ssl_cert/127.0.0.1+1-key.pem'), // Replace with actual path
+            cert: fs.readFileSync('./ssl_cert/127.0.0.1+1.pem'), // Replace with actual path
+        },
     },
     css: {
         postcss: {
