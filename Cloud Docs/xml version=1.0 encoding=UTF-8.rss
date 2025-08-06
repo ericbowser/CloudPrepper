@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+   <channel>
+      <title>AWS PrivateLink Updates</title>
+      <link>https://docs.aws.amazon.com/vpc/latest/privatelink/</link>
+      <description>A RSS feed containing the latest updates on https://docs.aws.amazon.com/vpc/latest/privatelink/.</description>
+      <language>en-us</language>
+      <atom:link href="https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-updates.rss"
+                 rel="self"
+                 type="application/rss+xml"/>
+      <lastBuildDate>Fri, 1 Aug 2025 02:51:26 GMT</lastBuildDate>
+      <item>
+         <title>Access resources and service networks</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-access-resources.html</link>
+         <description>AWS PrivateLink supports accessing resources and service networks across VPC and account boundaries.</description>
+         <pubDate>Sun, 1 Dec 2024 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Access_resources_and_service_networks_2024-12-01</guid>
+      </item>
+      <item>
+         <title>Cross-Region access</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/doc-history.html</link>
+         <description>A service provider can host a service in one Region and make it available 
+					in a set of AWS Regions. A service consumer selects a service Regions
+					when creating an endpoint.</description>
+         <pubDate>Tue, 26 Nov 2024 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Cross-Region_access_2024-11-26</guid>
+      </item>
+      <item>
+         <title>Designated IP addresses</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/doc-history.html</link>
+         <description>You can specify the IP addresses for your endpoint network interfaces
+					when you create or modify your VPC endpoint.</description>
+         <pubDate>Thu, 17 Aug 2023 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Designated_IP_addresses_2023-08-17</guid>
+      </item>
+      <item>
+         <title>IPv6 support</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/doc-history.html</link>
+         <description>You can configure your Gateway Load Balancer endpoint services and Gateway Load Balancer endpoints to support 
+					both IPv4 and IPv6 addresses or only IPv6 addresses.</description>
+         <pubDate>Mon, 12 Dec 2022 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#IPv6_support_2022-12-12</guid>
+      </item>
+      <item>
+         <title>Contributor Insights</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-cloudwatch-metrics.html#privatelink-contributor-insights</link>
+         <description>You can use built-in Contributor Insights rules to identify specific endpoints
+				    that are the top contributors to the CloudWatch metrics for AWS PrivateLink.</description>
+         <pubDate>Thu, 18 Aug 2022 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Contributor_Insights_2022-08-18</guid>
+      </item>
+      <item>
+         <title>IPv6 support</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-share-your-services.html#endpoint-service-ip-address-type</link>
+         <description>Service providers can enable their endpoint service to accept IPv6 requests,
+					even if their backend services support only IPv4. If an endpoint service 
+					accepts IPv6 requests, service consumers can enable IPv6 support for their 
+					interface endpoints so that they can access the endpoint service over IPv6.</description>
+         <pubDate>Wed, 11 May 2022 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#IPv6_support_2022-05-11</guid>
+      </item>
+      <item>
+         <title>CloudWatch metrics</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-cloudwatch-metrics.html</link>
+         <description>AWS PrivateLink publishes CloudWatch metrics for your interface endpoints, 
+					Gateway Load Balancer endpoints, and endpoint services.</description>
+         <pubDate>Thu, 27 Jan 2022 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#CloudWatch_metrics_2022-01-27</guid>
+      </item>
+      <item>
+         <title>Gateway Load Balancer endpoints</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/vpce-gateway-load-balancer.html</link>
+         <description>You can create a Gateway Load Balancer endpoint in your VPC to route traffic to a VPC endpoint
+					service that you've configured using a Gateway Load Balancer.</description>
+         <pubDate>Tue, 10 Nov 2020 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Gateway_Load_Balancer_endpoints_2020-11-10</guid>
+      </item>
+      <item>
+         <title>VPC endpoint policies</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-access.html</link>
+         <description>You can attach an IAM policy to an interface VPC endpoint for an AWS
+				    service to control access to the service.</description>
+         <pubDate>Mon, 23 Mar 2020 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#VPC_endpoint_policies_2020-03-23</guid>
+      </item>
+      <item>
+         <title>Condition keys for VPC endpoints and endpoint services</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-iam.html</link>
+         <description>You can use EC2 condition keys to control access to VPC endpoints and endpoint
+					services.</description>
+         <pubDate>Fri, 6 Mar 2020 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Condition_keys_for_VPC_endpoints_and_endpoint_services_2020-03-06</guid>
+      </item>
+      <item>
+         <title>Tag VPC endpoints and endpoint services on creation</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/doc-history.html</link>
+         <description>You can add tags when you create VPC endpoints and endpoint services.</description>
+         <pubDate>Wed, 5 Feb 2020 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Tag_VPC_endpoints_and_endpoint_services_on_creation_2020-02-05</guid>
+      </item>
+      <item>
+         <title>Private DNS names</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/doc-history.html</link>
+         <description>You can access AWS PrivateLink based services from within your VPC
+					using private DNS names.</description>
+         <pubDate>Mon, 6 Jan 2020 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Private_DNS_names_2020-01-06</guid>
+      </item>
+      <item>
+         <title>VPC endpoint services</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/doc-history.html</link>
+         <description>You can create your own endpoints services and enable other AWS accounts
+					and users to connect to your service through an interface VPC endpoint.
+					You can offer your endpoint services for subscription in the
+				    AWS Marketplace.</description>
+         <pubDate>Tue, 28 Nov 2017 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#VPC_endpoint_services_2017-11-28</guid>
+      </item>
+      <item>
+         <title>Interface VPC endpoints for AWS services</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/doc-history.html</link>
+         <description>You can create an interface endpoint to connect to AWS services
+					that integrate with AWS PrivateLink without using an internet gateway 
+					or NAT device.</description>
+         <pubDate>Wed, 8 Nov 2017 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#Interface_VPC_endpoints_for_AWS_services_2017-11-08</guid>
+      </item>
+      <item>
+         <title>VPC endpoints for DynamoDB</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-ddb.html</link>
+         <description>You can create a gateway VPC endpoint to access Amazon DynamoDB from your  
+					VPC without using an internet gateway or NAT device.</description>
+         <pubDate>Wed, 16 Aug 2017 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#VPC_endpoints_for_DynamoDB_2017-08-16</guid>
+      </item>
+      <item>
+         <title>VPC endpoints for Amazon S3</title>
+         <link>https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html</link>
+         <description>You can create a gateway VPC endpoint to access Amazon S3 from your VPC 
+					without using an internet gateway or NAT device.</description>
+         <pubDate>Mon, 11 May 2015 19:00:00 GMT</pubDate>
+         <guid isPermaLink="false">https://docs.aws.amazon.com/vpc/latest/privatelink/#VPC_endpoints_for_Amazon_S3_2015-05-11</guid>
+      </item>
+   </channel>
+</rss>

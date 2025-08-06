@@ -1823,6 +1823,55 @@ export const COMPTIA_QUESTIONS: Question[] = [
             ],
             otherOptions: 'A) IaaS requires DevOps expertise they lack\nC) Pure SaaS too limiting for custom mobile backend\nD) Hybrid approach adds unnecessary complexity'
         }
+    },
+    {
+        id: 71,
+        questionNumber: 71/* Assign next sequential number */,
+        category: 'DevOps - Automation',
+        difficulty: 'Application',
+        domain: 'Domain 5',
+        questionText: 'A DevOps team wants to automate the provisioning of new virtual machines, network configurations, and security groups whenever a new project starts. Which practice is best suited for this task?',
+        options: [
+            { text: 'A) Manual configuration via cloud console for each project.', isCorrect: false },
+            { text: 'B) Using shell scripts for server setup and manual network configuration.', isCorrect: false },
+            { text: 'C) Implementing Infrastructure as Code (IaC) with templating tools.', isCorrect: true },
+            { text: 'D) Creating a comprehensive manual checklist for infrastructure setup.', isCorrect: false }
+        ],
+        explanation: 'Infrastructure as Code (IaC) allows defining and provisioning infrastructure using code, ensuring repeatability, consistency, and reduced manual errors for new project environments.',
+        explanationDetails: {
+            summary: 'IaC for automated provisioning:',
+            breakdown: [
+                '**Repeatability:** Ensures identical environments are deployed every time.',
+                '**Consistency:** Eliminates configuration drift between environments.',
+                '**Reduced Errors:** Automates complex setup processes, minimizing human error.',
+                '**Version Control:** Infrastructure definitions can be versioned and managed like application code.',
+            ],
+            otherOptions: 'A) Manual configuration is prone to errors and inconsistencies, especially for complex setups. \nB) Shell scripts can automate some tasks but typically lack the comprehensive state management and idempotency of IaC tools for full infrastructure provisioning. Network configuration would still likely be manual or poorly managed. \nD) A manual checklist helps but does not automate or guarantee consistency, nor does it reduce the time spent on manual setup.'
+        }
+    },
+    {
+        id: 72,
+        questionNumber: 72/* Assign next sequential number */,
+        category: 'DevOps - CI/CD',
+        difficulty: 'Analysis',
+        domain: 'Domain 5',
+        questionText: 'A software company is experiencing frequent integration issues and broken builds after developers merge their code. They also have a slow release cycle. Which two (2) DevOps practices should they prioritize to address these problems?',
+        options: [
+            { text: 'A) Implement Continuous Integration (CI) and establish automated testing.', isCorrect: true },
+            { text: 'B) Adopt a Microservices architecture and use serverless functions.', isCorrect: false },
+            { text: 'C) Focus on manual code reviews and increase documentation efforts.', isCorrect: false },
+            { text: 'D) Implement Continuous Deployment (CD) and roll back frequently.', isCorrect: false }
+        ],
+        explanation: 'Continuous Integration (CI) focuses on frequent code integration and automated testing to catch issues early, while establishing automated testing verifies code quality and functionality, addressing broken builds and integration problems. These are foundational to speeding up the release cycle.',
+        explanationDetails: {
+            summary: 'Addressing integration issues and slow releases with CI and automated testing:',
+            breakdown: [
+                '**Continuous Integration (CI):** Integrates code changes frequently (multiple times a day), reducing "integration hell" and catching conflicts early.',
+                '**Automated Testing:** Runs tests on every code commit or integration, immediately identifying broken builds and ensuring code quality and functionality before merging.',
+                'These two practices are fundamental for ensuring a stable codebase and enabling faster, more reliable releases.',
+            ],
+            otherOptions: 'B) Microservices and serverless functions are architectural choices that may *support* better CI/CD, but do not directly solve existing integration issues or broken builds. \nC) Manual code reviews are important but often too slow and cannot reliably catch all integration issues in a fast-paced environment. Increasing documentation does not solve technical problems. \nD) Implementing Continuous Deployment *before* fixing CI issues (broken builds, frequent integration problems) would lead to deploying broken software to production more rapidly, exacerbating the problem. Frequent rollbacks indicate a problematic CI/CD pipeline, not a solution.'
+        }
     }
 ];
 
@@ -1861,35 +1910,4 @@ export const getDifficultyPracticeTest = (difficulty: string): Question[] => {
     const difficultyQuestions = getQuestionsByDifficulty(difficulty);
     const shuffled = [...difficultyQuestions].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(10, difficultyQuestions.length));
-};
-
-// Statistics for dashboard
-export const getQuestionStats = () => {
-    const domains = [...new Set(Questions.map(q => q.domain))];
-    const difficulties = [...new Set(COMPTIA_QUESTIONS.map(q => q.difficulty))];
-    const categories = [...new Set(COMPTIA_QUESTIONS.map(q => q.category))];
-
-    return {
-        total: COMPTIA_QUESTIONS.length,
-        byDomain: domains.map(domain => ({
-            domain,
-            count: COMPTIA_QUESTIONS.filter(q => q.domain === domain).length
-        })),
-        byDifficulty: difficulties.map(difficulty => ({
-            difficulty,
-            count: COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty).length
-        })),
-        categories: categories.length,
-        domainBreakdown: domains.map(domain => ({
-            domain,
-            categories: [...new Set(COMPTIA_QUESTIONS
-                .filter(q => q.domain === domain)
-                .map(q => q.category)
-            )],
-            difficulties: difficulties.map(difficulty => ({
-                difficulty,
-                count: COMPTIA_QUESTIONS.filter(q => q.domain === domain && q.difficulty === difficulty).length
-            }))
-        }))
-    };
 };

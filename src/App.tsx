@@ -1,14 +1,10 @@
 ﻿// src/App.tsx - Updated to use domain-based question system
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { AnswerMode, AnswerRecord, Question, QuizMode, SectionType, SelectedAnswer } from "./types/preptypes";
 import { CERTIFICATIONS } from "./config/domainConfig";
 import { DomainQuestionSelection } from "./components/DomainQuestionSelection";
-import { QuizResults } from "./components/QuizResults";
-import Nav from "./components/Nav";
 import ExplanationCard from "./components/ExplanationCard";
 import { AnswerModeToggle } from "./components/AnswerModeToggle";
-import {COMPTIA_QUESTIONS} from "@/QuestionRepository/CompTIA_Cloud_Plus_Questions";
-import {AWS_QUESTIONS} from "@/QuestionRepository/AWS_Certified_Architect_Associate_Questions";
 
 const CloudPrepApp: React.FC = () => {
 	// Certification management
@@ -21,7 +17,9 @@ const CloudPrepApp: React.FC = () => {
 	// Quiz state
 	const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
 	const [userAnswers, setUserAnswers] = useState<AnswerRecord[]>([]);
+/*
 	const [quizStartTime, setQuizStartTime] = useState<Date>(new Date());
+*/
 	const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
 	const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
 	const [answerMode, setAnswerMode] = React.useState<AnswerMode | number>(AnswerMode.inline);
@@ -54,7 +52,9 @@ const CloudPrepApp: React.FC = () => {
 		setIsAnswered(false);
 		setShowExplanation(false);
 		setDoneStudying(false);
+/*
 		setQuizStartTime(new Date());
+*/
 		setQuestionStartTime(new Date());
 		setActiveSection('practice');
 	};

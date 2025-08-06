@@ -1,6 +1,7 @@
 // src/components/DomainQuestionSelection.tsx
 import React, { useState, useEffect } from 'react';
 import { Question, AnswerRecord, Domain, CertificationData, QuizConfig } from '../types/preptypes';
+import {getAllQuestionsByDifficulty, getAwsQuestionsByCategory, getAwsQuestionStats, getAwsQuestionsByDifficulty, getCompTiaQuestionsByCategory, getCompTiaQuestionsByDifficulty, getCompTiaQuestionStats} from '../helpers/utils';
 
 interface DomainQuestionSelectionProps {
 	certification: CertificationData;
@@ -30,15 +31,16 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
 	const [questionCount, setQuestionCount] = useState(10);
 	const [domainStats, setDomainStats] = useState<DomainStats[]>([]);
 
-	// Calculate domain statistics from user answers
 	useEffect(() => {
 		const stats = certification.domains.map(domain => {
+			// You could create domain-specific stats using your utility functions
 			const domainQuestions = domain.questions;
 			const domainAnswers = userAnswers.filter(ans =>
 				domainQuestions.some(q => q.questionNumber === ans.questionIndex + 1)
 			);
 			const correctAnswers = domainAnswers.filter(ans => ans.isCorrect);
-			const accuracy = domainAnswers.length > 0 ? Math.round((correctAnswers.length / domainAnswers.length) * 100) : 0;
+			const accuracy = domainAnswers.length > 0 ?
+				Math.round((correctAnswers.length / domainAnswers.length) * 100) : 0;
 
 			return {
 				domain,
@@ -51,44 +53,57 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
 		setDomainStats(stats);
 	}, [certification, userAnswers]);
 
-	// Get all available difficulties and categories
 	const getAllDifficulties = (): string[] => {
-		const difficulties = new Set<string>();
-		certification.domains.forEach(domain => {
-			domain.questions.forEach(q => difficulties.add(q.difficulty));
-		});
-		return Array.from(difficulties);
+		if (certification.id === 'comptia') {
+			const stats = getCompTiaQuestionStats();
+			return Object.keys(stats.byDifficulty); // Convert object keys to array
+		} else {
+			const stats = getAwsQuestionStats();
+			return Object.keys(stats.byDifficulty); // Convert object keys to array
+		}
 	};
 
 	const getAllCategories = (): string[] => {
-		const categories = new Set<string>();
-		certification.domains.forEach(domain => {
-			domain.questions.forEach(q => categories.add(q.category));
-		});
-		return Array.from(categories);
+		if (certification.id === 'comptia') {
+			const stats = getCompTiaQuestionStats();
+			return stats.categories; // Should already be an array
+		} else {
+			const stats = getAwsQuestionStats();
+			return stats.categories; // Should already be an array
+		}
 	};
 
-	// Filter questions based on selections
 	const getFilteredQuestions = (): Question[] => {
 		let questions: Question[] = [];
 
-		// Get questions from selected domains
-		if (selectedDomains.includes('all')) {
-			questions = certification.domains.flatMap(domain => domain.questions);
+		// Use utility functions based on certification type
+		if (certification.id === 'comptia') {
+			if (selectedCategory !== 'all') {
+				questions = getCompTiaQuestionsByCategory(selectedCategory);
+			} else if (selectedDifficulty !== 'all') {
+				questions = getCompTiaQuestionsByDifficulty(selectedDifficulty);
+			} else {
+				// Get all CompTIA questions - you may need to add this utility
+				questions = certification.domains.flatMap(domain => domain.questions);
+			}
 		} else {
-			questions = certification.domains
-				.filter(domain => selectedDomains.includes(domain.id))
-				.flatMap(domain => domain.questions);
+			if (selectedCategory !== 'all') {
+				questions = getAwsQuestionsByCategory(selectedCategory);
+			} else if (selectedDifficulty !== 'all') {
+				questions = getAwsQuestionsByDifficulty(selectedDifficulty);
+			} else {
+				// Get all AWS questions:/
+				questions = certification.domains.flatMap(domain => domain.questions);
+			}
 		}
 
-		// Apply difficulty filter
-		if (selectedDifficulty !== 'all') {
-			questions = questions.filter(q => q.difficulty === selectedDifficulty);
-		}
-
-		// Apply category filter
-		if (selectedCategory !== 'all') {
-			questions = questions.filter(q => q.category.includes(selectedCategory));
+		// Apply domain filter if not 'all'
+		if (!selectedDomains.includes('all')) {
+			questions = questions.filter(q =>
+				selectedDomains.some(domainId =>
+					certification.domains.find(d => d.id === domainId)?.questions.includes(q)
+				)
+			);
 		}
 
 		return questions;
@@ -361,9 +376,7 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
 							className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 						>
 							<option value="all">All Difficulty Levels</option>
-							{getAllDifficulties().map(difficulty => (
-								<option key={difficulty} value={difficulty}>{difficulty}</option>
-							))}
+							{getAllQuestionsByDifficulty(selectedDifficulty)}
 						</select>
 					</div>
 
@@ -376,12 +389,10 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
 							className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 						>
 							<option value="all">All Categories</option>
-							{getAllCategories().map(category => (
-								<option key={category} value={category}>{category}</option>
-							))}
+							{getAllCategories()}
 						</select>
 					</div>
-				</div>
+					</div>
 
 				{/* Custom Question Count */}
 				{selectedTestType === 'domain-focused' && (
