@@ -18,7 +18,11 @@
     "tail:watch": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css --watch",
     "tail": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css",
     "dev": "vite serve --mode development",
-    "build": "vite build --mode development",
+    "build": "npm run tail && npm run build:esbuild",
+    "build:vite": "NODE_ENV=production vite build",
+    "build:esbuild": "esbuild src/index.tsx --bundle --outdir=dist --format=esm --platform=browser --target=es2020 --jsx=automatic --loader:.css=css --minify --sourcemap",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
     "clean": "rm node_modules -r && rm package-lock.json && npm install"
   },
   "dependencies": {
@@ -32,9 +36,10 @@
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "esbuild": "^0.21.5",
     "fs": "^0.0.1-security",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
-    "vite": "^7.0.0"
+    "vite": "^5.4.11"
   }
 }

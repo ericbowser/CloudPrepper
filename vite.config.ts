@@ -1,19 +1,15 @@
-// vite.config.js
 import { defineConfig } from 'vite';
-import fs from "fs"; // Import the file system module
 
-export default defineConfig({
-    server: {
+export default defineConfig(({ mode }) => ({
+    build: {
+        outDir: 'dist',
+        sourcemap: mode === 'development',
+        minify: mode === 'production' ? 'esbuild' : false,
+    },
+    server: mode === 'development' ? {
         https: {
-            key: fs.readFileSync('./ssl_cert/127.0.0.1+1-key.pem'), // Replace with actual path
-            cert: fs.readFileSync('./ssl_cert/127.0.0.1+1.pem'), // Replace with actual path
+            key: './ssl_cert/127.0.0.1+1-key.pem',
+            cert: './ssl_cert/127.0.0.1+1.pem',
         },
-    },
-    css: {
-        postcss: {
-            plugins: [
-                require('tailwindcss'),
-            ],
-        },
-    },
-})
+    } : {},
+}))
