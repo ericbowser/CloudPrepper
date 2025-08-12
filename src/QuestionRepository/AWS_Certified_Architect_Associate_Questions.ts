@@ -1,9 +1,6 @@
 import { Question } from "@/types/preptypes";
 
 export const AWS_QUESTIONS: Question[] = [
-    // DOMAIN 1 - DESIGN RESILIENT ARCHITECTURES (26%)
-    
-    // Multi-AZ and High Availability
     {
         id: 101,
         questionNumber: 1,

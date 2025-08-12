@@ -17,9 +17,7 @@ const CloudPrepApp: React.FC = () => {
 	// Quiz state
 	const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
 	const [userAnswers, setUserAnswers] = useState<AnswerRecord[]>([]);
-/*
 	const [quizStartTime, setQuizStartTime] = useState<Date>(new Date());
-*/
 	const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
 	const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
 	const [answerMode, setAnswerMode] = React.useState<AnswerMode | number>(AnswerMode.inline);
@@ -37,7 +35,7 @@ const CloudPrepApp: React.FC = () => {
 
 	// Get current certification data
 	const getCurrentCertification = () => {
-		const cert =CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
+		const cert = CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
 		console.log("current certification: ", cert);
 		return cert;
 	}
