@@ -1,4 +1,5 @@
-﻿import { Question } from "@/types/preptypes";
+﻿/*
+import { Question } from "@/types/preptypes";
 
 export const COMPTIA_QUESTIONS: Question[] = [
     // DOMAIN 1 - CLOUD ARCHITECTURE (40+ questions)
@@ -368,7 +369,7 @@ export const COMPTIA_QUESTIONS: Question[] = [
         category: 'Cloud Architecture - Network Components',
         difficulty: 'Application',
         domain: 'Domain 1',
-        questionText: 'Your web application needs to route traffic based on URL paths (/api/* to API servers, /images/* to image servers). Which load balancer type should you use?',
+        questionText: 'Your web application needs to route traffic based on URL paths (/api/!* to API servers, /images/!* to image servers). Which load balancer type should you use?',
         options: [
             { text: 'A) Network load balancer', isCorrect: false },
             { text: 'B) Application load balancer', isCorrect: true },
@@ -1826,7 +1827,7 @@ export const COMPTIA_QUESTIONS: Question[] = [
     },
     {
         id: 71,
-        questionNumber: 71/* Assign next sequential number */,
+        questionNumber: 71/!* Assign next sequential number *!/,
         category: 'DevOps - Automation',
         difficulty: 'Application',
         domain: 'Domain 5',
@@ -1851,7 +1852,7 @@ export const COMPTIA_QUESTIONS: Question[] = [
     },
     {
         id: 72,
-        questionNumber: 72/* Assign next sequential number */,
+        questionNumber: 72/!* Assign next sequential number *!/,
         category: 'DevOps - CI/CD',
         difficulty: 'Analysis',
         domain: 'Domain 5',
@@ -2421,8 +2422,10 @@ export const COMPTIA_QUESTIONS: Question[] = [
         }
     }
 ];
+*/
 
 // Helper functions for question management
+/*
 export const getQuestionsByDomain = (domain: string): Question[] => {
     return COMPTIA_QUESTIONS.filter(q => q.domain === domain);
 };
@@ -2457,4 +2460,4 @@ export const getDifficultyPracticeTest = (difficulty: string): Question[] => {
     const difficultyQuestions = getQuestionsByDifficulty(difficulty);
     const shuffled = [...difficultyQuestions].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(10, difficultyQuestions.length));
-};
+};*/

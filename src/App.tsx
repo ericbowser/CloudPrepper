@@ -1,10 +1,11 @@
 ﻿// src/App.tsx - Updated to use domain-based question system
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { AnswerMode, AnswerRecord, Question, QuizMode, SectionType, SelectedAnswer } from "./types/preptypes";
 import { CERTIFICATIONS } from "./config/domainConfig";
 import { DomainQuestionSelection } from "./components/DomainQuestionSelection";
 import ExplanationCard from "./components/ExplanationCard";
 import { AnswerModeToggle } from "./components/AnswerModeToggle";
+import {getComptiaQuestions, getAwsQuestions} from '../data/questions_repository';
 
 const CloudPrepApp: React.FC = () => {
 	// Certification management
@@ -13,6 +14,10 @@ const CloudPrepApp: React.FC = () => {
 	// Main application state
 	const [activeSection, setActiveSection] = useState<SectionType>('question-selection');
 	const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
+	const [error, setError] = useState<string | null>(null);
+	const [comptiaQuestions, setComptiaQuestions] = useState<Question[] | null>(null);
+	const [awsQuestions, setAwsQuestions] = useState<Question[] | null>(null);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	// Quiz state
 	const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
@@ -32,6 +37,44 @@ const CloudPrepApp: React.FC = () => {
 	// Get current question safely
 	const currentQuestion = currentQuizQuestions[currentQuestionIndex];
 	const totalQuestions = currentQuizQuestions.length;
+	
+	async function getCompTiaQuestions() {
+		try {
+			const comptia = await getComptiaQuestions();
+			return comptia;
+		} catch(error: any) {
+			console.log(error);
+			const err = error.message;
+			setError(err);
+		}
+	}
+	
+	async function getAllAwsQuestions() {
+		try {
+			const aws = await getAwsQuestions();
+			return aws;
+		} catch(error: any) {
+			console.log(error);
+			const err = error.message;
+			setError(err);
+		}
+	}
+	
+	useEffect(() => {
+		if (!comptiaQuestions) {
+			getCompTiaQuestions().then(comptia => {
+				setComptiaQuestions(comptia);
+			})
+		}
+		if (!awsQuestions) {
+			getAllAwsQuestions().then(aws => {
+				setComptiaQuestions(aws);
+			})
+		}
+		if (comptiaQuestions && awsQuestions) {
+			setIsLoading(false);
+		}
+	}, [comptiaQuestions, awsQuestions, isLoading])
 
 	// Get current certification data
 	const getCurrentCertification = () => {

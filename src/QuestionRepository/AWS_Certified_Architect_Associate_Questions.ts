@@ -1,3 +1,4 @@
+/*
 import { Question } from "@/types/preptypes";
 
 export const AWS_QUESTIONS: Question[] = [
@@ -1802,4 +1803,4 @@ export const getAWSQuestionStats = () => {
             passingScore: 720 // out of 1000
         }
     };
-};
+};*/
