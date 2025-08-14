@@ -1,6 +1,6 @@
 ﻿// src/types/preptypes.ts - Updated with domain-based question system
 
-import React from "react";
+import type { ReactNode } from "react";
 
 // Enhanced Domain interface with embedded questions
 export interface Domain {
@@ -69,6 +69,7 @@ export interface Question {
     category: string;
     difficulty: string;
     domain: string;
+    question: string;
     questionText: string;
     options: QuestionOptionData[];
     explanation: string;
@@ -81,10 +82,11 @@ export interface Question {
 
 // A specific type for recording a user's submitted answer
 export interface AnswerRecord {
-    questionIndex: number;
-    selectedOptionIndex: number;
+    questionId: number;
+    selectedAnswers: string[];
     isCorrect: boolean;
-    timeTaken: number;
+    timeSpent: number; // in milliseconds
+    timestamp: Date;
 }
 
 export interface NavTabProps {
@@ -109,7 +111,7 @@ export interface DomainProgressProps {
 }
 
 export interface QuestionOptionProps {
-    children: React.ReactNode;
+    children: ReactNode;
     isSelected: boolean;
     isCorrect?: boolean;
     isIncorrect?: boolean;

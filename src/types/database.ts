@@ -24,7 +24,7 @@ export interface QuestionOption {
 export interface ExplanationDetails {
     summary: string;
     breakdown: string[];
-    otherOptions: string;
+    otherOptions: string[];
 }
 
 // CompTIA specific row type
@@ -71,7 +71,7 @@ export interface TransformedQuestion {
     category: string;
     difficulty: string;
     domain: string;
-    question: string;
+    questionText: string;
     options: QuestionOption[];
     correctAnswer: string;
     explanation: string;

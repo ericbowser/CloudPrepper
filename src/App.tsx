@@ -2,16 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { AnswerMode, AnswerRecord, Question, QuizMode, SectionType, SelectedAnswer, CertificationData } from "./types/preptypes";
 import { CERTIFICATIONS, updateCertificationWithQuestions } from "./config/domainConfig";
-import { DomainQuestionSelection } from "./components/DomainQuestionSelection";
+import { DomainQuestionSelection, type QuizConfig } from "./components/DomainQuestionSelection";
 import ExplanationCard from "./components/ExplanationCard";
 import { AnswerModeToggle } from "./components/AnswerModeToggle";
 import {
 	getComptiaQuestions,
 	getAwsQuestions,
-	getQuestionsByDifficulty,
-	getQuestionsByCategory,
-	getRandomQuestions
-} from '../data/questions_repository.js';
+} from '../data/questions_repository';
 
 const CloudPrepApp: React.FC = () => {
 	// Certification management
@@ -92,42 +89,42 @@ const CloudPrepApp: React.FC = () => {
 	};
 
 	// Start a new quiz with questions from PostgreSQL
-	const startQuiz = async (config: any) => {
+	const startQuiz = async (config: QuizConfig) => {
 		try {
 			setCurrentQuizConfig(config);
+			const currentCert = getCurrentCertification();
+			if (!currentCert) {
+				setError('Could not find data for the selected certification.');
+				return;
+			}
+
 			let questions: Question[] = [];
 
-			// Get questions based on the configuration
-			if (config.domains && config.domains.length > 0) {
-				// Get questions from specific domains
-				const currentCert = getCurrentCertification();
-				if (currentCert) {
-					const selectedDomains = currentCert.domains.filter(domain =>
-						config.domains.includes(domain.id)
-					);
-					questions = selectedDomains.flatMap(domain => domain.questions);
-				}
-			} else if (config.category) {
-				// Get questions by category
-				questions = await getQuestionsByCategory(currentCertification, config.category);
-			} else if (config.difficulty) {
-				// Get questions by difficulty
-				questions = await getQuestionsByDifficulty(currentCertification, config.difficulty);
+			// 1. Get base set of questions from selected domains
+			if (config.selectedDomains.includes('all')) {
+				questions = currentCert.domains.flatMap(domain => domain.questions);
 			} else {
-				// Get random questions
-				const includeComptia = currentCertification === 'comptia' || config.includeComptia;
-				const includeAws = currentCertification === 'aws' || config.includeAws;
-				questions = await getRandomQuestions(config.count || 10, includeComptia, includeAws);
+				questions = currentCert.domains
+					.filter(domain => config.selectedDomains.includes(domain.id))
+					.flatMap(domain => domain.questions);
 			}
 
-			// Shuffle questions if needed
-			if (config.shuffle !== false) {
-				questions = questions.sort(() => 0.5 - Math.random());
+			// 2. Apply category filter
+			if (config.category && config.category !== 'all') {
+				questions = questions.filter(q => q.category === config.category);
 			}
 
-			// Limit to requested count
-			if (config.count && questions.length > config.count) {
-				questions = questions.slice(0, config.count);
+			// 3. Apply difficulty filter
+			if (config.difficulty && config.difficulty !== 'all') {
+				questions = questions.filter(q => q.difficulty === config.difficulty);
+			}
+
+			// 4. Shuffle questions
+			questions = questions.sort(() => 0.5 - Math.random());
+
+			// 5. Limit to requested count
+			if (config.questionCount && questions.length > config.questionCount) {
+				questions = questions.slice(0, config.questionCount);
 			}
 
 			console.log(`Starting quiz with ${questions.length} questions`);
@@ -148,7 +145,7 @@ const CloudPrepApp: React.FC = () => {
 	};
 
 	// Handle answer submission
-	const handleAnswerSubmission = (answer: SelectedAnswer) => {
+	const handleAnswerSubmission = (answer: string) => {
 		const endTime = new Date();
 		const timeSpent = endTime.getTime() - questionStartTime.getTime();
 
@@ -170,21 +167,14 @@ const CloudPrepApp: React.FC = () => {
 	};
 
 	// Check if answer is correct
-	const checkAnswer = (answer: SelectedAnswer): boolean => {
+	const checkAnswer = (answer: string): boolean => {
 		if (!currentQuestion) return false;
 
-		if (Array.isArray(answer)) {
-			// Multiple correct answers
-			const correctAnswers = currentQuestion.options
-				.filter(option => option.isCorrect)
-				.map(option => option.text);
-			return answer.length === correctAnswers.length &&
-				answer.every(a => correctAnswers.includes(a));
-		} else {
-			// Single correct answer
-			const correctOption = currentQuestion.options.find(option => option.isCorrect);
-			return correctOption ? correctOption.text === answer : false;
-		}
+		// This logic currently only supports single-choice answers.
+		// To support multiple correct answers, the UI and this function would need to be updated
+		// to handle an array of selected answer strings.
+		const correctOption = currentQuestion.options.find(option => option.isCorrect);
+		return correctOption ? correctOption.text === answer : false;
 	};
 
 	// Navigate to next question
@@ -337,7 +327,7 @@ const CloudPrepApp: React.FC = () => {
                 </span>
 							</div>
 
-							<h3 className="text-lg font-medium mb-6">{currentQuestion.question}</h3>
+							<h3 className="text-lg font-medium mb-6">{currentQuestion.questionText}</h3>
 
 							<div className="space-y-3">
 								{currentQuestion.options.map((option, index) => (

@@ -196,6 +196,10 @@ export const populateDomainsWithQuestions = (domains: Domain[], questions: Quest
 			const questionDomain = question.domain.toLowerCase();
 			const domainId = domain.id.toLowerCase();
 
+			// NOTE: This hardcoded mapping is brittle. A more robust solution would be to have a
+			// `domain_id` column in your database tables that directly corresponds to the `id`
+			// of the domains defined here (e.g., 'resilient-architectures', 'security').
+			// This would remove the need for this switch statement.
 			// Add domain mapping logic based on your actual data
 			switch (domainId) {
 				// AWS Domain Mapping

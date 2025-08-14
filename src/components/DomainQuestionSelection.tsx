@@ -1,172 +1,105 @@
-// src/components/DomainQuestionSelection.tsx
-import React, {useState, useEffect} from 'react';
-import {Question, AnswerRecord, Domain, CertificationData, QuizConfig} from '../types/preptypes';
-import {
-    getAllQuestionsByDifficulty,
-    getAwsQuestionsByCategory,
-    getAwsQuestionStats,
-    getAwsQuestionsByDifficulty,
-    getCompTiaQuestionsByCategory,
-    getCompTiaQuestionsByDifficulty,
-    getCompTiaQuestionStats
-} from '../helpers/utils';
+// components/DomainQuestionSelection.tsx - Updated for PostgreSQL integration
+import React, { useState } from 'react';
+import type { CertificationData, Question } from '../types/preptypes';
+
+export interface QuizConfig {
+    testType: string;
+    selectedDomains: string[];
+    difficulty: string;
+    category: string;
+    questionCount: number;
+    certification: string;
+}
 
 interface DomainQuestionSelectionProps {
-    certification: CertificationData;
-    userAnswers: AnswerRecord[];
-    onStartQuiz: (questions: Question[], config: QuizConfig) => void;
-    onCertificationChange: (cert: 'comptia' | 'aws') => void;
+    certification: CertificationData | undefined;
+    onStartQuiz: (config: QuizConfig) => void;
 }
 
-interface DomainStats {
-    domain: Domain;
-    attempted: number;
-    correct: number;
-    accuracy: number;
-    needsWork: boolean;
-}
-
-export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = 
-    ({
-        certification,
-        userAnswers,
-        onStartQuiz,
-        onCertificationChange
-    }) => {
-    const [selectedTestType, setSelectedTestType] = useState('practice');
+export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = ({
+                                                                                    certification,
+                                                                                    onStartQuiz
+                                                                                }) => {
+    // Selection state
+    const [selectedTestType, setSelectedTestType] = useState<string>('practice');
     const [selectedDomains, setSelectedDomains] = useState<string[]>(['all']);
-    const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-    const [selectedCategory, setSelectedCategory] = useState('all');
-    const [questionCount, setQuestionCount] = useState(10);
-    const [domainStats, setDomainStats] = useState<DomainStats[]>([]);
+    const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [questionCount, setQuestionCount] = useState<number>(10);
 
-    useEffect(() => {
-        const stats = certification.domains.map(domain => {
-            // You could create domain-specific stats using your utility functions
-            const domainQuestions = domain.questions;
-            const domainAnswers = userAnswers.filter(ans =>
-                domainQuestions.some(q => q.questionNumber === ans.questionIndex + 1)
-            );
-            const correctAnswers = domainAnswers.filter(ans => ans.isCorrect);
-            const accuracy = domainAnswers.length > 0 ?
-                Math.round((correctAnswers.length / domainAnswers.length) * 100) : 0;
+    // Show loading state if certification is not loaded yet
+    if (!certification) {
+        return (
+            <div className="max-w-4xl mx-auto p-6">
+                <div className="bg-white rounded-lg shadow p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading certification data...</p>
+                </div>
+            </div>
+        );
+    }
 
-            return {
-                domain,
-                attempted: domainAnswers.length,
-                correct: correctAnswers.length,
-                accuracy,
-                needsWork: accuracy < 70 && domainAnswers.length >= 3
-            };
-        });
-        setDomainStats(stats);
-    }, [certification, userAnswers]);
+    // Show message if no questions are loaded
+    if (certification.totalQuestions === 0) {
+        return (
+            <div className="max-w-4xl mx-auto p-6">
+                <div className="bg-white rounded-lg shadow p-8 text-center">
+                    <div className="text-yellow-600 mb-4">
+                        <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">No Questions Available</h2>
+                    <p className="text-gray-600">Please check your database connection and ensure questions are loaded.</p>
+                </div>
+            </div>
+        );
+    }
 
+    // Get all available difficulties and categories from loaded questions
     const getAllDifficulties = (): string[] => {
-        if (certification.id === 'comptia') {
-            const stats = getCompTiaQuestionStats();
-            return Object.keys(stats.byDifficulty); // Convert object keys to array
-        } else {
-            const stats = getAwsQuestionStats();
-            return Object.keys(stats.byDifficulty); // Convert object keys to array
-        }
+        const difficulties = new Set<string>();
+        certification.domains.forEach(domain => {
+            domain.questions.forEach(q => difficulties.add(q.difficulty));
+        });
+        return Array.from(difficulties).sort();
     };
 
     const getAllCategories = (): string[] => {
-        if (certification.id === 'comptia') {
-            const stats = getCompTiaQuestionStats();
-            return stats.categories; // Should already be an array
-        } else {
-            const stats = getAwsQuestionStats();
-            return stats.categories; // Should already be an array
-        }
+        const categories = new Set<string>();
+        certification.domains.forEach(domain => {
+            domain.questions.forEach(q => categories.add(q.category));
+        });
+        return Array.from(categories).sort();
     };
 
-    const getFilteredQuestions = (): Question[] => {
+    // Count questions that match current filters
+    const getFilteredQuestionCount = (): number => {
         let questions: Question[] = [];
 
-        // Use utility functions based on certification type
-        if (certification.id === 'comptia') {
-            if (selectedCategory !== 'all') {
-                questions = getCompTiaQuestionsByCategory(selectedCategory);
-            } else if (selectedDifficulty !== 'all') {
-                questions = getCompTiaQuestionsByDifficulty(selectedDifficulty);
-            } else {
-                // Get all CompTIA questions - you may need to add this utility
-                questions = certification.domains.flatMap(domain => domain.questions);
-            }
+        // Get questions from selected domains
+        if (selectedDomains.includes('all')) {
+            questions = certification.domains.flatMap(domain => domain.questions);
         } else {
-            if (selectedCategory !== 'all') {
-                questions = getAwsQuestionsByCategory(selectedCategory);
-            } else if (selectedDifficulty !== 'all') {
-                questions = getAwsQuestionsByDifficulty(selectedDifficulty);
-            } else {
-                // Get all AWS questions:/
-                questions = certification.domains.flatMap(domain => domain.questions);
-            }
+            questions = certification.domains
+                .filter(domain => selectedDomains.includes(domain.id))
+                .flatMap(domain => domain.questions);
         }
 
-        // Apply domain filter if not 'all'
-        if (!selectedDomains.includes('all')) {
-            questions = questions.filter(q =>
-                selectedDomains.some(domainId =>
-                    certification.domains.find(d => d.id === domainId)?.questions.includes(q)
-                )
-            );
+        // Apply difficulty filter
+        if (selectedDifficulty !== 'all') {
+            questions = questions.filter(q => q.difficulty === selectedDifficulty);
         }
 
-        return questions;
+        // Apply category filter
+        if (selectedCategory !== 'all') {
+            questions = questions.filter(q => q.category.includes(selectedCategory));
+        }
+
+        return questions.length;
     };
 
-    // Generate quiz questions based on test type
-    const generateQuizQuestions = (): Question[] => {
-        let questions = getFilteredQuestions();
-        let count = questionCount;
-
-        switch (selectedTestType) {
-            case 'quick':
-                count = 5;
-                break;
-            case 'practice':
-                count = 10;
-                break;
-            case 'comprehensive':
-                count = 25;
-                break;
-            case 'domain-focused':
-                count = questionCount;
-                break;
-            case 'weak-areas':
-                // Focus on domains that need work
-                const weakDomains = domainStats.filter(stat => stat.needsWork);
-                if (weakDomains.length > 0) {
-                    questions = weakDomains.flatMap(stat => stat.domain.questions);
-                    count = 15;
-                } else {
-                    count = 10;
-                }
-                break;
-            case 'balanced':
-                // Get proportional questions from each domain based on exam weight
-                questions = [];
-                const totalWeight = certification.domains.reduce((sum, domain) => sum + (domain.weight || 0), 0);
-                certification.domains.forEach(domain => {
-                    const domainQuestionCount = Math.ceil((count * (domain.weight || 0)) / totalWeight);
-                    const domainQuestions = domain.questions
-                        .sort(() => 0.5 - Math.random())
-                        .slice(0, domainQuestionCount);
-                    questions.push(...domainQuestions);
-                });
-                return questions.slice(0, count);
-            case 'full-exam':
-                count = certification.examInfo.questionCount;
-                break;
-        }
-
-        // Shuffle and return the requested number of questions
-        return questions.sort(() => 0.5 - Math.random()).slice(0, Math.min(count, questions.length));
-    };
-
+    // Handle domain selection
     const handleDomainToggle = (domainId: string) => {
         if (domainId === 'all') {
             setSelectedDomains(['all']);
@@ -183,287 +116,270 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> =
         }
     };
 
+    // Handle starting the quiz
     const handleStartQuiz = () => {
-        const questions = generateQuizQuestions();
         const config: QuizConfig = {
             testType: selectedTestType,
             selectedDomains,
             difficulty: selectedDifficulty,
             category: selectedCategory,
-            questionCount,
+            questionCount: getQuestionCountForTestType(),
             certification: certification.id
         };
-        onStartQuiz(questions, config);
+
+        onStartQuiz(config);
     };
 
+    // Get question count based on test type
+    const getQuestionCountForTestType = (): number => {
+        switch (selectedTestType) {
+            case 'quick':
+                return 5;
+            case 'practice':
+                return 10;
+            case 'comprehensive':
+                return 25;
+            case 'domain-focused':
+                return questionCount;
+            case 'full-exam':
+                return certification.examInfo.questionCount;
+            default:
+                return 10;
+        }
+    };
+
+    // Test type options
     const testTypeOptions = [
         {
             value: 'quick',
-            label: 'Quick Practice (5 questions)',
-            description: 'Fast review session',
-            icon: '⚡'
+            label: 'Quick Practice',
+            description: '5 questions - Fast review',
+            icon: '⚡',
+            questions: 5
         },
         {
             value: 'practice',
-            label: 'Standard Practice (10 questions)',
-            description: 'Balanced study session',
-            icon: '📚'
+            label: 'Standard Practice',
+            description: '10 questions - Balanced study',
+            icon: '📚',
+            questions: 10
         },
         {
             value: 'comprehensive',
-            label: 'Comprehensive (25 questions)',
-            description: 'Deep knowledge assessment',
-            icon: '🎯'
-        },
-        {
-            value: 'balanced',
-            label: 'Balanced by Domain (15 questions)',
-            description: 'Questions weighted by exam importance',
-            icon: '⚖️'
+            label: 'Comprehensive Test',
+            description: '25 questions - Deep assessment',
+            icon: '🎯',
+            questions: 25
         },
         {
             value: 'domain-focused',
-            label: 'Domain Focused (Custom)',
-            description: 'Focus on specific domains',
-            icon: '🔍'
-        },
-        {
-            value: 'weak-areas',
-            label: 'Weak Areas Focus (15 questions)',
-            description: 'Target your problem areas',
-            icon: '🎪',
-            disabled: !domainStats.some(stat => stat.needsWork)
+            label: 'Custom Domain Focus',
+            description: 'Custom count - Specific domains',
+            icon: '🔍',
+            questions: questionCount
         },
         {
             value: 'full-exam',
-            label: `Full Exam Simulation (${certification.examInfo.questionCount} questions)`,
-            description: 'Complete exam experience',
-            icon: '🏆'
+            label: 'Full Exam Simulation',
+            description: `${certification.examInfo.questionCount} questions - Complete exam experience`,
+            icon: '🏆',
+            questions: certification.examInfo.questionCount
         }
     ];
 
-    const filteredQuestions = getFilteredQuestions();
+    const availableQuestions = getFilteredQuestionCount();
+    const canStartQuiz = availableQuestions > 0;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6">
-            {/* Certification Header */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                            {certification.icon} {certification.name}
-                        </h1>
-                        <p className="text-gray-600">{certification.fullName} ({certification.code})</p>
-                    </div>
-                    <select
-                        value={certification.id}
-                        onChange={(e) => onCertificationChange(e.target.value as 'comptia' | 'aws')}
-                        className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
-                    >
-                        <option value="comptia">☁️ CompTIA Cloud+</option>
-                        <option value="aws">🏗️ AWS Solutions Architect</option>
-                    </select>
-                </div>
+        <div className="max-w-6xl mx-auto p-6 space-y-8">
+            {/* Header */}
+            <div className="text-center">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    {certification.fullName}
+                </h1>
+                <p className="text-gray-600">
+                    {certification.totalQuestions} total questions available across {certification.domains.length} domains
+                </p>
             </div>
 
-            {/* Domain Overview */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Domain Overview</h2>
+            {/* Test Type Selection */}
+            <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">Choose Test Type</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {domainStats.map((stat, index) => (
+                    {testTypeOptions.map(option => (
                         <div
-                            key={stat.domain.id}
+                            key={option.value}
                             className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                                selectedDomains.includes(stat.domain.id) || selectedDomains.includes('all')
+                                selectedTestType === option.value
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200 hover:border-blue-300'
-                            } ${stat.needsWork ? 'ring-2 ring-orange-200' : ''}`}
-                            onClick={() => handleDomainToggle(stat.domain.id)}
+                            }`}
+                            onClick={() => setSelectedTestType(option.value)}
                         >
-                            <div className="flex items-start justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xl">{stat.domain.icon}</span>
-                                    <div>
-                                        <div className="font-semibold text-gray-800">{stat.domain.name}</div>
-                                        <div className="text-xs text-gray-500">{stat.domain.weight}% of exam</div>
-                                    </div>
-                                </div>
-                                {stat.needsWork && (
-                                    <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
-                                        Needs work
-                                    </span>
-                                )}
+                            <div className="flex items-center mb-2">
+                                <span className="text-2xl mr-2">{option.icon}</span>
+                                <span className="font-medium text-gray-800">{option.label}</span>
                             </div>
-
-                            <div className="text-sm text-gray-600 mb-2">
-                                {stat.domain.totalQuestions} questions available
-                            </div>
-
-                            {stat.attempted > 0 && (
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span>Progress:</span>
-                                        <span>{stat.attempted}/{stat.domain.totalQuestions}</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className={`h-2 rounded-full ${
-                                                stat.accuracy >= 80 ? 'bg-green-500' :
-                                                    stat.accuracy >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                                            }`}
-                                            style={{width: `${(stat.attempted / stat.domain.totalQuestions) * 100}%`}}
-                                        />
-                                    </div>
-                                    <div className="text-sm text-center">
-                                        <span className={`font-medium ${
-                                            stat.accuracy >= 80 ? 'text-green-600' :
-                                                stat.accuracy >= 60 ? 'text-yellow-600' : 'text-red-600'
-                                        }`}>
-                                            {stat.accuracy}% accuracy
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
+                            <p className="text-sm text-gray-600">{option.description}</p>
                         </div>
                     ))}
                 </div>
+            </div>
 
-                {/* Select All/None buttons */}
-                <div className="flex gap-3 mt-4">
-                    <button
-                        onClick={() => setSelectedDomains(['all'])}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+            {/* Domain Selection */}
+            <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* All Domains Option */}
+                    <div
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                            selectedDomains.includes('all')
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-blue-300'
+                        }`}
+                        onClick={() => handleDomainToggle('all')}
                     >
-                        Select All Domains
-                    </button>
-                    <button
-                        onClick={() => setSelectedDomains([])}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors"
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium">All Domains</span>
+                            <span className="text-2xl">🌐</span>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                            {certification.totalQuestions} questions total
+                        </p>
+                    </div>
+
+                    {/* Individual Domain Options */}
+                    {certification.domains.map(domain => (
+                        <div
+                            key={domain.id}
+                            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                                selectedDomains.includes(domain.id)
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 hover:border-blue-300'
+                            }`}
+                            onClick={() => handleDomainToggle(domain.id)}
+                        >
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="font-medium">{domain.name}</span>
+                                <span className="text-2xl">{domain.icon}</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{domain.description}</p>
+                            <div className="flex justify-between text-xs text-gray-500">
+                                <span>{domain.totalQuestions} questions</span>
+                                <span>Weight: {domain.weight}%</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Difficulty Filter */}
+                <div className="bg-white rounded-lg shadow p-6">
+                    <h3 className="text-lg font-semibold mb-3">Difficulty Level</h3>
+                    <select
+                        value={selectedDifficulty}
+                        onChange={(e) => setSelectedDifficulty(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                        Clear Selection
+                        <option value="all">All Difficulties</option>
+                        {getAllDifficulties().map(difficulty => (
+                            <option key={difficulty} value={difficulty}>
+                                {difficulty}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Category Filter */}
+                <div className="bg-white rounded-lg shadow p-6">
+                    <h3 className="text-lg font-semibold mb-3">Category Focus</h3>
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="all">All Categories</option>
+                        {getAllCategories().map(category => (
+                            <option key={category} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Custom Question Count (for domain-focused) */}
+                {selectedTestType === 'domain-focused' && (
+                    <div className="bg-white rounded-lg shadow p-6">
+                        <h3 className="text-lg font-semibold mb-3">Question Count</h3>
+                        <input
+                            type="number"
+                            min="1"
+                            max={availableQuestions}
+                            value={questionCount}
+                            onChange={(e) => setQuestionCount(Number(e.target.value))}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <p className="text-sm text-gray-500 mt-1">
+                            Max: {availableQuestions} available
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* Start Quiz Section */}
+            <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h3 className="text-lg font-semibold">Ready to Start?</h3>
+                        <p className="text-gray-600">
+                            {availableQuestions > 0 ? (
+                                <>
+                                    {getQuestionCountForTestType()} questions selected from {availableQuestions} available
+                                </>
+                            ) : (
+                                'No questions match your current filters'
+                            )}
+                        </p>
+                    </div>
+                    <button
+                        onClick={handleStartQuiz}
+                        disabled={!canStartQuiz}
+                        className={`px-8 py-3 rounded-lg font-semibold transition-colors ${
+                            canStartQuiz
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                    >
+                        Start Quiz
                     </button>
                 </div>
             </div>
 
-            {/* Test Configuration */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Configure Your Practice Test</h2>
-
-                {/* Test Type Selection */}
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-3">Test Type</label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {testTypeOptions.map(option => (
-                            <div
-                                key={option.value}
-                                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                                    option.disabled ? 'opacity-50 cursor-not-allowed border-gray-200' :
-                                        selectedTestType === option.value
-                                            ? 'border-blue-500 bg-blue-50'
-                                            : 'border-gray-200 hover:border-blue-300'
-                                }`}
-                                onClick={() => !option.disabled && setSelectedTestType(option.value)}
-                            >
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-lg">{option.icon}</span>
-                                    <div className="font-medium text-gray-800">{option.label}</div>
-                                </div>
-                                <div className="text-sm text-gray-600">{option.description}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Additional Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    {/* Difficulty Filter */}
+            {/* Exam Information */}
+            <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-3">Exam Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
-                        <select
-                            value={selectedDifficulty}
-                            onChange={(e) => setSelectedDifficulty(e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option value="all">All Difficulty Levels</option>
-                            {getAllQuestionsByDifficulty(selectedDifficulty)}
-                        </select>
-                    </div>
-
-                    {/* Category Filter */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option value="all">All Categories</option>
-                            {getAllCategories()}
-                        </select>
-                    </div>
-                </div>
-
-                {/* Custom Question Count */}
-                {selectedTestType === 'domain-focused' && (
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Number of Questions ({questionCount})
-                        </label>
-                        <input
-                            type="range"
-                            min="5"
-                            max={Math.min(50, filteredQuestions.length)}
-                            value={questionCount}
-                            onChange={(e) => setQuestionCount(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500 mt-1">
-                            <span>5</span>
-                            <span>{Math.min(50, filteredQuestions.length)}</span>
+                        <div className="text-2xl font-bold text-blue-600">
+                            {certification.examInfo.questionCount}
                         </div>
+                        <div className="text-sm text-gray-600">Total Questions</div>
                     </div>
-                )}
-
-                {/* Quiz Preview */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                    <div className="text-sm text-gray-600 space-y-1">
-                        <div><strong>Available Questions:</strong> {filteredQuestions.length}</div>
-                        <div><strong>Selected Domains:</strong> {
-                            selectedDomains.includes('all') ? 'All Domains' :
-                                selectedDomains.map(id =>
-                                    certification.domains.find(d => d.id === id)?.name
-                                ).join(', ')
-                        }</div>
-                        <div><strong>Quiz Length:</strong> {
-                            selectedTestType === 'quick' ? '5 questions' :
-                                selectedTestType === 'practice' ? '10 questions' :
-                                    selectedTestType === 'comprehensive' ? '25 questions' :
-                                        selectedTestType === 'balanced' ? '15 questions' :
-                                            selectedTestType === 'weak-areas' ? '15 questions' :
-                                                selectedTestType === 'full-exam' ? `${certification.examInfo.questionCount} questions` :
-                                                    `${questionCount} questions`
-                        }</div>
-                        <div><strong>Estimated Time:</strong> {
-                            selectedTestType === 'quick' ? '5-10 minutes' :
-                                selectedTestType === 'practice' ? '10-15 minutes' :
-                                    selectedTestType === 'comprehensive' ? '25-35 minutes' :
-                                        selectedTestType === 'balanced' ? '15-25 minutes' :
-                                            selectedTestType === 'weak-areas' ? '15-20 minutes' :
-                                                selectedTestType === 'full-exam' ? `${certification.examInfo.timeLimit} minutes` :
-                                                    `${Math.ceil(questionCount * 1.5)} minutes`
-                        }</div>
+                    <div>
+                        <div className="text-2xl font-bold text-green-600">
+                            {certification.examInfo.timeLimit} min
+                        </div>
+                        <div className="text-sm text-gray-600">Time Limit</div>
+                    </div>
+                    <div>
+                        <div className="text-2xl font-bold text-purple-600">
+                            {certification.examInfo.passingScore}
+                        </div>
+                        <div className="text-sm text-gray-600">Passing Score</div>
                     </div>
                 </div>
-
-                {/* Start Quiz Button */}
-                <button
-                    onClick={handleStartQuiz}
-                    disabled={filteredQuestions.length === 0}
-                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                    {filteredQuestions.length === 0 ? 'No questions match your criteria' :
-                        `Start ${selectedTestType === 'full-exam' ? 'Exam Simulation' : 'Practice Test'}`}
-                </button>
             </div>
         </div>
     );

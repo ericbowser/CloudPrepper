@@ -26,12 +26,26 @@ const safeJsonParse = <T>(value: T | string): T | null => {
 };
 
 // Type-safe transformer function
-const transformDbRowToQuestion = (row: QuestionRow): Question => {
+const transformDbRowToQuestion = (row: QuestionRow): {
+    id: number;
+    questionNumber: number;
+    category: string;
+    difficulty: "Knowledge" | "Comprehension" | "Application" | "Analysis" | "Expert" | "Beginner" | "Intermediate" | "Advanced";
+    domain: "Domain 1" | "Domain 2" | "Domain 3" | "Domain 4" | "Domain 5" | "Domain 6" | "Domain 1: Design Resilient Architectures" | "Domain 2: Design Secure Architectures" | "Domain 3: Design High-Performing Architectures" | "Domain 4: Design Cost-Optimized Architectures" | string;
+    questionText: string;
+    options: QuestionOption[];
+    correctAnswer: string;
+    explanation: string;
+    explanationDetails: ExplanationDetails | null;
+    children: undefined;
+    isCurrentQuestion: boolean;
+    onClick: () => void
+} => {
     // Parse options if they're stored as JSON string, otherwise use as-is
     const options: QuestionOption[] = safeJsonParse<QuestionOption[]>(row.options) || [];
 
     // Parse explanation_details if they're stored as JSON string
-    const explanationDetails: ExplanationDetails | null = safeJsonParse<ExplanationDetails>(row.explanation_details);
+    const explanationDetails: ExplanationDetails | null = safeJsonParse<ExplanationDetails>(row.explanation_details) || null;
 
     return {
         id: row.question_id,
@@ -39,7 +53,7 @@ const transformDbRowToQuestion = (row: QuestionRow): Question => {
         category: row.category || '',
         difficulty: row.difficulty || 'Knowledge', // Default to 'Knowledge' to match your data
         domain: row.domain || '',
-        question: row.question_text,
+        questionText: row.question_text,
         options: options,
         correctAnswer: row.correct_answer,
         explanation: row.explanation || '',
@@ -157,8 +171,8 @@ async function closeConnection(): Promise<void> {
 
 // Type-safe query builder for complex filtering
 interface QuestionFilter {
-    certification?: 'comptia' | 'aws';
-    domain?: string;
+    certification?: 'comptia' | 'aws' | 'both';
+    domain?: string | string[];
     category?: string;
     difficulty?: string;
     limit?: number;
@@ -166,47 +180,56 @@ interface QuestionFilter {
 }
 
 async function getFilteredQuestions(filter: QuestionFilter): Promise<Question[]> {
-    let questions: Question[] = [];
-
-    // Get base question set
-    if (!filter.certification || filter.certification === 'comptia') {
-        const comptiaQuestions = await getComptiaQuestions();
-        questions = [...questions, ...comptiaQuestions];
+    if (!connection) {
+        connection = await connectLocalPostgres();
     }
 
-    if (!filter.certification || filter.certification === 'aws') {
-        const awsQuestions = await getAwsQuestions();
-        questions = [...questions, ...awsQuestions];
+    const params: (string | number | string[])[] = [];
+    let paramIndex = 1;
+
+    const comptiaQuery = 'SELECT * FROM "prepper".comptia_cloud_plus_questions';
+    const awsQuery = 'SELECT * FROM "prepper".aws_certified_architect_associate_questions';
+    
+    let sql = '';
+
+    if (filter.certification === 'comptia') {
+        sql = comptiaQuery;
+    } else if (filter.certification === 'aws') {
+        sql = awsQuery;
+    } else {
+        sql = `(${comptiaQuery}) UNION ALL (${awsQuery})`;
     }
 
-    // Apply filters
+    const whereClauses: string[] = [];
+
     if (filter.domain) {
-        questions = questions.filter(q => q.domain === filter.domain);
+        whereClauses.push(Array.isArray(filter.domain) ? `domain = ANY($${paramIndex++})` : `domain = $${paramIndex++}`);
+        params.push(filter.domain);
     }
 
     if (filter.category) {
-        questions = questions.filter(q =>
-            q.category.toLowerCase().includes(filter.category!.toLowerCase())
-        );
+        whereClauses.push(`category ILIKE $${paramIndex++}`);
+        params.push(`%${filter.category}%`);
     }
 
     if (filter.difficulty) {
-        questions = questions.filter(q =>
-            q.difficulty.toLowerCase() === filter.difficulty!.toLowerCase()
-        );
+        whereClauses.push(`difficulty = $${paramIndex++}`);
+        params.push(filter.difficulty);
     }
 
-    // Shuffle if requested
-    if (filter.shuffle) {
-        questions = questions.sort(() => 0.5 - Math.random());
+    if (whereClauses.length > 0) {
+        sql += ' WHERE ' + whereClauses.join(' AND ');
     }
 
-    // Apply limit
-    if (filter.limit && questions.length > filter.limit) {
-        questions = questions.slice(0, filter.limit);
+    sql += filter.shuffle ? ' ORDER BY RANDOM()' : ' ORDER BY question_number';
+
+    if (filter.limit) {
+        sql += ` LIMIT $${paramIndex++}`;
+        params.push(filter.limit);
     }
 
-    return questions;
+    const result = await connection.query(sql, params);
+    return result.rows.map((row: QuestionRow) => transformDbRowToQuestion(row));
 }
 
 export {

@@ -1,22 +1,20 @@
-import {defineConfig} from 'vite';
+const {defineConfig} = require('vite');
+const commonjs = require("@rollup/plugin-commonjs");
+import {nodePolyfills} from 'vite-plugin-node-polyfills';
 
-export default defineConfig(({mode}) => ({
+export default defineConfig({
     build: {
         outDir: 'dist',
-        sourcemap: mode === 'development',
-        minify: mode === 'production' ? 'esbuild' : false,
+        sourcemap: true
     },
+    plugins: [
+        commonjs(),
+        nodePolyfills()
+    ],
     server: {
         https: {
-            key: './ssl_cert/127.0.0.1+1-key.pem',
-            cert: './ssl_cert/127.0.0.1+1.pem',
-        },
-        css: {
-            postcss: {
-                plugins: [
-                    require('tailwindcss'),
-                ],
-            },
+         /*   key: './ssl_cert/127.0.0.1-key.pem',
+            cert: './ssl_cert/127.0.0.1.pem',*/
         },
     }
-}));
+});
