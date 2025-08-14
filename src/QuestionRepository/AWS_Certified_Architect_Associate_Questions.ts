@@ -1,9 +1,6 @@
 import { Question } from "@/types/preptypes";
 
 export const AWS_QUESTIONS: Question[] = [
-    // DOMAIN 1 - DESIGN RESILIENT ARCHITECTURES (26%)
-    
-    // Multi-AZ and High Availability
     {
         id: 101,
         questionNumber: 1,
@@ -1063,493 +1060,679 @@ export const AWS_QUESTIONS: Question[] = [
             otherOptions: 'A) Shared cluster violates compliance isolation requirements\nC) Lambda cold starts problematic for web applications\nD) Multi-tenant architecture breaks compliance requirements'
         }
     },
+    // STORAGE CONCEPTS
     {
         id: 141,
         questionNumber: 41,
-        category: 'Design Resilient Architectures - Multi-AZ Deployments',
+        category: 'AWS Storage Concepts',
         difficulty: 'Knowledge',
-        domain: 'Domain 1',
-        questionText: 'A company wants to ensure their RDS database can automatically failover to another Availability Zone in case of an outage. Which feature should they enable?',
+        domain: 'Domain 3: Design High-Performing Architectures',
+        questionText: 'A company needs to choose between different AWS storage types for various workloads. Which statement BEST describes the appropriate use cases for each storage type?',
         options: [
-            { text: 'A) Read Replicas', isCorrect: false },
-            { text: 'B) Multi-AZ Deployment', isCorrect: true },
-            { text: 'C) Cross-Region Replication', isCorrect: false },
-            { text: 'D) Database Snapshots', isCorrect: false }
+            { text: 'A) Use object storage for databases, block storage for file shares, file storage for web content', isCorrect: false },
+            { text: 'B) Use block storage for databases, file storage for shared access, object storage for web content', isCorrect: true },
+            { text: 'C) Use file storage for databases, object storage for shared access, block storage for web content', isCorrect: false },
+            { text: 'D) All storage types can be used interchangeably for any workload', isCorrect: false }
         ],
-        explanation: 'Multi-AZ deployment provides automatic failover capability by maintaining a synchronous standby replica in a different Availability Zone.',
+        explanation: 'Block storage (EBS) provides high IOPS for databases, file storage (EFS) enables shared access, object storage (S3) scales for web content.',
         explanationDetails: {
-            summary: 'Multi-AZ provides automatic failover for high availability:',
+            summary: 'AWS storage type characteristics:',
             breakdown: [
-                'Synchronous data replication to standby instance',
-                'Automatic failover in case of primary instance failure',
-                'Minimal downtime during failover (typically 60-120 seconds)',
-                'No manual intervention required for failover'
+                'Block storage (EBS): High IOPS, low latency, ideal for databases and boot volumes',
+                'File storage (EFS): POSIX-compliant, shared access, good for content repositories',
+                'Object storage (S3): Auto-scaling, REST API, perfect for web content and backups',
+                'Each type optimized for specific access patterns and performance requirements'
             ],
-            otherOptions: 'A) Read Replicas provide scaling, not automatic failover\nC) Cross-Region is for disaster recovery, not automatic failover\nD) Snapshots are for backup, not high availability'
+            otherOptions: 'A) Object storage not suitable for database IOPS requirements\nC) File storage lacks the IOPS performance needed for databases\nD) Each storage type has specific use cases and limitations'
         }
     },
     {
         id: 142,
         questionNumber: 42,
-        category: 'Design Resilient Architectures - Load Balancing',
-        difficulty: 'Comprehension',
-        domain: 'Domain 1',
-        questionText: 'An application requires load balancing at the network layer (Layer 4) with ultra-low latency and the ability to handle millions of requests per second. Which AWS service is most appropriate?',
-        options: [
-            { text: 'A) Application Load Balancer (ALB)', isCorrect: false },
-            { text: 'B) Network Load Balancer (NLB)', isCorrect: true },
-            { text: 'C) Classic Load Balancer', isCorrect: false },
-            { text: 'D) CloudFront', isCorrect: false }
-        ],
-        explanation: 'Network Load Balancer operates at Layer 4, provides ultra-low latency, and can handle millions of requests per second with static IP addresses.',
-        explanationDetails: {
-            summary: 'NLB characteristics for high-performance applications:',
-            breakdown: [
-                'Operates at Layer 4 (Transport layer)',
-                'Ultra-low latency performance',
-                'Handles millions of requests per second',
-                'Provides static IP addresses',
-                'Preserves source IP address'
-            ],
-            otherOptions: 'A) ALB operates at Layer 7, higher latency\nC) Classic LB is legacy, not optimized for high performance\nD) CloudFront is a CDN, not a load balancer'
-        }
-    },
-    {
-        id: 143,
-        questionNumber: 43,
-        category: 'Design Resilient Architectures - Auto Scaling',
+        category: 'AWS Storage Concepts',
         difficulty: 'Application',
-        domain: 'Domain 1',
-        questionText: 'Your web application experiences predictable traffic spikes every weekday from 9 AM to 5 PM. What Auto Scaling strategy would be most cost-effective?',
+        domain: 'Domain 2: Design Resilient Architectures',
+        questionText: 'An enterprise is migrating from on-premises and needs to maintain compatibility with existing storage protocols. They use NFS for Unix systems, SMB for Windows, and iSCSI for SAN storage. Which AWS services provide the BEST protocol compatibility?',
         options: [
-            { text: 'A) Reactive scaling based on CPU utilization', isCorrect: false },
-            { text: 'B) Scheduled scaling with time-based policies', isCorrect: true },
-            { text: 'C) Manual scaling during business hours', isCorrect: false },
-            { text: 'D) Maintaining constant high capacity', isCorrect: false }
+            { text: 'A) S3 for all protocols using third-party gateways', isCorrect: false },
+            { text: 'B) EFS for NFS, FSx for Windows for SMB, Storage Gateway for iSCSI', isCorrect: true },
+            { text: 'C) EBS for all protocols using EC2 instance configuration', isCorrect: false },
+            { text: 'D) DataSync for protocol translation across all storage types', isCorrect: false }
         ],
-        explanation: 'Scheduled scaling allows you to proactively scale based on predictable patterns, ensuring capacity is available before demand increases.',
+        explanation: 'AWS provides native protocol support: EFS (NFS), FSx for Windows (SMB), Storage Gateway (iSCSI) for seamless migration.',
         explanationDetails: {
-            summary: 'Scheduled scaling benefits for predictable workloads:',
+            summary: 'Native AWS protocol support:',
             breakdown: [
-                'Proactive scaling before demand increases',
-                'Eliminates lag time of reactive scaling',
-                'More cost-effective than maintaining constant capacity',
-                'Ensures adequate capacity during known peak periods'
+                'EFS: Native NFS v4.1, POSIX-compliant, Linux/Unix compatibility',
+                'FSx for Windows: Native SMB, Active Directory integration',
+                'Storage Gateway: iSCSI interface, hybrid cloud connectivity',
+                'No application changes required for protocol compatibility'
             ],
-            otherOptions: 'A) Reactive scaling has lag time, may not handle sudden spikes\nC) Manual scaling is not automated and error-prone\nD) Constant high capacity wastes money during low-demand periods'
+            otherOptions: 'A) S3 doesn\'t natively support NFS/SMB/iSCSI protocols\nC) EBS provides block storage but not protocol-level compatibility\nD) DataSync is for data transfer, not protocol translation'
         }
     },
 
-    // Design High-Performing Architectures
+    // S3 DEEP DIVE
+    {
+        id: 143,
+        questionNumber: 43,
+        category: 'AWS S3 Deep Dive',
+        difficulty: 'Application',
+        domain: 'Domain 2: Design Resilient Architectures',
+        questionText: 'A media company requires 99.999999999% (11 9s) data durability for their video assets. They need to understand the difference between S3 durability and availability for their SLA reporting. Which statement is CORRECT about S3 durability vs availability?',
+        options: [
+            { text: 'A) Durability and availability are identical metrics across all S3 storage classes', isCorrect: false },
+            { text: 'B) Durability (11 9s) represents data loss protection, while availability varies by storage class', isCorrect: true },
+            { text: 'C) Availability is always higher than durability in S3', isCorrect: false },
+            { text: 'D) Only S3 Standard provides 11 9s durability', isCorrect: false }
+        ],
+        explanation: 'S3 provides 11 9s durability (data loss protection) across ALL storage classes, but availability (uptime) varies by class.',
+        explanationDetails: {
+            summary: 'S3 durability vs availability:',
+            breakdown: [
+                'Durability (11 9s): Probability of NOT losing data over a year',
+                'Availability varies: Standard (99.99%), IA (99.9%), Glacier (variable)',
+                'All storage classes: Same durability guarantee',
+                'Durability: Data integrity protection through redundancy'
+            ],
+            otherOptions: 'A) Different metrics with different SLA percentages\nC) Availability percentages are typically lower than durability\nD) All S3 storage classes maintain 11 9s durability'
+        }
+    },
     {
         id: 144,
         questionNumber: 44,
-        category: 'Design High-Performing Architectures - Storage',
-        difficulty: 'Knowledge',
-        domain: 'Domain 2',
-        questionText: 'Which EBS volume type provides the highest IOPS performance for latency-sensitive workloads?',
+        category: 'AWS S3 Deep Dive',
+        difficulty: 'Application',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A healthcare organization stores patient records in S3 and needs to maintain full control over encryption keys while ensuring HIPAA compliance. They want to minimize key management overhead but need complete audit trails. Which encryption approach provides the BEST balance?',
         options: [
-            { text: 'A) General Purpose SSD (gp3)', isCorrect: false },
-            { text: 'B) Provisioned IOPS SSD (io2)', isCorrect: true },
-            { text: 'C) Throughput Optimized HDD (st1)', isCorrect: false },
-            { text: 'D) Cold HDD (sc1)', isCorrect: false }
+            { text: 'A) SSE-S3 with AWS-managed keys', isCorrect: false },
+            { text: 'B) SSE-KMS with customer-managed keys', isCorrect: true },
+            { text: 'C) SSE-C with customer-provided keys', isCorrect: false },
+            { text: 'D) Client-side encryption with S3 Encryption Client', isCorrect: false }
         ],
-        explanation: 'Provisioned IOPS SSD (io2) provides the highest IOPS performance with consistent, low-latency performance for I/O-intensive applications.',
+        explanation: 'SSE-KMS with customer-managed keys provides control over keys, audit trails via CloudTrail, and AWS handles key management infrastructure.',
         explanationDetails: {
-            summary: 'io2 volume characteristics:',
+            summary: 'SSE-KMS benefits for HIPAA compliance:',
             breakdown: [
-                'Up to 64,000 IOPS per volume',
-                'Consistent, low-latency performance',
-                'Designed for I/O-intensive applications',
-                '99.999% durability',
-                'Sub-millisecond latency'
+                'Customer control: Create, rotate, and manage encryption keys',
+                'Audit trails: CloudTrail logs all key usage and access',
+                'AWS management: Infrastructure and availability handled by AWS',
+                'HIPAA compliant: Meets regulatory requirements for key control'
             ],
-            otherOptions: 'A) gp3 provides good performance but lower max IOPS\nC) st1 is optimized for throughput, not IOPS\nD) sc1 is designed for infrequent access'
+            otherOptions: 'A) AWS-managed keys don\'t provide sufficient customer control\nC) SSE-C requires managing key storage and availability\nD) Client-side encryption adds complexity without AWS integration benefits'
         }
     },
     {
         id: 145,
         questionNumber: 45,
-        category: 'Design High-Performing Architectures - Caching',
-        difficulty: 'Comprehension',
-        domain: 'Domain 2',
-        questionText: 'An application needs to cache frequently accessed database query results with sub-millisecond latency. Which AWS service is most appropriate?',
+        category: 'AWS S3 Deep Dive',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A content delivery platform stores 200TB of video files with unpredictable access patterns. Analytics show some videos remain popular for months while others are rarely accessed after the first week. They need cost optimization without performance penalties for popular content. Which S3 storage strategy provides optimal cost savings?',
         options: [
-            { text: 'A) Amazon S3', isCorrect: false },
-            { text: 'B) Amazon ElastiCache', isCorrect: true },
-            { text: 'C) Amazon RDS Read Replicas', isCorrect: false },
-            { text: 'D) Amazon CloudFront', isCorrect: false }
+            { text: 'A) Lifecycle policy transitioning all content to S3 IA after 30 days', isCorrect: false },
+            { text: 'B) S3 Intelligent-Tiering with Deep Archive Access tier enabled', isCorrect: true },
+            { text: 'C) Keep popular content in Standard, move others to Glacier based on view counts', isCorrect: false },
+            { text: 'D) Use S3 One Zone-IA for all content to reduce costs', isCorrect: false }
         ],
-        explanation: 'ElastiCache provides in-memory caching with sub-millisecond latency, perfect for caching database query results.',
+        explanation: 'S3 Intelligent-Tiering automatically optimizes costs based on access patterns without retrieval fees for frequent/infrequent tiers, perfect for unpredictable patterns.',
         explanationDetails: {
-            summary: 'ElastiCache for database caching:',
+            summary: 'Intelligent-Tiering benefits for unpredictable access:',
             breakdown: [
-                'In-memory data store with sub-millisecond latency',
-                'Supports Redis and Memcached engines',
-                'Reduces database load by caching frequent queries',
-                'Scales to handle millions of requests per second'
+                'Automatic optimization: No manual lifecycle policies needed',
+                'No retrieval fees: For frequent and infrequent access tiers',
+                'Deep Archive tier: Additional savings for rarely accessed content',
+                'Performance maintained: Popular content stays in frequent tier'
             ],
-            otherOptions: 'A) S3 is object storage, not designed for caching\nC) Read Replicas reduce load but still have database latency\nD) CloudFront caches static content, not database queries'
-        }
-    },
-    {
-        id: 146,
-        questionNumber: 46,
-        category: 'Design High-Performing Architectures - CDN',
-        difficulty: 'Application',
-        domain: 'Domain 2',
-        questionText: 'A global e-commerce website wants to reduce latency for users worldwide while reducing bandwidth costs. The site serves both static content and dynamic API responses. What combination provides the best solution?',
-        options: [
-            { text: 'A) CloudFront for static content only', isCorrect: false },
-            { text: 'B) CloudFront for static content + API Gateway caching for dynamic content', isCorrect: true },
-            { text: 'C) Multiple S3 buckets in different regions', isCorrect: false },
-            { text: 'D) ElastiCache in multiple regions', isCorrect: false }
-        ],
-        explanation: 'CloudFront reduces latency for static content globally, while API Gateway caching handles dynamic content caching close to users.',
-        explanationDetails: {
-            summary: 'Comprehensive caching strategy:',
-            breakdown: [
-                'CloudFront edge locations serve static content globally',
-                'API Gateway caching reduces backend load for dynamic content',
-                'Combined solution addresses both static and dynamic content',
-                'Reduces bandwidth costs and improves user experience'
-            ],
-            otherOptions: 'A) Doesn\'t address dynamic content caching\nC) S3 alone doesn\'t provide edge caching\nD) ElastiCache doesn\'t provide global edge locations'
+            otherOptions: 'A) Fixed lifecycle doesn\'t handle unpredictable patterns\nC) Manual management based on view counts is complex and error-prone\nD) One Zone-IA lacks resilience for valuable content'
         }
     },
 
-    // Design Secure Applications and Architectures
+    // EBS DEEP DIVE
+    {
+        id: 146,
+        questionNumber: 46,
+        category: 'AWS EBS Deep Dive',
+        difficulty: 'Application',
+        domain: 'Domain 3: Design High-Performing Architectures',
+        questionText: 'A database application requires consistent 20,000 IOPS with low latency for transaction processing. The database size is 8TB and growing. Which EBS volume type and configuration provides the BEST performance while supporting future growth?',
+        options: [
+            { text: 'A) gp3 volumes with 20,000 provisioned IOPS', isCorrect: false },
+            { text: 'B) io2 Block Express volumes with 20,000 provisioned IOPS', isCorrect: true },
+            { text: 'C) gp2 volumes in RAID 0 configuration', isCorrect: false },
+            { text: 'D) st1 throughput optimized volumes for cost savings', isCorrect: false }
+        ],
+        explanation: 'io2 Block Express provides consistent IOPS up to 256,000, supports volumes up to 64TB, and offers sub-millisecond latency for databases.',
+        explanationDetails: {
+            summary: 'io2 Block Express advantages for databases:',
+            breakdown: [
+                'Consistent IOPS: 20,000 IOPS guaranteed regardless of volume size',
+                'Sub-millisecond latency: Optimal for transaction processing',
+                'Scalability: Supports up to 64TB volumes for future growth',
+                'Durability: 99.999% annual durability vs 99.9% for gp3'
+            ],
+            otherOptions: 'A) gp3 IOPS can vary with volume size and burst credits\nC) RAID 0 increases failure risk and management complexity\nD) st1 optimized for throughput, not IOPS-intensive workloads'
+        }
+    },
     {
         id: 147,
         questionNumber: 47,
-        category: 'Design Secure Applications - IAM',
-        difficulty: 'Knowledge',
-        domain: 'Domain 3',
-        questionText: 'Which IAM feature allows you to grant temporary credentials to external users without creating permanent IAM users?',
+        category: 'AWS EBS Deep Dive',
+        difficulty: 'Application',
+        domain: 'Domain 2: Design Resilient Architectures',
+        questionText: 'A production database uses EBS volumes and requires point-in-time recovery capability with minimal data loss. The current snapshot strategy creates daily snapshots, but the RPO requirement is 4 hours. Which enhancement provides the BEST backup strategy improvement?',
         options: [
-            { text: 'A) IAM Groups', isCorrect: false },
-            { text: 'B) IAM Roles with Trust Policies', isCorrect: true },
-            { text: 'C) IAM Policies', isCorrect: false },
-            { text: 'D) Access Keys', isCorrect: false }
+            { text: 'A) Increase snapshot frequency to every 4 hours using scheduled snapshots', isCorrect: true },
+            { text: 'B) Enable EBS Fast Snapshot Restore on existing daily snapshots', isCorrect: false },
+            { text: 'C) Configure EBS Multi-Attach to create live replicas', isCorrect: false },
+            { text: 'D) Use AWS Backup service with continuous backup enabled', isCorrect: false }
         ],
-        explanation: 'IAM Roles with Trust Policies allow external entities to assume temporary credentials without permanent IAM users.',
+        explanation: 'Scheduling snapshots every 4 hours directly meets the RPO requirement by ensuring maximum data loss is limited to 4 hours.',
         explanationDetails: {
-            summary: 'IAM Roles for temporary access:',
+            summary: 'Snapshot strategy for 4-hour RPO:',
             breakdown: [
-                'Temporary credentials with configurable expiration',
-                'Trust policies define who can assume the role',
-                'No permanent credentials to manage',
-                'Supports cross-account access and federated users'
+                'Scheduled snapshots: Every 4 hours meets exact RPO requirement',
+                'Incremental backups: Only changed blocks stored, cost-effective',
+                'Point-in-time recovery: Can restore to any snapshot timestamp',
+                'Automated lifecycle: Can retain snapshots based on retention policy'
             ],
-            otherOptions: 'A) Groups organize users, don\'t provide external access\nC) Policies define permissions, not temporary access\nD) Access Keys are permanent credentials'
+            otherOptions: 'B) Fast Snapshot Restore improves RTO, not RPO\nC) Multi-Attach doesn\'t provide backup functionality\nD) Continuous backup overkill for 4-hour RPO requirement'
         }
     },
     {
         id: 148,
         questionNumber: 48,
-        category: 'Design Secure Applications - Encryption',
-        difficulty: 'Comprehension',
-        domain: 'Domain 3',
-        questionText: 'A company needs to encrypt sensitive data in S3 with customer-managed encryption keys and audit trails of key usage. Which solution meets these requirements?',
+        category: 'AWS EBS Deep Dive',
+        difficulty: 'Expert',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A financial application stores sensitive data on EBS volumes and requires encryption in transit and at rest. The application accesses data across multiple AZs and needs to ensure encryption keys remain under customer control with automatic rotation. Which configuration provides comprehensive encryption coverage?',
         options: [
-            { text: 'A) S3 Server-Side Encryption with Amazon S3-Managed Keys (SSE-S3)', isCorrect: false },
-            { text: 'B) S3 Server-Side Encryption with AWS KMS (SSE-KMS)', isCorrect: true },
-            { text: 'C) S3 Client-Side Encryption', isCorrect: false },
-            { text: 'D) S3 Bucket Policies', isCorrect: false }
+            { text: 'A) EBS encryption with AWS managed keys and HTTPS application protocols', isCorrect: false },
+            { text: 'B) EBS encryption with customer-managed KMS keys, automatic rotation enabled, and application-level TLS', isCorrect: true },
+            { text: 'C) Instance store volumes with client-side encryption', isCorrect: false },
+            { text: 'D) EBS encryption with customer-provided keys (SSE-C)', isCorrect: false }
         ],
-        explanation: 'SSE-KMS provides customer-managed keys through AWS KMS with detailed audit trails via CloudTrail.',
+        explanation: 'Customer-managed KMS keys provide control with automatic rotation, EBS encryption handles data at rest, and TLS provides encryption in transit.',
         explanationDetails: {
-            summary: 'SSE-KMS benefits for compliance:',
+            summary: 'Comprehensive EBS encryption strategy:',
             breakdown: [
-                'Customer-managed encryption keys in AWS KMS',
-                'Detailed audit trails through CloudTrail',
-                'Automatic key rotation capabilities',
-                'Fine-grained access control for encryption keys'
+                'Customer-managed KMS keys: Full control over encryption keys',
+                'Automatic rotation: Annual key rotation without service interruption',
+                'EBS encryption: All data at rest encrypted including snapshots',
+                'Application TLS: Encrypts data in transit between instances'
             ],
-            otherOptions: 'A) SSE-S3 uses AWS-managed keys, not customer-managed\nC) Client-side encryption requires application changes\nD) Bucket policies control access, not encryption'
-        }
-    },
-    {
-        id: 149,
-        questionNumber: 49,
-        category: 'Design Secure Applications - Network Security',
-        difficulty: 'Application',
-        domain: 'Domain 3',
-        questionText: 'You need to implement defense-in-depth for a web application with the following requirements: DDoS protection, WAF capabilities, and SSL termination. What combination provides the most comprehensive solution?',
-        options: [
-            { text: 'A) CloudFront + AWS Shield + AWS WAF + ALB', isCorrect: true },
-            { text: 'B) Just AWS WAF on ALB', isCorrect: false },
-            { text: 'C) CloudFront + ALB only', isCorrect: false },
-            { text: 'D) AWS Shield Advanced only', isCorrect: false }
-        ],
-        explanation: 'This combination provides comprehensive protection: CloudFront for global distribution and basic DDoS protection, Shield for advanced DDoS protection, WAF for application-layer filtering, and ALB for SSL termination and load balancing.',
-        explanationDetails: {
-            summary: 'Defense-in-depth architecture:',
-            breakdown: [
-                'CloudFront: Global edge locations and basic DDoS protection',
-                'AWS Shield: Advanced DDoS protection',
-                'AWS WAF: Application-layer attack filtering',
-                'ALB: SSL termination and intelligent load balancing'
-            ],
-            otherOptions: 'B) WAF alone doesn\'t provide DDoS protection\nC) Missing WAF and Shield protection\nD) Shield alone doesn\'t provide WAF or SSL termination'
+            otherOptions: 'A) AWS managed keys don\'t provide customer control\nC) Instance store data is temporary, not suitable for persistent financial data\nD) Customer-provided keys require manual key management'
         }
     },
 
-    // Design Cost-Optimized Architectures
+    // FILE SYSTEMS DEEP DIVE
     {
-        id: 150,
-        questionNumber: 50,
-        category: 'Design Cost-Optimized Architectures - Instance Types',
-        difficulty: 'Knowledge',
-        domain: 'Domain 4',
-        questionText: 'Which EC2 pricing model offers the highest discount for steady-state workloads with flexible instance types?',
+        id: 149,
+        questionNumber: 49,
+        category: 'AWS File Systems Deep Dive',
+        difficulty: 'Application',
+        domain: 'Domain 3: Design High-Performing Architectures',
+        questionText: 'A video editing company needs shared storage accessible from 50 EC2 instances across multiple AZs for collaborative editing projects. Files range from 1GB to 50GB, and editors require low-latency access. Performance needs vary from 1 GB/s during off-hours to 10 GB/s during production. Which file system solution provides the BEST performance and scalability?',
         options: [
-            { text: 'A) On-Demand Instances', isCorrect: false },
-            { text: 'B) Reserved Instances', isCorrect: false },
-            { text: 'C) Savings Plans', isCorrect: true },
-            { text: 'D) Spot Instances', isCorrect: false }
+            { text: 'A) Amazon EFS with General Purpose performance mode', isCorrect: false },
+            { text: 'B) Amazon EFS with Max I/O performance mode and Provisioned Throughput', isCorrect: true },
+            { text: 'C) Amazon FSx for Lustre with scratch file system', isCorrect: false },
+            { text: 'D) Multiple EBS volumes shared using NFS on EC2', isCorrect: false }
         ],
-        explanation: 'Savings Plans offer the highest discounts (up to 72%) with flexibility across instance types, sizes, and regions.',
+        explanation: 'EFS Max I/O mode supports higher IOPS for concurrent access, while Provisioned Throughput ensures consistent 10 GB/s performance regardless of file system size.',
         explanationDetails: {
-            summary: 'Savings Plans advantages:',
+            summary: 'EFS configuration for video editing workloads:',
             breakdown: [
-                'Up to 72% discount compared to On-Demand pricing',
-                'Flexibility across instance types, sizes, OS, and regions',
-                'Automatic application to eligible usage',
-                'Lower commitment complexity than Reserved Instances'
+                'Max I/O mode: Higher IOPS limit for 50 concurrent clients',
+                'Provisioned Throughput: Guarantees 10 GB/s during peak production',
+                'Multi-AZ access: Native support across availability zones',
+                'POSIX compliance: Standard file system semantics for editing software'
             ],
-            otherOptions: 'A) On-Demand has no discount\nB) Reserved Instances have less flexibility\nD) Spot Instances can be interrupted'
+            otherOptions: 'A) General Purpose mode has lower IOPS limits for concurrent access\nC) Lustre scratch file system designed for HPC, not collaborative editing\nD) EBS volumes can\'t be natively shared between instances'
         }
     },
     {
+        id: 150,
+        questionNumber: 50,
+        category: 'AWS File Systems Deep Dive',
+        difficulty: 'Expert',
+        domain: 'Domain 2: Design High-Performing Architectures',
+        questionText: 'A Windows-based application requires high-performance file storage with Active Directory integration, SMB protocol support, and sub-millisecond latencies. The workload involves intensive random I/O operations on small files. Current on-premises Windows File Server achieves 100,000 IOPS. Which AWS solution provides equivalent performance?',
+        options: [
+            { text: 'A) Amazon FSx for Windows File Server with SSD storage', isCorrect: true },
+            { text: 'B) Amazon EFS with Windows file gateway', isCorrect: false },
+            { text: 'C) EC2 Windows instance with attached io2 EBS volumes', isCorrect: false },
+            { text: 'D) Amazon FSx for Lustre with Windows connectivity', isCorrect: false }
+        ],
+        explanation: 'FSx for Windows File Server provides native SMB, Active Directory integration, SSD storage for high IOPS, and sub-millisecond latencies specifically optimized for Windows workloads.',
+        explanationDetails: {
+            summary: 'FSx for Windows File Server benefits:',
+            breakdown: [
+                'Native SMB: Full Windows file system compatibility',
+                'Active Directory: Seamless user authentication and authorization',
+                'SSD storage: Up to 100,000+ IOPS for random I/O workloads',
+                'Sub-millisecond latency: Optimized for Windows application performance'
+            ],
+            otherOptions: 'B) EFS doesn\'t natively support SMB or Active Directory\nC) Self-managed solution lacks native SMB optimization\nD) FSx for Lustre designed for Linux HPC workloads, not Windows'
+        }
+    },
+
+    // HYBRID STORAGE AND MIGRATION
+    {
         id: 151,
         questionNumber: 51,
-        category: 'Design Cost-Optimized Architectures - Storage',
-        difficulty: 'Comprehension',
-        domain: 'Domain 4',
-        questionText: 'A company has 100 TB of data that is accessed once per year for compliance purposes. Which S3 storage class provides the most cost-effective solution?',
+        category: 'AWS Hybrid Storage Migration',
+        difficulty: 'Application',
+        domain: 'Domain 1: Design Resilient Architectures',
+        questionText: 'A company needs to migrate 500TB of archival data from on-premises tape storage to AWS. The data is rarely accessed but must be retrievable within 12 hours when needed. The migration must complete within 3 months with minimal impact on existing network bandwidth. Which migration strategy is MOST efficient?',
         options: [
-            { text: 'A) S3 Standard', isCorrect: false },
-            { text: 'B) S3 Standard-IA', isCorrect: false },
-            { text: 'C) S3 Glacier Deep Archive', isCorrect: true },
-            { text: 'D) S3 One Zone-IA', isCorrect: false }
+            { text: 'A) AWS DataSync over Direct Connect for gradual migration', isCorrect: false },
+            { text: 'B) Multiple AWS Snowball Edge devices shipped in batches to S3 Glacier Deep Archive', isCorrect: true },
+            { text: 'C) Storage Gateway Tape Gateway for gradual cloud migration', isCorrect: false },
+            { text: 'D) AWS Transfer Family for secure file transfer', isCorrect: false }
         ],
-        explanation: 'S3 Glacier Deep Archive is the most cost-effective storage class for long-term archival with retrieval times of 12 hours or less.',
+        explanation: 'Snowball Edge devices handle large data volumes efficiently without network impact, while Glacier Deep Archive provides cost-effective storage with 12-hour retrieval.',
         explanationDetails: {
-            summary: 'Glacier Deep Archive for compliance data:',
+            summary: 'Large-scale archival migration strategy:',
             breakdown: [
-                'Lowest cost storage class in S3',
-                'Designed for data accessed once or twice per year',
-                'Retrieval time of 12 hours or less',
-                '99.999999999% (11 9s) durability'
+                'Snowball Edge capacity: 80TB per device, 7 devices for 500TB',
+                'No network impact: Physical data transfer bypasses internet',
+                'Glacier Deep Archive: Lowest cost storage for rarely accessed data',
+                '12-hour retrieval: Meets business requirement for archive access'
             ],
-            otherOptions: 'A) Standard is for frequent access\nB) Standard-IA for monthly access\nD) One Zone-IA for infrequent but faster access'
+            otherOptions: 'A) DataSync over network would take months and impact bandwidth\nC) Tape Gateway for ongoing hybrid, not one-time migration\nD) Transfer Family not optimized for 500TB bulk migration'
         }
     },
     {
         id: 152,
         questionNumber: 52,
-        category: 'Design Cost-Optimized Architectures - Monitoring',
-        difficulty: 'Application',
-        domain: 'Domain 4',
-        questionText: 'Your organization wants to implement cost monitoring and automatically stop resources when budgets are exceeded. What combination of AWS services accomplishes this?',
+        category: 'AWS Hybrid Storage Migration',
+        difficulty: 'Expert',
+        domain: 'Domain 3: Design High-Performing Architectures',
+        questionText: 'A media company operates a hybrid architecture where video editors work on-premises but need seamless access to cloud storage for rendering jobs. Local performance must remain unaffected while providing transparent cloud storage scalability. Frequently accessed files should be available locally. Which hybrid storage solution provides the BEST user experience?',
         options: [
-            { text: 'A) AWS Budgets + Lambda functions + CloudWatch Events', isCorrect: true },
-            { text: 'B) Cost Explorer only', isCorrect: false },
-            { text: 'C) CloudWatch Alarms only', isCorrect: false },
-            { text: 'D) AWS Config Rules', isCorrect: false }
+            { text: 'A) AWS Storage Gateway File Gateway with local cache', isCorrect: true },
+            { text: 'B) AWS DataSync scheduled sync between on-premises and S3', isCorrect: false },
+            { text: 'C) Direct Connect with EFS mounted on workstations', isCorrect: false },
+            { text: 'D) S3 bucket mounted using third-party NFS gateway', isCorrect: false }
         ],
-        explanation: 'AWS Budgets can trigger alerts, Lambda functions can execute cost control actions, and CloudWatch Events coordinates the automation.',
+        explanation: 'Storage Gateway File Gateway provides NFS interface with intelligent local caching, transparent S3 integration, and optimal performance for frequently accessed files.',
         explanationDetails: {
-            summary: 'Automated cost control architecture:',
+            summary: 'File Gateway hybrid benefits:',
             breakdown: [
-                'AWS Budgets: Set spending thresholds and alerts',
-                'Lambda functions: Execute automated responses (stop instances, etc.)',
-                'CloudWatch Events: Trigger actions based on budget alerts',
-                'Comprehensive automation for cost control'
+                'Local cache: Frequently accessed files available at local speeds',
+                'Transparent scaling: Files automatically stored in S3',
+                'NFS interface: Standard file system access for editing applications',
+                'Intelligent caching: Recently and frequently used files cached locally'
             ],
-            otherOptions: 'B) Cost Explorer only provides reporting, no automation\nC) CloudWatch Alarms don\'t monitor costs directly\nD) Config Rules are for compliance, not cost control'
+            otherOptions: 'B) DataSync requires scheduled sync, not transparent access\nC) EFS over Direct Connect has latency for large video files\nD) Third-party solutions lack AWS service integration and support'
         }
     },
 
-    // Additional Mixed Domain Questions
+    // DATA SECURITY CONCEPTS
     {
         id: 153,
         questionNumber: 53,
-        category: 'Design Resilient Architectures - Disaster Recovery',
+        category: 'AWS Data Security Concepts',
         difficulty: 'Application',
-        domain: 'Domain 1',
-        questionText: 'A critical application requires an RTO of 1 hour and RPO of 15 minutes. The application runs on EC2 instances with data stored in RDS. What disaster recovery strategy is most appropriate?',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A financial services company needs to automatically discover and protect sensitive data across 200 S3 buckets containing customer documents. They require automated classification, policy enforcement, and immediate alerts for data exposure risks. Which combination provides comprehensive data security automation?',
         options: [
-            { text: 'A) Backup and Restore', isCorrect: false },
-            { text: 'B) Pilot Light', isCorrect: false },
-            { text: 'C) Warm Standby', isCorrect: true },
-            { text: 'D) Multi-Site Active/Active', isCorrect: false }
+            { text: 'A) AWS Config rules for bucket policies and CloudWatch for monitoring', isCorrect: false },
+            { text: 'B) Amazon Macie for discovery and classification, EventBridge for alerts, and S3 Block Public Access', isCorrect: true },
+            { text: 'C) AWS Inspector for vulnerability scanning and GuardDuty for threats', isCorrect: false },
+            { text: 'D) Custom Lambda functions with CloudTrail for access monitoring', isCorrect: false }
         ],
-        explanation: 'Warm Standby meets the 1-hour RTO requirement while being more cost-effective than Multi-Site Active/Active.',
+        explanation: 'Macie uses ML to discover sensitive data, provides automatic classification, EventBridge enables real-time alerts, and Block Public Access prevents exposure.',
         explanationDetails: {
-            summary: 'Warm Standby characteristics:',
+            summary: 'Automated data security components:',
             breakdown: [
-                'Scaled-down version of production running in DR region',
-                'Can meet RTO of minutes to hours',
-                'Continuous data replication for low RPO',
-                'More cost-effective than full active/active setup'
+                'Amazon Macie: ML-powered sensitive data discovery and classification',
+                'EventBridge integration: Real-time alerts for policy violations',
+                'S3 Block Public Access: Prevents accidental public exposure',
+                'Automated findings: Continuous monitoring across all 200 buckets'
             ],
-            otherOptions: 'A) Backup/Restore takes hours, exceeds RTO\nB) Pilot Light might not meet 1-hour RTO\nD) Multi-Site is more expensive than needed'
+            otherOptions: 'A) Config and CloudWatch don\'t provide sensitive data discovery\nC) Inspector and GuardDuty focus on infrastructure, not data classification\nD) Custom solutions require significant development and maintenance'
         }
     },
     {
         id: 154,
         questionNumber: 54,
-        category: 'Design High-Performing Architectures - Database',
-        difficulty: 'Comprehension',
-        domain: 'Domain 2',
-        questionText: 'An application performs mostly read operations with occasional writes. The read workload is 10x higher than writes. What database configuration optimizes performance?',
+        category: 'AWS Data Security Concepts',
+        difficulty: 'Expert',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A healthcare organization must implement data classification and protection for patient records across multiple AWS services (S3, RDS, DynamoDB). They need automated discovery of PHI, policy-based access controls, and audit trails meeting HIPAA requirements. Which architecture provides comprehensive data protection?',
         options: [
-            { text: 'A) Single RDS instance with Multi-AZ', isCorrect: false },
-            { text: 'B) RDS with Read Replicas', isCorrect: true },
-            { text: 'C) DynamoDB with Global Tables', isCorrect: false },
-            { text: 'D) ElastiCache only', isCorrect: false }
+            { text: 'A) Amazon Macie for S3, database activity streams for RDS, and VPC Flow Logs', isCorrect: false },
+            { text: 'B) Amazon Macie for S3, AWS CloudTrail data events, and customer-managed KMS keys across all services', isCorrect: true },
+            { text: 'C) AWS Config for compliance monitoring and GuardDuty for threat detection', isCorrect: false },
+            { text: 'D) Custom data loss prevention (DLP) solution with third-party tools', isCorrect: false }
         ],
-        explanation: 'Read Replicas distribute read traffic across multiple database instances while the primary handles writes.',
+        explanation: 'Macie discovers PHI in S3, CloudTrail data events provide comprehensive audit trails, and customer-managed KMS keys ensure encryption control across all services.',
         explanationDetails: {
-            summary: 'Read Replicas for read-heavy workloads:',
+            summary: 'HIPAA-compliant data protection architecture:',
             breakdown: [
-                'Offload read traffic from primary database',
-                'Multiple read replicas can scale read capacity',
-                'Primary instance dedicated to write operations',
-                'Improves overall application performance'
+                'Macie: Automated PHI discovery and classification in S3',
+                'CloudTrail data events: Complete audit trail of data access',
+                'Customer-managed KMS: Encryption control across S3, RDS, DynamoDB',
+                'Policy-based access: IAM policies with resource-based conditions'
             ],
-            otherOptions: 'A) Single instance can\'t handle high read volume\nC) DynamoDB Global Tables are for multi-region, not read scaling\nD) ElastiCache alone can\'t handle writes'
+            otherOptions: 'A) Missing encryption control and comprehensive audit coverage\nC) Config and GuardDuty don\'t provide PHI discovery and classification\nD) Custom solutions require extensive compliance validation'
         }
     },
+
+    // ENCRYPTION
     {
         id: 155,
         questionNumber: 55,
-        category: 'Design Secure Applications - Data Protection',
-        difficulty: 'Application',
-        domain: 'Domain 3',
-        questionText: 'A healthcare application must ensure PHI (Protected Health Information) is encrypted in transit and at rest, with detailed access logging. Which combination meets HIPAA compliance requirements?',
+        category: 'AWS Encryption',
+        difficulty: 'Expert',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A multinational corporation needs end-to-end encryption for data stored across AWS services in multiple regions. They require customer control over encryption keys, automatic rotation, cross-region access, and integration with their existing HSM infrastructure. Which encryption strategy provides the MOST comprehensive solution?',
         options: [
-            { text: 'A) HTTPS + S3 SSE-S3 + CloudTrail', isCorrect: false },
-            { text: 'B) HTTPS + S3 SSE-KMS + CloudTrail + VPC Flow Logs', isCorrect: true },
-            { text: 'C) TLS + S3 Default Encryption', isCorrect: false },
-            { text: 'D) HTTPS + S3 Bucket Policies', isCorrect: false }
+            { text: 'A) AWS KMS customer-managed keys with automatic rotation in each region', isCorrect: false },
+            { text: 'B) AWS CloudHSM cluster with custom key management application', isCorrect: true },
+            { text: 'C) Client-side encryption with application-managed keys', isCorrect: false },
+            { text: 'D) AWS KMS with imported key material from on-premises HSM', isCorrect: false }
         ],
-        explanation: 'This combination provides comprehensive encryption and logging: HTTPS for transit, SSE-KMS for detailed key management, CloudTrail for API logging, and VPC Flow Logs for network monitoring.',
+        explanation: 'CloudHSM provides dedicated hardware security modules with full customer control, integrates with existing HSM infrastructure, and supports cross-region key management.',
         explanationDetails: {
-            summary: 'HIPAA-compliant architecture components:',
+            summary: 'CloudHSM comprehensive encryption benefits:',
             breakdown: [
-                'HTTPS: Encryption in transit',
-                'SSE-KMS: Customer-managed encryption at rest',
-                'CloudTrail: Detailed API access logging',
-                'VPC Flow Logs: Network traffic monitoring'
+                'Dedicated HSM: Full customer control over encryption operations',
+                'FIPS 140-2 Level 3: Highest security certification available',
+                'Cross-region clustering: Keys available across multiple regions',
+                'HSM integration: Compatible with existing on-premises HSM infrastructure'
             ],
-            otherOptions: 'A) SSE-S3 doesn\'t provide customer key management\nC) Missing comprehensive logging\nD) Bucket policies don\'t provide encryption'
+            otherOptions: 'A) KMS keys are region-specific and don\'t integrate with existing HSM\nC) Application-managed keys lack HSM security and are difficult to manage at scale\nD) Imported key material in KMS doesn\'t provide full HSM integration'
         }
     },
-    // Add these questions to your AWS_Certified_Architect_Associate_Questions.ts file
-
     {
         id: 156,
         questionNumber: 56,
-        category: 'AWS Cost Optimization - Storage Lifecycle',
+        category: 'AWS Encryption',
         difficulty: 'Application',
-        domain: 'Domain 4: Design Cost-Optimized Architectures',
-        questionText: 'A media production company generates 5TB of raw video footage daily. This footage is actively accessed by editors for the first 7 days, then rarely accessed for the next 90 days, and must be retained for 5 years for legal compliance. Which S3 lifecycle policy and storage class combination provides the most cost-effective solution?',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A development team needs to encrypt application data before storing it in DynamoDB. They want to minimize performance impact while ensuring field-level encryption for sensitive columns (SSN, credit card numbers) but allow searching on encrypted email addresses. Which encryption approach provides the BEST balance of security and functionality?',
         options: [
-            { text: 'A) S3 Standard for 7 days, then S3 One Zone-IA for 90 days, then S3 Glacier Deep Archive for 5 years.', isCorrect: false },
-            { text: 'B) S3 Intelligent-Tiering with Archival Access Tier for 5 years.', isCorrect: false },
-            { text: 'C) S3 Standard for 7 days, then S3 Standard-IA for 90 days, then S3 Glacier Flexible Retrieval for 5 years.', isCorrect: true },
-            { text: 'D) Direct upload to S3 Glacier Deep Archive for all footage.', isCorrect: false }
+            { text: 'A) DynamoDB encryption at rest with AWS managed keys', isCorrect: false },
+            { text: 'B) AWS DynamoDB Encryption Client with deterministic encryption for emails, probabilistic for sensitive fields', isCorrect: true },
+            { text: 'C) Application-level AES encryption for all fields', isCorrect: false },
+            { text: 'D) AWS KMS encryption for entire DynamoDB table', isCorrect: false }
         ],
-        explanation: 'S3 Standard-IA is cost-effective for infrequently accessed data. S3 Glacier Flexible Retrieval (formerly S3 Glacier) is suitable for long-term archives that are rarely accessed but need retrieval within hours, meeting the 5-year retention requirement cost-effectively. S3 Intelligent-Tiering adds a small monitoring fee, and while it automates tiering, for predictable access patterns, explicit lifecycle rules are often more cost-efficient. S3 One Zone-IA lacks multi-AZ resilience. Direct upload to Glacier Deep Archive would make active editing impractical due to retrieval times and costs.',
+        explanation: 'DynamoDB Encryption Client provides field-level encryption with deterministic encryption for searchable fields and probabilistic encryption for maximum security on sensitive data.',
         explanationDetails: {
-            summary: 'Optimizing video storage costs based on access patterns and compliance:',
+            summary: 'Field-level encryption strategy:',
             breakdown: [
-                '**S3 Standard (Days 1-7):** For active editing and frequent access, ensuring low latency.',
-                '**S3 Standard-IA (Days 8-97):** For infrequently accessed but readily available data, offering lower storage costs per GB.',
-                '**S3 Glacier Flexible Retrieval (Days 98-5 years):** For long-term archiving with flexible retrieval times (minutes to hours), providing the lowest storage costs while meeting compliance for 5 years.',
-                'This tiered approach minimizes overall costs by matching storage class to access frequency.',
+                'Deterministic encryption: Same email always produces same ciphertext (searchable)',
+                'Probabilistic encryption: Different ciphertext each time (maximum security)',
+                'Client-side encryption: Data encrypted before sending to DynamoDB',
+                'Performance optimized: Only sensitive fields encrypted, not entire records'
             ],
-            otherOptions: 'A) S3 One Zone-IA is not recommended for critical data due to lower durability (single AZ). \nB) S3 Intelligent-Tiering is good for unknown or changing access patterns, but for *predictable* patterns, explicit lifecycle rules can be more cost-optimized. \nD) Direct upload to Glacier Deep Archive has retrieval times of hours to days, which is incompatible with the first 7 days of active access.'
+            otherOptions: 'A) Table-level encryption doesn\'t provide field-level control\nC) Application encryption without library optimization impacts performance\nD) KMS table encryption encrypts all data, doesn\'t enable selective searching'
         }
     },
+
+    // GOVERNANCE AND COMPLIANCE
     {
         id: 157,
-        questionNumber: 57/* Assign next sequential number */,
-        category: 'AWS Cost Optimization - Compute Instance Selection',
+        questionNumber: 57,
+        category: 'AWS Governance Compliance',
         difficulty: 'Expert',
-        domain: 'Domain 4: Design Cost-Optimized Architectures',
-        questionText: 'A media rendering farm needs to process large video files. The jobs are interruptible and can be restarted from checkpoints. They require massive parallel processing capacity, but only during off-peak hours (10 PM - 6 AM local time). Which EC2 purchasing option offers the most significant cost savings for this workload?',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A regulated financial institution must demonstrate continuous compliance with SOC 2 requirements for data storage. They need automated policy enforcement, compliance reporting, and evidence collection across 50 AWS accounts. Non-compliant resources must be automatically remediated. Which governance framework provides comprehensive compliance automation?',
         options: [
-            { text: 'A) Reserved Instances with a 1-year No Upfront payment option.', isCorrect: false },
-            { text: 'B) On-Demand Instances with Auto Scaling based on queue depth.', isCorrect: false },
-            { text: 'C) Spot Instances across multiple Availability Zones with diversified instance types.', isCorrect: true },
-            { text: 'D) Dedicated Hosts for maximum performance isolation.', isCorrect: false }
+            { text: 'A) AWS Config with custom rules and SNS notifications', isCorrect: false },
+            { text: 'B) AWS Organizations with SCPs, Config Conformance Packs, and Systems Manager Automation', isCorrect: true },
+            { text: 'C) AWS CloudFormation with compliance templates', isCorrect: false },
+            { text: 'D) AWS Security Hub with manual remediation workflows', isCorrect: false }
         ],
-        explanation: 'Spot Instances provide the largest discount (up to 90%) and are ideal for fault-tolerant, flexible workloads that can handle interruptions and specific time windows. Using them across multiple AZs and with diverse instance types further minimizes the risk of interruption by allowing the Auto Scaling Group to acquire capacity from various pools.',
+        explanation: 'Organizations provides account governance, Conformance Packs enable SOC 2 compliance checks, and Systems Manager Automation handles remediation across all accounts.',
         explanationDetails: {
-            summary: 'Spot Instances for interruptible, flexible workloads:',
+            summary: 'Comprehensive compliance automation:',
             breakdown: [
-                '**Cost Savings:** Spot Instances can offer up to 90% savings compared to On-Demand prices.',
-                '**Fault Tolerance:** The workload is interruptible and can resume from checkpoints, making it suitable for Spot Instances.',
-                '**Capacity Diversification:** Using multiple AZs and diversified instance types increases the likelihood of obtaining and maintaining Spot capacity.',
-                '**Time-Specific Needs:** The off-peak hour requirement aligns well with the availability of Spot capacity.',
+                'Organizations + SCPs: Account-level policy enforcement',
+                'Config Conformance Packs: Pre-built SOC 2 compliance rules',
+                'Systems Manager Automation: Automatic remediation of non-compliant resources',
+                'Centralized reporting: Compliance status across all 50 accounts'
             ],
-            otherOptions: 'A) Reserved Instances offer significant savings (up to 75%) but are for *consistent*, predictable usage, and are less flexible for burstable or interruptible workloads. \nB) On-Demand instances are expensive and do not offer the substantial savings needed for a massive, cost-optimized rendering farm. \nD) Dedicated Hosts are the most expensive option, primarily used for licensing or strict compliance requirements, not cost optimization for this type of workload.'
+            otherOptions: 'A) Config alone lacks account-level governance and automated remediation\nC) CloudFormation provides deployment compliance, not ongoing monitoring\nD) Security Hub requires manual remediation, not automated'
         }
     },
     {
         id: 158,
         questionNumber: 58,
-        category: 'AWS Cost Optimization - Data Transfer',
-        difficulty: 'Comprehension',
-        domain: 'Domain 4: Design Cost-Optimized Architectures',
-        questionText: 'An application hosted on EC2 instances in `us-east-1` frequently retrieves large static files (several GBs each) stored in an S3 bucket in the same region. Users accessing the application globally complain about high latency and slow downloads, contributing to increased data transfer costs. Which solution provides the best balance of performance improvement and cost reduction for serving these files to global users?',
+        category: 'AWS Governance Compliance',
+        difficulty: 'Application',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A global company must ensure S3 buckets across all regions comply with data residency requirements. EU data must stay in EU regions, US data in US regions, with automatic policy enforcement and compliance reporting. Which solution provides the MOST effective governance?',
         options: [
-            { text: 'A) Move the S3 bucket to a region closer to the majority of users (e.g., `eu-central-1`).', isCorrect: false },
-            { text: 'B) Implement Amazon CloudFront with the S3 bucket as the origin.', isCorrect: true },
-            { text: 'C) Use S3 Transfer Acceleration for file downloads.', isCorrect: false },
-            { text: 'D) Increase the bandwidth of the EC2 instances.', isCorrect: false }
+            { text: 'A) IAM policies restricting S3 actions based on user location', isCorrect: false },
+            { text: 'B) S3 bucket policies with aws:RequestedRegion condition keys', isCorrect: false },
+            { text: 'C) AWS Organizations SCPs with region restrictions based on data classification tags', isCorrect: true },
+            { text: 'D) AWS Config rules monitoring bucket creation across regions', isCorrect: false }
         ],
-        explanation: 'Amazon CloudFront, a Content Delivery Network (CDN), caches static content at edge locations globally. This reduces latency by serving content closer to users and significantly reduces data transfer costs out of AWS regions by leveraging CloudFront\'s lower egress rates and caching efficiencies.',
+        explanation: 'Organizations SCPs provide account-level enforcement that cannot be overridden, with tag-based conditions enabling automatic data residency compliance.',
         explanationDetails: {
-            summary: 'CloudFront benefits for global static content delivery:',
+            summary: 'Data residency governance with SCPs:',
             breakdown: [
-                '**Reduced Latency:** Content is served from CloudFront edge locations, geographically closer to users, improving download speeds.',
-                '**Cost Reduction:** CloudFront egress rates are typically lower than direct EC2 or S3 egress rates to the internet. Caching also reduces repeated requests to the S3 origin, further lowering costs.',
-                '**Scalability:** CloudFront automatically scales to handle large numbers of concurrent users and traffic spikes.',
-                '**Security:** Integrates with AWS WAF and Shield for DDoS protection.',
+                'SCPs: Cannot be overridden by account-level permissions',
+                'Tag-based conditions: Automatically enforce based on data classification',
+                'Region restrictions: Prevent EU data creation in non-EU regions',
+                'Organization-wide: Applies to all current and future accounts'
             ],
-            otherOptions: 'A) Moving the S3 bucket helps users in one specific region but does not solve global latency or cost issues for users in other regions. \nC) S3 Transfer Acceleration is primarily for *uploading* data to S3 over long distances, not for serving content for download. \nD) Increasing EC2 instance bandwidth would increase costs without addressing global latency, as data would still egress directly from the EC2 region across the internet to distant users.'
+            otherOptions: 'A) IAM policies can be overridden by account administrators\nB) Bucket policies only apply after bucket creation\nD) Config rules detect violations but don\'t prevent them'
+        }
+    },
+
+    // STORAGE RESILIENCY AND SCALABILITY
+    {
+        id: 159,
+        questionNumber: 59,
+        category: 'AWS Storage Resiliency Scalability',
+        difficulty: 'Expert',
+        domain: 'Domain 2: Design Resilient Architectures',
+        questionText: 'A video streaming platform stores 1PB of content with global distribution requirements. They need 99.99% availability, automatic failover, and the ability to handle 10x traffic spikes during major events. Current single-region S3 architecture shows latency issues for international users. Which architecture provides optimal resiliency and global performance?',
+        options: [
+            { text: 'A) S3 Cross-Region Replication with CloudFront distribution', isCorrect: true },
+            { text: 'B) Multi-region S3 buckets with Route 53 latency-based routing', isCorrect: false },
+            { text: 'C) S3 Transfer Acceleration with single-region storage', isCorrect: false },
+            { text: 'D) EFS with VPC peering across regions', isCorrect: false }
+        ],
+        explanation: 'S3 CRR provides data resilience and regional availability, while CloudFront edge locations ensure global low-latency access and can handle traffic spikes automatically.',
+        explanationDetails: {
+            summary: 'Global content delivery architecture:',
+            breakdown: [
+                'S3 CRR: Automatic replication across regions for resilience',
+                'CloudFront: 400+ edge locations for global low-latency delivery',
+                'Auto-scaling: CloudFront handles 10x traffic spikes automatically',
+                '99.99% availability: S3 + CloudFront combined SLA exceeds requirement'
+            ],
+            otherOptions: 'B) Route 53 doesn\'t provide edge caching for content delivery\nC) Transfer Acceleration only helps uploads, not global content delivery\nD) EFS not designed for 1PB content delivery workloads'
         }
     },
     {
         id: 160,
         questionNumber: 60,
-        category: 'AWS Cost Optimization - Right-Sizing',
+        category: 'AWS Storage Resiliency Scalability',
+        difficulty: 'Application',
+        domain: 'Domain 2: Design Resilient Architectures',
+        questionText: 'An e-commerce platform experiences seasonal traffic patterns with 50x increase during holiday sales. Their product catalog and user-generated content storage must scale automatically without performance degradation. Current EBS-based storage architecture requires manual intervention during peaks. Which storage architecture provides automatic scalability?',
+        options: [
+            { text: 'A) Auto Scaling EBS volumes with CloudWatch metrics', isCorrect: false },
+            { text: 'B) Amazon S3 with CloudFront for content delivery and Lambda for processing', isCorrect: true },
+            { text: 'C) Amazon EFS with Provisioned Throughput mode', isCorrect: false },
+            { text: 'D) Multiple EBS volumes in RAID configuration', isCorrect: false }
+        ],
+        explanation: 'S3 provides unlimited automatic scaling, CloudFront handles traffic spikes through edge caching, and Lambda scales processing automatically with demand.',
+        explanationDetails: {
+            summary: 'Auto-scaling storage architecture:',
+            breakdown: [
+                'S3 unlimited scaling: Handles any amount of data and requests',
+                'CloudFront edge caching: Reduces origin load during traffic spikes',
+                'Lambda auto-scaling: Processing scales from 0 to thousands of concurrent executions',
+                'No manual intervention: All components scale automatically'
+            ],
+            otherOptions: 'A) EBS volumes cannot auto-scale capacity\nC) EFS requires pre-provisioned throughput planning\nD) RAID configuration still requires manual capacity planning'
+        }
+    },
+
+    // DATA LIFECYCLE
+    {
+        id: 161,
+        questionNumber: 61,
+        category: 'AWS Data Lifecycle',
         difficulty: 'Application',
         domain: 'Domain 4: Design Cost-Optimized Architectures',
-        questionText: 'A development team is using an Amazon RDS PostgreSQL database for their non-production environment. Usage patterns show that the database is actively used during business hours (9 AM - 6 PM weekdays) but remains almost entirely idle overnight and on weekends. Current costs are high due to continuous running of a `db.m5.large` instance. Which cost optimization strategy provides the most significant savings while ensuring availability during active development periods?',
+        questionText: 'A research institution stores genomics data with the following access pattern: analyzed intensively for 30 days, occasionally referenced for 6 months, and archived for 10 years for compliance. Current costs are $50,000/month in S3 Standard. Which lifecycle policy provides maximum cost optimization while meeting access requirements?',
         options: [
-            { text: 'A) Migrate to a larger `db.r5.xlarge` instance for better performance during peak times.', isCorrect: false },
-            { text: 'B) Implement RDS Scheduled Scaling to scale down the instance size overnight and on weekends.', isCorrect: false },
-            { text: 'C) Migrate to Amazon Aurora Serverless v2 for automatic start/stop and scaling based on demand.', isCorrect: true },
-            { text: 'D) Take daily snapshots of the database and restore it only when needed.', isCorrect: false }
+            { text: 'A) Standard for 30 days → IA at 30 days → Glacier at 180 days → Deep Archive at 1 year', isCorrect: true },
+            { text: 'B) Intelligent-Tiering for all data with Deep Archive enabled', isCorrect: false },
+            { text: 'C) Standard for 30 days → Glacier immediately at 30 days', isCorrect: false },
+            { text: 'D) One Zone-IA for all data to reduce costs', isCorrect: false }
         ],
-        explanation: 'Aurora Serverless v2 is specifically designed for unpredictable and intermittent workloads, offering automatic start/stop and scaling based on actual demand, which eliminates costs during idle periods and scales up instantly when needed. This is far more cost-effective for non-production environments with variable usage than continuously running provisioned instances or even scheduled scaling, which might still incur costs during low-use periods if not perfectly tuned.',
+        explanation: 'Lifecycle transitions match access patterns: Standard for intensive analysis, IA for occasional access, Glacier for long-term storage, Deep Archive for compliance.',
         explanationDetails: {
-            summary: 'Aurora Serverless v2 for unpredictable non-production workloads:',
+            summary: 'Optimized lifecycle transitions for research data:',
             breakdown: [
-                '**Automatic Start/Stop:** Eliminates costs during idle periods (nights and weekends) when the database is not in use.',
-                '**Fine-grained Scaling:** Scales compute capacity up and down very quickly (from 0.5 ACU) based on real-time demand, preventing over-provisioning.',
-                '**PostgreSQL Compatibility:** Maintains compatibility with the existing database engine.',
-                '**Cost Savings:** Significant cost reduction compared to continuously running a provisioned instance for intermittent workloads.',
+                'Days 1-30: S3 Standard for intensive analysis',
+                'Days 31-180: S3 IA for occasional reference (68% cost reduction)',
+                'Days 181-365: S3 Glacier for backup storage (77% cost reduction)',
+                'Years 1-10: Deep Archive for compliance (80% cost reduction)'
             ],
-            otherOptions: 'A) A larger instance would increase costs, not reduce them, and would still be running 24/7. \nB) RDS Scheduled Scaling can help, but it requires manual configuration of schedules and may not be as granular or cost-effective as Aurora Serverless v2, which can scale to zero compute units when idle. \nD) Taking daily snapshots and manually restoring is a high operational overhead and would not meet the "ensuring availability during active development periods" requirement due to restoration time.'
+            otherOptions: 'B) Intelligent-Tiering adds overhead for predictable access patterns\nC) Early Glacier transition makes occasional access expensive\nD) One Zone-IA lacks resilience for valuable research data'
         }
-    } 
+    },
+    {
+        id: 162,
+        questionNumber: 62,
+        category: 'AWS Data Lifecycle',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A media company has complex data lifecycle needs: news content (hot for 7 days, cold afterwards), evergreen content (unpredictable access), and archived footage (rare access but immediate retrieval when needed). They want automated optimization without management overhead. Which strategy handles all three patterns optimally?',
+        options: [
+            { text: 'A) Separate buckets with different lifecycle policies for each content type', isCorrect: false },
+            { text: 'B) S3 Intelligent-Tiering with object tagging and tag-based lifecycle policies', isCorrect: true },
+            { text: 'C) Manual lifecycle management based on content metadata', isCorrect: false },
+            { text: 'D) Single lifecycle policy with shortest transition times', isCorrect: false }
+        ],
+        explanation: 'Intelligent-Tiering with object tags enables different optimization strategies per content type while maintaining automation and handling unpredictable access patterns.',
+        explanationDetails: {
+            summary: 'Tag-based intelligent lifecycle management:',
+            breakdown: [
+                'Object tagging: Classify content types (news, evergreen, archive)',
+                'Intelligent-Tiering: Automatic optimization for unpredictable evergreen content',
+                'Tag-based policies: Specific rules for news (7-day pattern) and archive content',
+                'No management overhead: All transitions automated based on access patterns'
+            ],
+            otherOptions: 'A) Multiple buckets increase management complexity\nC) Manual management doesn\'t scale and introduces errors\nD) Single policy can\'t optimize for different access patterns'
+        }
+    },
+
+    // STORAGE COST MANAGEMENT
+    {
+        id: 163,
+        questionNumber: 63,
+        category: 'AWS Storage Cost Management',
+        difficulty: 'Expert',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A data analytics company spends $100,000/month on storage across S3, EBS, and EFS for various workloads. They need comprehensive cost optimization while maintaining performance. Analysis shows: 40% rarely accessed, 30% predictable patterns, 20% unpredictable access, 10% high-performance needs. Which multi-service optimization strategy provides maximum savings?',
+        options: [
+            { text: 'A) Move all data to cheapest storage classes regardless of access patterns', isCorrect: false },
+            { text: 'B) S3 lifecycle policies for rarely accessed, Intelligent-Tiering for unpredictable, gp3 optimization for EBS, EFS IA for infrequent file access', isCorrect: true },
+            { text: 'C) Consolidate all storage to S3 with single lifecycle policy', isCorrect: false },
+            { text: 'D) Implement Reserved Capacity for all storage services', isCorrect: false }
+        ],
+        explanation: 'Tailored optimization per access pattern: lifecycle for predictable patterns, Intelligent-Tiering for unpredictable, gp3 for cost-effective EBS performance, EFS IA for infrequent access.',
+        explanationDetails: {
+            summary: 'Multi-service cost optimization strategy:',
+            breakdown: [
+                '40% rarely accessed: S3 lifecycle to Glacier/Deep Archive (75% savings)',
+                '20% unpredictable: S3 Intelligent-Tiering (40% average savings)',
+                'EBS optimization: gp3 volumes with right-sized IOPS (20% savings)',
+                'EFS optimization: IA storage class for infrequent access (85% savings)'
+            ],
+            otherOptions: 'A) Ignoring access patterns can cause performance issues and retrieval costs\nC) Not all workloads suit object storage architecture\nD) Reserved Capacity not available for all storage types and may not match usage patterns'
+        }
+    },
+    {
+        id: 164,
+        questionNumber: 64,
+        category: 'AWS Storage Cost Management',
+        difficulty: 'Application',
+        domain: 'Domain 4: Design Cost-Optimized Architectures',
+        questionText: 'A startup\'s S3 storage costs have grown to $25,000/month with 80% of objects never accessed after 90 days. They also have high data transfer costs from direct client downloads. The application serves user-uploaded images and documents globally. Which combination provides the most comprehensive cost reduction?',
+        options: [
+            { text: 'A) S3 lifecycle policy to Glacier and CloudFront distribution', isCorrect: true },
+            { text: 'B) S3 Intelligent-Tiering and S3 Transfer Acceleration', isCorrect: false },
+            { text: 'C) Move all data to S3 One Zone-IA with direct client access', isCorrect: false },
+            { text: 'D) Compress all objects and implement client-side caching', isCorrect: false }
+        ],
+        explanation: 'Lifecycle policy to Glacier reduces storage costs by 68% for unused objects, while CloudFront eliminates data transfer costs and provides global acceleration.',
+        explanationDetails: {
+            summary: 'Comprehensive S3 cost optimization:',
+            breakdown: [
+                'Lifecycle to Glacier: 68% storage cost reduction for 80% of objects',
+                'CloudFront: Eliminates data transfer costs from S3 to internet',
+                'Global caching: Improves performance while reducing origin costs',
+                'Combined savings: Approximately 70% total cost reduction'
+            ],
+            otherOptions: 'B) Intelligent-Tiering adds overhead for predictable 90-day pattern\nC) One Zone-IA lacks resilience and doesn\'t address transfer costs\nD) Compression helps but doesn\'t address core storage lifecycle and transfer costs'
+        }
+    },
+
+    // QUIZ LESSON 5 - COMPREHENSIVE STORAGE QUESTIONS
+    {
+        id: 165,
+        questionNumber: 65,
+        category: 'AWS Storage Comprehensive',
+        difficulty: 'Expert',
+        domain: 'Domain 3: Design High-Performing Architectures',
+        questionText: 'A large enterprise needs a comprehensive storage strategy for their cloud migration. Requirements include: 500TB database storage with 50,000 IOPS, 2PB file shares for 1000 users, 10PB object storage with global access, and hybrid connectivity to on-premises. Which architecture provides optimal performance, cost, and integration?',
+        options: [
+            { text: 'A) io2 Block Express EBS, EFS Max I/O, S3 with CloudFront, and Storage Gateway', isCorrect: true },
+            { text: 'B) gp3 EBS, FSx for Lustre, S3 Intelligent-Tiering, and Direct Connect', isCorrect: false },
+            { text: 'C) Aurora storage, EFS General Purpose, S3 Standard, and VPN connections', isCorrect: false },
+            { text: 'D) Instance store, FSx for Windows, S3 Glacier, and AWS Outposts', isCorrect: false }
+        ],
+        explanation: 'io2 Block Express provides required IOPS, EFS Max I/O handles concurrent users, S3+CloudFront scales globally, Storage Gateway enables hybrid integration.',
+        explanationDetails: {
+            summary: 'Enterprise storage architecture components:',
+            breakdown: [
+                'io2 Block Express: 50,000 IOPS with sub-millisecond latency for databases',
+                'EFS Max I/O: Scales to 1000+ concurrent users with higher IOPS',
+                'S3 + CloudFront: Unlimited object storage with global low-latency access',
+                'Storage Gateway: Seamless hybrid connectivity with caching'
+            ],
+            otherOptions: 'B) gp3 may not provide consistent 50,000 IOPS, FSx Lustre not ideal for general file shares\nC) Aurora storage limits database choice, VPN insufficient for 500TB+ workloads\nD) Instance store temporary, FSx Windows not mentioned as requirement, Glacier too slow'
+        }
+    },
+    {
+        id: 166,
+        questionNumber: 66,
+        category: 'AWS Storage Comprehensive',
+        difficulty: 'Expert',
+        domain: 'Domain 1: Design Secure Architectures',
+        questionText: 'A financial services firm requires end-to-end security for their storage infrastructure handling sensitive customer data across S3, EBS, and EFS. Requirements include: customer-controlled encryption, automated compliance monitoring, data classification, and audit trails meeting regulatory standards. Which comprehensive security architecture meets all requirements?',
+        options: [
+            { text: 'A) AWS managed encryption, GuardDuty monitoring, and CloudTrail logging', isCorrect: false },
+            { text: 'B) Customer-managed KMS keys, Amazon Macie, Config Conformance Packs, and CloudTrail data events', isCorrect: true },
+            { text: 'C) CloudHSM encryption, Security Hub, and VPC Flow Logs', isCorrect: false },
+            { text: 'D) Client-side encryption, Inspector scanning, and AWS Config rules', isCorrect: false }
+        ],
+        explanation: 'Customer-managed KMS provides encryption control, Macie classifies sensitive data, Conformance Packs ensure compliance, CloudTrail data events provide complete audit trails.',
+        explanationDetails: {
+            summary: 'Comprehensive security architecture for financial services:',
+            breakdown: [
+                'Customer-managed KMS: Full control over encryption keys across all storage services',
+                'Amazon Macie: Automated discovery and classification of sensitive financial data',
+                'Config Conformance Packs: Continuous compliance monitoring for financial regulations',
+                'CloudTrail data events: Complete audit trail of all data access activities'
+            ],
+            otherOptions: 'A) AWS managed encryption lacks customer control required for financial services\nC) CloudHSM overkill, Security Hub doesn\'t provide data classification\nD) Client-side encryption complex to manage, Inspector focuses on vulnerabilities not data classification'
+        }
+    }
 ];
 
 // Helper functions for AWS question management

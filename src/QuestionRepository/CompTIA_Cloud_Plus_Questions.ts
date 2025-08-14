@@ -1872,6 +1872,553 @@ export const COMPTIA_QUESTIONS: Question[] = [
             ],
             otherOptions: 'B) Microservices and serverless functions are architectural choices that may *support* better CI/CD, but do not directly solve existing integration issues or broken builds. \nC) Manual code reviews are important but often too slow and cannot reliably catch all integration issues in a fast-paced environment. Increasing documentation does not solve technical problems. \nD) Implementing Continuous Deployment *before* fixing CI issues (broken builds, frequent integration problems) would lead to deploying broken software to production more rapidly, exacerbating the problem. Frequent rollbacks indicate a problematic CI/CD pipeline, not a solution.'
         }
+    },
+    // As-a-Service Models
+    {
+        id: 73,
+        questionNumber: 73,
+        category: 'Cloud Service Models',
+        difficulty: 'Knowledge',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A company wants to migrate their email system to the cloud but maintain full control over the operating system and middleware while letting the cloud provider manage the underlying infrastructure. Which service model BEST meets their requirements?',
+        options: [
+            { text: 'A) Software as a Service (SaaS)', isCorrect: false },
+            { text: 'B) Platform as a Service (PaaS)', isCorrect: false },
+            { text: 'C) Infrastructure as a Service (IaaS)', isCorrect: true },
+            { text: 'D) Function as a Service (FaaS)', isCorrect: false }
+        ],
+        explanation: 'IaaS provides virtual infrastructure while allowing customers to maintain control over the operating system, middleware, and applications.',
+        explanationDetails: {
+            summary: 'IaaS characteristics for email migration:',
+            breakdown: [
+                'Customer controls: OS, middleware, applications, and data',
+                'Provider manages: Physical hardware, hypervisor, networking',
+                'Email flexibility: Can install any email server software',
+                'Full administrative access to customize configurations'
+            ],
+            otherOptions: 'A) SaaS provides ready-to-use applications with no OS control\nB) PaaS abstracts OS layer, limiting administrative control\nD) FaaS is for serverless functions, not email systems'
+        }
+    },
+    {
+        id: 74,
+        questionNumber: 74,
+        category: 'Cloud Service Models',
+        difficulty: 'Application',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A development team needs a cloud environment where they can deploy applications without managing servers, operating systems, or runtime environments. They want to focus solely on code development and automatic scaling based on demand. Which service model is MOST appropriate?',
+        options: [
+            { text: 'A) Infrastructure as a Service (IaaS)', isCorrect: false },
+            { text: 'B) Platform as a Service (PaaS)', isCorrect: true },
+            { text: 'C) Software as a Service (SaaS)', isCorrect: false },
+            { text: 'D) Desktop as a Service (DaaS)', isCorrect: false }
+        ],
+        explanation: 'PaaS provides a development platform with automated scaling, allowing developers to focus on code while the platform handles infrastructure management.',
+        explanationDetails: {
+            summary: 'PaaS benefits for development teams:',
+            breakdown: [
+                'Abstracted infrastructure: No server or OS management needed',
+                'Built-in scaling: Automatic resource allocation based on demand',
+                'Development tools: Integrated IDEs, databases, and services',
+                'Focus on code: Developers concentrate on application logic'
+            ],
+            otherOptions: 'A) IaaS requires managing servers and OS\nC) SaaS provides ready-made applications, not development platforms\nD) DaaS provides virtual desktops, not development platforms'
+        }
+    },
+
+    // Shared Responsibility Model
+    {
+        id: 75,
+        questionNumber: 75,
+        category: 'Shared Responsibility Model',
+        difficulty: 'Application',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A healthcare organization is concerned about data security compliance in their PaaS deployment. According to the shared responsibility model, which security aspects remain the customer\'s responsibility in a PaaS environment?',
+        options: [
+            { text: 'A) Physical security of data centers and network controls', isCorrect: false },
+            { text: 'B) Application code security, data encryption, and user access management', isCorrect: true },
+            { text: 'C) Hypervisor patching and host operating system security', isCorrect: false },
+            { text: 'D) Hardware maintenance and power/cooling systems', isCorrect: false }
+        ],
+        explanation: 'In PaaS, customers are responsible for application-layer security including code security, data encryption, and identity/access management.',
+        explanationDetails: {
+            summary: 'PaaS customer responsibilities:',
+            breakdown: [
+                'Application security: Secure coding practices and vulnerability management',
+                'Data protection: Encryption at rest and in transit',
+                'Identity management: User authentication and authorization',
+                'Compliance: Meeting regulatory requirements for data handling'
+            ],
+            otherOptions: 'A) Physical security is provider responsibility\nC) Platform infrastructure managed by provider\nD) Hardware and facilities managed by provider'
+        }
+    },
+
+    // Storage and Disk Types
+    {
+        id: 76,
+        questionNumber: 76,
+        category: 'Cloud Storage Concepts',
+        difficulty: 'Analysis',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A media company needs storage for their video editing workflow with the following requirements: high IOPS for database operations, large capacity for raw video files, and long-term archival with cost optimization. Which storage architecture provides the BEST solution?',
+        options: [
+            { text: 'A) All data on high-performance SSD storage', isCorrect: false },
+            { text: 'B) Tiered storage with SSD for databases, HDD for active files, and cold storage for archives', isCorrect: true },
+            { text: 'C) Network-attached storage (NAS) for all data types', isCorrect: false },
+            { text: 'D) Object storage for all data with automated lifecycle policies', isCorrect: false }
+        ],
+        explanation: 'Tiered storage matches storage types to specific use cases: SSD for high IOPS databases, HDD for large file capacity, cold storage for cost-effective archival.',
+        explanationDetails: {
+            summary: 'Optimal tiered storage strategy:',
+            breakdown: [
+                'SSD tier: High IOPS and low latency for database operations',
+                'HDD tier: Large capacity and moderate performance for active video files',
+                'Cold storage: Cost-effective for long-term archival with slower retrieval',
+                'Lifecycle automation: Automatic data movement based on access patterns'
+            ],
+            otherOptions: 'A) All-SSD expensive for large video files and archives\nC) NAS doesn\'t optimize for different performance requirements\nD) Object storage alone may not provide required IOPS for databases'
+        }
+    },
+
+    // Containers and Orchestration
+    {
+        id: 77,
+        questionNumber: 77,
+        category: 'Container Technologies',
+        difficulty: 'Application',
+        domain: 'Domain 1: Cloud Architecture and Design',
+        questionText: 'A company runs microservices using standalone containers but experiences challenges with scaling, service discovery, and load balancing during peak traffic. Which approach would BEST address these operational challenges?',
+        options: [
+            { text: 'A) Increase container resource limits and add more standalone containers', isCorrect: false },
+            { text: 'B) Implement container orchestration with Kubernetes or Docker Swarm', isCorrect: true },
+            { text: 'C) Migrate all containers to virtual machines', isCorrect: false },
+            { text: 'D) Use container registries for better image management', isCorrect: false }
+        ],
+        explanation: 'Container orchestration platforms provide automated scaling, service discovery, load balancing, and health management for containerized applications.',
+        explanationDetails: {
+            summary: 'Container orchestration benefits:',
+            breakdown: [
+                'Auto-scaling: Automatic container scaling based on demand',
+                'Service discovery: Automatic service registration and routing',
+                'Load balancing: Built-in traffic distribution across containers',
+                'Health management: Automatic restart of failed containers'
+            ],
+            otherOptions: 'A) Manual scaling doesn\'t solve automation challenges\nC) VMs don\'t provide the orchestration features needed\nD) Registries help with image management but not runtime orchestration'
+        }
+    },
+
+    // DOMAIN 2: CLOUD DEPLOYMENT (20%)
+
+    // Deployment Models
+    {
+        id: 78,
+        questionNumber: 78,
+        category: 'Cloud Deployment Models',
+        difficulty: 'Application',
+        domain: 'Domain 2: Cloud Deployment',
+        questionText: 'A financial institution requires strict data sovereignty, complete infrastructure control, and the ability to meet regulatory compliance requirements while gaining cloud benefits like scalability and self-service provisioning. Which deployment model is MOST suitable?',
+        options: [
+            { text: 'A) Public cloud with dedicated instances', isCorrect: false },
+            { text: 'B) Private cloud hosted on-premises', isCorrect: true },
+            { text: 'C) Hybrid cloud with data replication', isCorrect: false },
+            { text: 'D) Community cloud shared with other financial institutions', isCorrect: false }
+        ],
+        explanation: 'Private cloud provides complete control, data sovereignty, and regulatory compliance while offering cloud capabilities like automation and scalability.',
+        explanationDetails: {
+            summary: 'Private cloud benefits for financial institutions:',
+            breakdown: [
+                'Complete control: Full authority over infrastructure and security',
+                'Data sovereignty: Data remains within institutional boundaries',
+                'Regulatory compliance: Easier to meet strict financial regulations',
+                'Cloud benefits: Self-service, automation, and scalability features'
+            ],
+            otherOptions: 'A) Public cloud may not meet data sovereignty requirements\nC) Hybrid cloud introduces complexity for strict compliance needs\nD) Community cloud shares resources with other organizations'
+        }
+    },
+
+    // Migration Strategies
+    {
+        id: 79,
+        questionNumber: 79,
+        category: 'Cloud Migration',
+        difficulty: 'Analysis',
+        domain: 'Domain 2: Cloud Deployment',
+        questionText: 'A company has a legacy monolithic application that works well but has outdated dependencies and architecture. They want to move to the cloud quickly while minimizing risk, then modernize later. Which migration strategy is MOST appropriate for the initial move?',
+        options: [
+            { text: 'A) Rehost (lift and shift) to move quickly with minimal changes', isCorrect: true },
+            { text: 'B) Refactor to microservices architecture immediately', isCorrect: false },
+            { text: 'C) Rebuild the entire application using cloud-native services', isCorrect: false },
+            { text: 'D) Replace with a SaaS solution', isCorrect: false }
+        ],
+        explanation: 'Rehosting allows quick migration with minimal risk and changes, providing immediate cloud benefits while enabling future modernization phases.',
+        explanationDetails: {
+            summary: 'Rehost strategy advantages:',
+            breakdown: [
+                'Speed: Fastest migration approach with minimal changes',
+                'Low risk: Preserves existing functionality and stability',
+                'Immediate benefits: Cost savings and basic cloud features',
+                'Future flexibility: Provides foundation for later modernization'
+            ],
+            otherOptions: 'B) Refactoring increases complexity and migration risk\nC) Rebuilding takes significant time and resources\nD) SaaS replacement may not maintain existing functionality'
+        }
+    },
+
+    // Infrastructure as Code
+    {
+        id: 80,
+        questionNumber: 80,
+        category: 'Infrastructure as Code',
+        difficulty: 'Application',
+        domain: 'Domain 2: Cloud Deployment',
+        questionText: 'A DevOps team manages infrastructure across development, staging, and production environments. They experience configuration drift and inconsistencies between environments, leading to deployment failures. Which approach would BEST solve these consistency issues?',
+        options: [
+            { text: 'A) Document all configurations in detailed runbooks', isCorrect: false },
+            { text: 'B) Implement Infrastructure as Code (IaC) with version control', isCorrect: true },
+            { text: 'C) Create golden images for all server configurations', isCorrect: false },
+            { text: 'D) Use configuration management scripts', isCorrect: false }
+        ],
+        explanation: 'Infrastructure as Code ensures consistent, repeatable deployments across environments by defining infrastructure in version-controlled code templates.',
+        explanationDetails: {
+            summary: 'IaC benefits for environment consistency:',
+            breakdown: [
+                'Declarative definitions: Infrastructure defined as code templates',
+                'Version control: Track and rollback infrastructure changes',
+                'Consistency: Identical deployments across all environments',
+                'Automation: Eliminates manual configuration errors'
+            ],
+            otherOptions: 'A) Documentation doesn\'t prevent manual configuration errors\nC) Golden images don\'t address infrastructure configuration drift\nD) Scripts can vary in execution and may not be declarative'
+        }
+    },
+
+    // DOMAIN 3: CLOUD OPERATIONS AND SUPPORT (20%)
+
+    // Monitoring and Observability
+    {
+        id: 81,
+        questionNumber: 81,
+        category: 'Cloud Observability',
+        difficulty: 'Analysis',
+        domain: 'Domain 3: Cloud Operations and Support',
+        questionText: 'A microservices application experiences intermittent performance issues that are difficult to trace across multiple services. Standard monitoring shows healthy individual services, but users report slow response times. Which observability approach would BEST identify the root cause?',
+        options: [
+            { text: 'A) Increase log verbosity on all services', isCorrect: false },
+            { text: 'B) Implement distributed tracing across microservices', isCorrect: true },
+            { text: 'C) Add more performance counters and metrics', isCorrect: false },
+            { text: 'D) Set up alerting based on response time thresholds', isCorrect: false }
+        ],
+        explanation: 'Distributed tracing follows requests across multiple microservices, providing visibility into the complete request path and identifying bottlenecks.',
+        explanationDetails: {
+            summary: 'Distributed tracing benefits:',
+            breakdown: [
+                'End-to-end visibility: Tracks requests across all microservices',
+                'Bottleneck identification: Shows where delays occur in the request path',
+                'Service dependencies: Maps interactions between services',
+                'Performance analysis: Measures latency at each service hop'
+            ],
+            otherOptions: 'A) More logs don\'t provide cross-service correlation\nC) Additional metrics don\'t show service interactions\nD) Alerting identifies problems but doesn\'t show root cause'
+        }
+    },
+
+    // Auto Scaling
+    {
+        id: 82,
+        questionNumber: 82,
+        category: 'Cloud Scaling',
+        difficulty: 'Application',
+        domain: 'Domain 3: Cloud Operations and Support',
+        questionText: 'An e-commerce application experiences predictable traffic patterns with gradual increases during business hours and sudden spikes during flash sales. Which auto-scaling strategy would provide the BEST performance and cost optimization?',
+        options: [
+            { text: 'A) Reactive scaling based only on CPU utilization', isCorrect: false },
+            { text: 'B) Predictive scaling with scheduled scaling for business hours and reactive scaling for spikes', isCorrect: true },
+            { text: 'C) Fixed scaling with maximum capacity provisioned at all times', isCorrect: false },
+            { text: 'D) Manual scaling based on sales calendar events', isCorrect: false }
+        ],
+        explanation: 'Combined predictive and reactive scaling handles both predictable patterns efficiently and responds to unexpected spikes automatically.',
+        explanationDetails: {
+            summary: 'Hybrid scaling strategy benefits:',
+            breakdown: [
+                'Predictive scaling: Anticipates business hour traffic increases',
+                'Reactive scaling: Responds automatically to unexpected spikes',
+                'Cost optimization: Scales down during low-traffic periods',
+                'Performance assurance: Maintains responsiveness during all scenarios'
+            ],
+            otherOptions: 'A) CPU-only reactive scaling too slow for sudden spikes\nC) Fixed capacity wastes resources during low traffic\nD) Manual scaling can\'t respond quickly to unexpected events'
+        }
+    },
+
+    // Backup and Recovery
+    {
+        id: 83,
+        questionNumber: 83,
+        category: 'Cloud Backup Strategies',
+        difficulty: 'Analysis',
+        domain: 'Domain 3: Cloud Operations and Support',
+        questionText: 'A company needs to design a backup strategy for critical business data with a Recovery Point Objective (RPO) of 1 hour and Recovery Time Objective (RTO) of 2 hours. The solution must be cost-effective while meeting compliance requirements for 7-year retention. Which backup approach is MOST suitable?',
+        options: [
+            { text: 'A) Daily full backups with 7-year retention in hot storage', isCorrect: false },
+            { text: 'B) Hourly incremental backups with tiered storage and lifecycle policies', isCorrect: true },
+            { text: 'C) Real-time replication to a secondary site with immediate failover', isCorrect: false },
+            { text: 'D) Weekly full backups with manual restore processes', isCorrect: false }
+        ],
+        explanation: 'Hourly incremental backups meet the RPO requirement, while tiered storage and lifecycle policies optimize costs for long-term retention.',
+        explanationDetails: {
+            summary: 'Optimal backup strategy components:',
+            breakdown: [
+                'Hourly incrementals: Meet 1-hour RPO requirement efficiently',
+                'Tiered storage: Hot storage for recent backups, cold for long-term',
+                'Lifecycle policies: Automatic movement to cheaper storage over time',
+                'Fast recovery: 2-hour RTO achievable from recent incremental backups'
+            ],
+            otherOptions: 'A) Daily backups exceed 1-hour RPO requirement\nC) Real-time replication expensive for 7-year retention\nD) Weekly backups far exceed RPO requirement'
+        }
+    },
+
+    // DOMAIN 4: CLOUD SECURITY (25%)
+
+    // Identity and Access Management
+    {
+        id: 84,
+        questionNumber: 84,
+        category: 'Cloud Security - Access Management',
+        difficulty: 'Application',
+        domain: 'Domain 4: Cloud Security',
+        questionText: 'A global organization needs to manage user access to cloud resources across multiple locations with different security requirements. They want to implement Zero Trust principles while maintaining user productivity. Which approach BEST achieves these goals?',
+        options: [
+            { text: 'A) VPN access with network-based security controls', isCorrect: false },
+            { text: 'B) Multi-factor authentication with conditional access policies based on context', isCorrect: true },
+            { text: 'C) Single sign-on with basic username/password authentication', isCorrect: false },
+            { text: 'D) Role-based access control with periodic access reviews', isCorrect: false }
+        ],
+        explanation: 'Conditional access with MFA implements Zero Trust by continuously verifying users based on context like location, device, and behavior patterns.',
+        explanationDetails: {
+            summary: 'Zero Trust conditional access benefits:',
+            breakdown: [
+                'Context awareness: Considers location, device, time, and behavior',
+                'Continuous verification: Doesn\'t trust based solely on network location',
+                'Risk-based decisions: Adjusts requirements based on calculated risk',
+                'User productivity: Seamless access for low-risk scenarios'
+            ],
+            otherOptions: 'A) VPN assumes trust based on network location\nC) Basic authentication insufficient for Zero Trust\nD) RBAC alone doesn\'t provide continuous verification'
+        }
+    },
+
+    // Compliance and Governance
+    {
+        id: 85,
+        questionNumber: 85,
+        category: 'Cloud Compliance',
+        difficulty: 'Analysis',
+        domain: 'Domain 4: Cloud Security',
+        questionText: 'A healthcare organization moving to the cloud must demonstrate HIPAA compliance for patient data. They need automated compliance monitoring, evidence collection, and remediation capabilities. Which combination of cloud security controls provides the MOST comprehensive compliance framework?',
+        options: [
+            { text: 'A) Manual security audits with document-based evidence collection', isCorrect: false },
+            { text: 'B) Cloud security posture management (CSPM) with automated policy enforcement and audit trails', isCorrect: true },
+            { text: 'C) Encryption of all data with annual compliance reviews', isCorrect: false },
+            { text: 'D) Network segmentation with firewall rules and access logs', isCorrect: false }
+        ],
+        explanation: 'CSPM provides continuous compliance monitoring, automated policy enforcement, and detailed audit trails required for HIPAA compliance demonstration.',
+        explanationDetails: {
+            summary: 'CSPM benefits for HIPAA compliance:',
+            breakdown: [
+                'Continuous monitoring: Real-time compliance posture assessment',
+                'Automated enforcement: Immediate remediation of policy violations',
+                'Audit trails: Comprehensive logging for compliance evidence',
+                'Risk assessment: Identifies and prioritizes compliance gaps'
+            ],
+            otherOptions: 'A) Manual audits don\'t provide continuous compliance monitoring\nC) Encryption alone doesn\'t address all HIPAA requirements\nD) Network controls are part of compliance but not comprehensive'
+        }
+    },
+
+    // Vulnerability Management
+    {
+        id: 86,
+        questionNumber: 86,
+        category: 'Cloud Security - Vulnerability Management',
+        difficulty: 'Application',
+        domain: 'Domain 4: Cloud Security',
+        questionText: 'A development team deploys applications using container images from various sources. Security scans reveal vulnerabilities in base images and third-party components. Which approach provides the BEST security posture for the container supply chain?',
+        options: [
+            { text: 'A) Scan containers only in production environments', isCorrect: false },
+            { text: 'B) Implement security scanning throughout the CI/CD pipeline with policy enforcement', isCorrect: true },
+            { text: 'C) Use only official base images from operating system vendors', isCorrect: false },
+            { text: 'D) Perform monthly vulnerability assessments on deployed containers', isCorrect: false }
+        ],
+        explanation: 'Pipeline security scanning catches vulnerabilities early, enforces security policies, and prevents vulnerable images from reaching production.',
+        explanationDetails: {
+            summary: 'CI/CD security scanning benefits:',
+            breakdown: [
+                'Shift-left security: Identifies vulnerabilities early in development',
+                'Policy enforcement: Blocks deployment of vulnerable images',
+                'Continuous scanning: Monitors throughout the software lifecycle',
+                'Supply chain security: Validates all components and dependencies'
+            ],
+            otherOptions: 'A) Production-only scanning allows vulnerabilities to reach live systems\nC) Official images can still contain vulnerabilities\nD) Monthly scans too infrequent for active development'
+        }
+    },
+
+    // DOMAIN 5: DEVOPS FUNDAMENTALS (10%)
+
+    // CI/CD Pipelines
+    {
+        id: 87,
+        questionNumber: 87,
+        category: 'DevOps CI/CD',
+        difficulty: 'Application',
+        domain: 'Domain 5: DevOps Fundamentals',
+        questionText: 'A development team wants to implement automated deployments while ensuring code quality and minimizing deployment risks. They currently perform manual testing and deployment processes. Which CI/CD pipeline design BEST balances automation with quality assurance?',
+        options: [
+            { text: 'A) Automated build and deployment without testing stages', isCorrect: false },
+            { text: 'B) Automated build, test, and staged deployment with approval gates', isCorrect: true },
+            { text: 'C) Manual build with automated deployment to all environments', isCorrect: false },
+            { text: 'D) Automated deployment only to development environments', isCorrect: false }
+        ],
+        explanation: 'Staged deployment with automated testing and approval gates provides comprehensive automation while maintaining quality controls and risk mitigation.',
+        explanationDetails: {
+            summary: 'Comprehensive CI/CD pipeline benefits:',
+            breakdown: [
+                'Automated testing: Catches issues early in the pipeline',
+                'Staged deployment: Progressive rollout reduces risk',
+                'Approval gates: Human oversight for critical stages',
+                'Quality assurance: Multiple validation points ensure code quality'
+            ],
+            otherOptions: 'A) No testing increases deployment risk\nC) Manual build defeats automation benefits\nD) Limited to dev environments doesn\'t provide full deployment automation'
+        }
+    },
+
+    // Version Control
+    {
+        id: 88,
+        questionNumber: 88,
+        category: 'DevOps Version Control',
+        difficulty: 'Knowledge',
+        domain: 'Domain 5: DevOps Fundamentals',
+        questionText: 'A DevOps team manages both application code and infrastructure configurations. They need to implement version control strategies that support collaboration, change tracking, and rollback capabilities. Which approach provides the MOST comprehensive version management?',
+        options: [
+            { text: 'A) Separate repositories for code and infrastructure with different branching strategies', isCorrect: false },
+            { text: 'B) Single repository with unified branching strategy for both code and infrastructure', isCorrect: true },
+            { text: 'C) Version control for application code only, with manual infrastructure management', isCorrect: false },
+            { text: 'D) Multiple repositories per microservice with independent versioning', isCorrect: false }
+        ],
+        explanation: 'Unified repository and branching strategy ensures synchronized changes between application code and infrastructure, simplifying deployment and rollback procedures.',
+        explanationDetails: {
+            summary: 'Unified version control benefits:',
+            breakdown: [
+                'Synchronized changes: Code and infrastructure changes tracked together',
+                'Simplified rollbacks: Single point to revert both code and infrastructure',
+                'Consistent branching: Same workflow for all team members',
+                'Atomic deployments: Code and infrastructure deployed as single unit'
+            ],
+            otherOptions: 'A) Separate repositories can lead to version mismatches\nC) Manual infrastructure management introduces inconsistency\nD) Multiple repositories increase complexity and coordination overhead'
+        }
+    },
+
+    // DOMAIN 6: TROUBLESHOOTING (10%)
+
+    // Network Troubleshooting
+    {
+        id: 89,
+        questionNumber: 89,
+        category: 'Cloud Troubleshooting - Network',
+        difficulty: 'Analysis',
+        domain: 'Domain 6: Troubleshooting',
+        questionText: 'Users report intermittent connectivity issues to a cloud-hosted web application. The application works fine from the office but fails sporadically from remote locations. Network monitoring shows no infrastructure issues. Which troubleshooting approach would MOST effectively identify the root cause?',
+        options: [
+            { text: 'A) Increase server resources and add more instances', isCorrect: false },
+            { text: 'B) Analyze network paths and implement distributed monitoring from multiple locations', isCorrect: true },
+            { text: 'C) Check firewall logs and security group configurations', isCorrect: false },
+            { text: 'D) Review application performance metrics and database queries', isCorrect: false }
+        ],
+        explanation: 'Distributed monitoring from multiple geographic locations helps identify network path issues, ISP problems, or regional connectivity challenges.',
+        explanationDetails: {
+            summary: 'Distributed network troubleshooting approach:',
+            breakdown: [
+                'Geographic perspective: Monitoring from affected user locations',
+                'Network path analysis: Traces routes to identify bottlenecks',
+                'ISP correlation: Identifies provider-specific issues',
+                'Performance baselines: Compares connectivity quality across locations'
+            ],
+            otherOptions: 'A) Resource scaling doesn\'t address location-specific connectivity\nC) Security configurations affect access, not intermittent connectivity\nD) Application metrics don\'t reveal network path issues'
+        }
+    },
+
+    // Performance Troubleshooting
+    {
+        id: 90,
+        questionNumber: 90,
+        category: 'Cloud Troubleshooting - Performance',
+        difficulty: 'Analysis',
+        domain: 'Domain 6: Troubleshooting',
+        questionText: 'A cloud application experiences performance degradation only during specific hours despite consistent user load. CPU and memory utilization remain within normal ranges. Database queries show normal execution times. Which factor is MOST likely causing the performance issues?',
+        options: [
+            { text: 'A) Application memory leaks accumulating over time', isCorrect: false },
+            { text: 'B) Resource contention with other workloads sharing the same physical infrastructure', isCorrect: true },
+            { text: 'C) Database connection pool exhaustion', isCorrect: false },
+            { text: 'D) Network bandwidth limitations during peak traffic', isCorrect: false }
+        ],
+        explanation: 'Time-specific performance issues with normal resource utilization often indicate "noisy neighbor" problems where other workloads compete for underlying physical resources.',
+        explanationDetails: {
+            summary: 'Noisy neighbor characteristics:',
+            breakdown: [
+                'Time correlation: Performance degrades at specific, recurring times',
+                'Normal metrics: Application-level resources appear adequate',
+                'Shared infrastructure: Multiple workloads compete for physical resources',
+                'External dependency: Performance affected by factors outside direct control'
+            ],
+            otherOptions: 'A) Memory leaks would show gradually increasing memory usage\nC) Connection pool issues would show in database connection metrics\nD) Network bandwidth problems would show in network utilization metrics'
+        }
+    },
+
+    // Security Troubleshooting
+    {
+        id: 91,
+        questionNumber: 91,
+        category: 'Cloud Troubleshooting - Security',
+        difficulty: 'Application',
+        domain: 'Domain 6: Troubleshooting',
+        questionText: 'A cloud application suddenly starts receiving "Access Denied" errors for API calls that were previously working. No code changes were deployed recently. Security logs show successful authentication but failed authorization. Which troubleshooting approach would MOST quickly identify the issue?',
+        options: [
+            { text: 'A) Review recent changes to IAM roles, policies, and resource permissions', isCorrect: true },
+            { text: 'B) Check network security group rules and firewall configurations', isCorrect: false },
+            { text: 'C) Verify SSL certificates and encryption configurations', isCorrect: false },
+            { text: 'D) Examine application logs for authentication token issues', isCorrect: false }
+        ],
+        explanation: 'Access Denied with successful authentication indicates an authorization problem, typically caused by recent changes to IAM policies or role permissions.',
+        explanationDetails: {
+            summary: 'Authorization troubleshooting focus areas:',
+            breakdown: [
+                'IAM policy changes: Recent modifications to access permissions',
+                'Role updates: Changes to role assignments or capabilities',
+                'Resource permissions: Updates to resource-specific access controls',
+                'Time-based policies: Scheduled changes or policy expirations'
+            ],
+            otherOptions: 'B) Network rules affect connectivity, not authorization after authentication\nC) SSL issues would prevent successful authentication\nD) Authentication is working; the issue is with authorization'
+        }
+    },
+
+    // Integration and Migration Troubleshooting
+    {
+        id: 92,
+        questionNumber: 92,
+        category: 'Cloud Troubleshooting - Integration',
+        difficulty: 'Expert',
+        domain: 'Domain 6: Troubleshooting',
+        questionText: 'After migrating a legacy application to the cloud, users report that batch processing jobs that completed in 2 hours on-premises now take 6 hours in the cloud. The application code was not modified during migration. Which factors should be investigated FIRST to identify the performance degradation?',
+        options: [
+            { text: 'A) Cloud instance sizing and compute resources compared to on-premises hardware', isCorrect: false },
+            { text: 'B) Network latency between cloud services and data storage locations', isCorrect: false },
+            { text: 'C) Storage I/O performance and disk configuration differences', isCorrect: true },
+            { text: 'D) Application timeout settings and connection pool configurations', isCorrect: false }
+        ],
+        explanation: 'Batch processing performance is often heavily dependent on storage I/O patterns, which can be significantly different between on-premises and cloud storage configurations.',
+        explanationDetails: {
+            summary: 'Storage I/O impact on batch processing:',
+            breakdown: [
+                'I/O patterns: Batch jobs typically involve intensive read/write operations',
+                'Storage types: Cloud storage may have different performance characteristics',
+                'Configuration differences: RAID, caching, and optimization settings',
+                'Sequential vs random: Batch workloads often require high sequential throughput'
+            ],
+            otherOptions: 'A) Compute resources would show in CPU/memory utilization\nB) Network latency affects real-time applications more than batch processing\nD) Configuration issues would likely cause failures, not just slower performance'
+        }
     }
 ];
 

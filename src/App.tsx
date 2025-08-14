@@ -37,7 +37,7 @@ const CloudPrepApp: React.FC = () => {
 
 	// Get current certification data
 	const getCurrentCertification = () => {
-		const cert =CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
+		const cert = CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
 		console.log("current certification: ", cert);
 		return cert;
 	}
