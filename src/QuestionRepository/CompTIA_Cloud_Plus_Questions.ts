@@ -1875,8 +1875,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
     },
     // As-a-Service Models
     {
-        id: 101,
-        questionNumber: 101,
+        id: 73,
+        questionNumber: 73,
         category: 'Cloud Service Models',
         difficulty: 'Knowledge',
         domain: 'Domain 1: Cloud Architecture and Design',
@@ -1900,8 +1900,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
         }
     },
     {
-        id: 102,
-        questionNumber: 102,
+        id: 74,
+        questionNumber: 74,
         category: 'Cloud Service Models',
         difficulty: 'Application',
         domain: 'Domain 1: Cloud Architecture and Design',
@@ -1927,8 +1927,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Shared Responsibility Model
     {
-        id: 103,
-        questionNumber: 103,
+        id: 75,
+        questionNumber: 75,
         category: 'Shared Responsibility Model',
         difficulty: 'Application',
         domain: 'Domain 1: Cloud Architecture and Design',
@@ -1954,8 +1954,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Storage and Disk Types
     {
-        id: 104,
-        questionNumber: 104,
+        id: 76,
+        questionNumber: 76,
         category: 'Cloud Storage Concepts',
         difficulty: 'Analysis',
         domain: 'Domain 1: Cloud Architecture and Design',
@@ -1981,8 +1981,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Containers and Orchestration
     {
-        id: 105,
-        questionNumber: 105,
+        id: 77,
+        questionNumber: 77,
         category: 'Container Technologies',
         difficulty: 'Application',
         domain: 'Domain 1: Cloud Architecture and Design',
@@ -2010,8 +2010,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Deployment Models
     {
-        id: 106,
-        questionNumber: 106,
+        id: 78,
+        questionNumber: 78,
         category: 'Cloud Deployment Models',
         difficulty: 'Application',
         domain: 'Domain 2: Cloud Deployment',
@@ -2037,8 +2037,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Migration Strategies
     {
-        id: 107,
-        questionNumber: 107,
+        id: 79,
+        questionNumber: 79,
         category: 'Cloud Migration',
         difficulty: 'Analysis',
         domain: 'Domain 2: Cloud Deployment',
@@ -2064,8 +2064,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Infrastructure as Code
     {
-        id: 108,
-        questionNumber: 108,
+        id: 80,
+        questionNumber: 80,
         category: 'Infrastructure as Code',
         difficulty: 'Application',
         domain: 'Domain 2: Cloud Deployment',
@@ -2093,8 +2093,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Monitoring and Observability
     {
-        id: 109,
-        questionNumber: 109,
+        id: 81,
+        questionNumber: 81,
         category: 'Cloud Observability',
         difficulty: 'Analysis',
         domain: 'Domain 3: Cloud Operations and Support',
@@ -2120,8 +2120,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Auto Scaling
     {
-        id: 110,
-        questionNumber: 110,
+        id: 82,
+        questionNumber: 82,
         category: 'Cloud Scaling',
         difficulty: 'Application',
         domain: 'Domain 3: Cloud Operations and Support',
@@ -2147,8 +2147,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Backup and Recovery
     {
-        id: 111,
-        questionNumber: 111,
+        id: 83,
+        questionNumber: 83,
         category: 'Cloud Backup Strategies',
         difficulty: 'Analysis',
         domain: 'Domain 3: Cloud Operations and Support',
@@ -2176,8 +2176,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Identity and Access Management
     {
-        id: 112,
-        questionNumber: 112,
+        id: 84,
+        questionNumber: 84,
         category: 'Cloud Security - Access Management',
         difficulty: 'Application',
         domain: 'Domain 4: Cloud Security',
@@ -2203,8 +2203,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Compliance and Governance
     {
-        id: 113,
-        questionNumber: 113,
+        id: 85,
+        questionNumber: 85,
         category: 'Cloud Compliance',
         difficulty: 'Analysis',
         domain: 'Domain 4: Cloud Security',
@@ -2230,8 +2230,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Vulnerability Management
     {
-        id: 114,
-        questionNumber: 114,
+        id: 86,
+        questionNumber: 86,
         category: 'Cloud Security - Vulnerability Management',
         difficulty: 'Application',
         domain: 'Domain 4: Cloud Security',
@@ -2259,8 +2259,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // CI/CD Pipelines
     {
-        id: 115,
-        questionNumber: 115,
+        id: 87,
+        questionNumber: 87,
         category: 'DevOps CI/CD',
         difficulty: 'Application',
         domain: 'Domain 5: DevOps Fundamentals',
@@ -2286,8 +2286,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Version Control
     {
-        id: 116,
-        questionNumber: 116,
+        id: 88,
+        questionNumber: 88,
         category: 'DevOps Version Control',
         difficulty: 'Knowledge',
         domain: 'Domain 5: DevOps Fundamentals',
@@ -2315,8 +2315,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Network Troubleshooting
     {
-        id: 117,
-        questionNumber: 117,
+        id: 89,
+        questionNumber: 89,
         category: 'Cloud Troubleshooting - Network',
         difficulty: 'Analysis',
         domain: 'Domain 6: Troubleshooting',
@@ -2342,8 +2342,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Performance Troubleshooting
     {
-        id: 118,
-        questionNumber: 118,
+        id: 90,
+        questionNumber: 90,
         category: 'Cloud Troubleshooting - Performance',
         difficulty: 'Analysis',
         domain: 'Domain 6: Troubleshooting',
@@ -2369,8 +2369,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Security Troubleshooting
     {
-        id: 119,
-        questionNumber: 119,
+        id: 91,
+        questionNumber: 91,
         category: 'Cloud Troubleshooting - Security',
         difficulty: 'Application',
         domain: 'Domain 6: Troubleshooting',
@@ -2396,8 +2396,8 @@ export const COMPTIA_QUESTIONS: Question[] = [
 
     // Integration and Migration Troubleshooting
     {
-        id: 120,
-        questionNumber: 120,
+        id: 92,
+        questionNumber: 92,
         category: 'Cloud Troubleshooting - Integration',
         difficulty: 'Expert',
         domain: 'Domain 6: Troubleshooting',
