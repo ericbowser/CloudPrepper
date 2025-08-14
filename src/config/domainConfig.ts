@@ -1,118 +1,14 @@
-// src/config/domainConfig.ts - FIXED VERSION that matches your question structure
+// src/config/domainConfig.ts - Updated for PostgreSQL integration
 import { Domain, Question, CertificationData } from '../types/preptypes';
-import { COMPTIA_QUESTIONS } from '../QuestionRepository/CompTIA_Cloud_Plus_Questions';
-import { AWS_QUESTIONS } from '../QuestionRepository/AWS_Certified_Architect_Associate_Questions';
 
-console.log('Loading questions...');
-console.log('CompTIA questions:', COMPTIA_QUESTIONS?.length || 0);
-console.log('AWS questions:', AWS_QUESTIONS?.length || 0);
-
-// Map questions to domains based on actual domain values in your questions
-const mapCompTIAQuestions = () => {
-	const domainMapping: { [key: string]: Question[] } = {
-		'cloud-architecture': [],
-		'deployments': [],
-		'operations': [],
-		'security': [],
-		'devops': [],
-		'troubleshooting': []
-	};
-
-	if (!COMPTIA_QUESTIONS) {
-		console.log('No CompTIA questions found');
-		return domainMapping;
-	}
-
-	COMPTIA_QUESTIONS.forEach(question => {
-		const domain = question.domain;
-
-		// Map based on actual domain values in your questions
-		switch (domain) {
-			case 'Domain 1':
-				domainMapping['cloud-architecture'].push(question);
-				break;
-			case 'Domain 2':
-				domainMapping['deployments'].push(question);
-				break;
-			case 'Domain 3':
-				domainMapping['operations'].push(question);
-				break;
-			case 'Domain 4':
-				domainMapping['security'].push(question);
-				break;
-			case 'Domain 5':
-				domainMapping['devops'].push(question);
-				break;
-			case 'Domain 6':
-				domainMapping['troubleshooting'].push(question);
-				break;
-			default:
-				console.log(`Unmapped CompTIA domain: "${domain}" - adding to cloud-architecture`);
-				domainMapping['cloud-architecture'].push(question);
-		}
-	});
-
-	// Log the mapping results
-	console.log('=== CompTIA DOMAIN MAPPING ===');
-	Object.entries(domainMapping).forEach(([key, questions]) => {
-		console.log(`${key}: ${questions.length} questions`);
-	});
-
-	return domainMapping;
-};
-
-const mapAWSQuestions = () => {
-	const domainMapping: { [key: string]: Question[] } = {
-		'secure-architectures': [],
-		'resilient-architectures': [],
-		'high-performing-architectures': [],
-		'cost-optimized-architectures': []
-	};
-
-	if (!AWS_QUESTIONS) {
-		console.log('No AWS questions found');
-		return domainMapping;
-	}
-
-	AWS_QUESTIONS.forEach(question => {
-		const domain = question.domain;
-
-		// Map based on actual domain values in your AWS questions
-		if (domain.includes('Domain 1') || domain.includes('Resilient')) {
-			domainMapping['resilient-architectures'].push(question);
-		} else if (domain.includes('Domain 2') || domain.includes('High-Performing')) {
-			domainMapping['high-performing-architectures'].push(question);
-		} else if (domain.includes('Domain 3') || domain.includes('Secure')) {
-			domainMapping['secure-architectures'].push(question);
-		} else if (domain.includes('Domain 4') || domain.includes('Cost-Optimized')) {
-			domainMapping['cost-optimized-architectures'].push(question);
-		} else {
-			console.log(`Unmapped AWS domain: "${domain}"`);
-			domainMapping['secure-architectures'].push(question);
-		}
-	});
-
-	// Log the mapping results
-	console.log('=== AWS DOMAIN MAPPING ===');
-	Object.entries(domainMapping).forEach(([key, questions]) => {
-		console.log(`${key}: ${questions.length} questions`);
-	});
-
-	return domainMapping;
-};
-
-// Create the mappings
-const comptiaQuestionsByDomain = mapCompTIAQuestions();
-const awsQuestionsByDomain = mapAWSQuestions();
-
-// CompTIA Cloud+ Domain Configuration
+// Domain configurations that will be populated with PostgreSQL data
 export const COMPTIA_DOMAINS: Domain[] = [
 	{
-		id: 'cloud-architecture',
-		name: 'Cloud Architecture',
+		id: 'cloud-architecture-design',
+		name: 'Cloud Architecture and Design',
 		description: 'Cloud concepts, models, and architectural designs',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['cloud-architecture'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 25,
@@ -126,11 +22,11 @@ export const COMPTIA_DOMAINS: Domain[] = [
 		}
 	},
 	{
-		id: 'deployments',
-		name: 'Deployments',
+		id: 'deployment',
+		name: 'Deployment',
 		description: 'Cloud service deployment and migration strategies',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['deployments'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -144,11 +40,11 @@ export const COMPTIA_DOMAINS: Domain[] = [
 		}
 	},
 	{
-		id: 'operations',
-		name: 'Operations',
+		id: 'operations-support',
+		name: 'Operations and Support',
 		description: 'Cloud operations, monitoring, and maintenance',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['operations'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -164,13 +60,13 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'security',
 		name: 'Security',
-		description: 'Cloud security, compliance, and risk management',
+		description: 'Cloud security implementations and best practices',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['security'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 25,
-		icon: '🔒',
+		icon: '🛡️',
 		studyProgress: {
 			attempted: 0,
 			correct: 0,
@@ -182,9 +78,9 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'devops',
 		name: 'DevOps',
-		description: 'Automation, CI/CD, and development operations',
+		description: 'DevOps practices and automation in cloud environments',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['devops'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 5,
@@ -202,7 +98,7 @@ export const COMPTIA_DOMAINS: Domain[] = [
 		name: 'Troubleshooting',
 		description: 'Problem diagnosis and resolution in cloud environments',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['troubleshooting'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 5,
@@ -217,14 +113,13 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	}
 ];
 
-// AWS Solutions Architect Domains
 export const AWS_DOMAINS: Domain[] = [
 	{
 		id: 'resilient-architectures',
 		name: 'Design Resilient Architectures',
 		description: 'High availability, disaster recovery, and fault tolerance',
 		progress: 0,
-		questions: awsQuestionsByDomain['resilient-architectures'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 26,
@@ -242,7 +137,7 @@ export const AWS_DOMAINS: Domain[] = [
 		name: 'Design High-Performing Architectures',
 		description: 'Performance optimization and scalability',
 		progress: 0,
-		questions: awsQuestionsByDomain['high-performing-architectures'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 24,
@@ -260,7 +155,7 @@ export const AWS_DOMAINS: Domain[] = [
 		name: 'Design Secure Architectures',
 		description: 'Security best practices and secure architecture design',
 		progress: 0,
-		questions: awsQuestionsByDomain['secure-architectures'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 30,
@@ -278,7 +173,7 @@ export const AWS_DOMAINS: Domain[] = [
 		name: 'Design Cost-Optimized Architectures',
 		description: 'Cost management and optimization strategies',
 		progress: 0,
-		questions: awsQuestionsByDomain['cost-optimized-architectures'] || [],
+		questions: [], // Will be populated from PostgreSQL
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -293,20 +188,60 @@ export const AWS_DOMAINS: Domain[] = [
 	}
 ];
 
-// Initialize domain metadata after questions are loaded
-export const initializeDomains = (domains: Domain[]): Domain[] => {
+// Function to populate domains with questions from PostgreSQL
+export const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]): Domain[] => {
 	return domains.map(domain => {
-		const categories = [...new Set(domain.questions.map(q => q.category))];
-		console.log(`Domain ${domain.name}: ${domain.questions.length} questions, categories:`, categories.slice(0, 3));
+		// Filter questions by domain mapping - you may need to adjust this based on your actual domain values in the database
+		const domainQuestions = questions.filter(question => {
+			const questionDomain = question.domain.toLowerCase();
+			const domainId = domain.id.toLowerCase();
+
+			// Add domain mapping logic based on your actual data
+			switch (domainId) {
+				// AWS Domain Mapping
+				case 'resilient-architectures':
+					return questionDomain.includes('Design Resilient Architectures') ||
+						questionDomain.includes('Domain 1');
+				case 'high-performing-architectures':
+					return questionDomain.includes('Design High-Performing Architectures') ||
+						questionDomain.includes('Domain 3');
+				case 'secure-architectures':
+					return questionDomain.includes('Design Secure Architectures') ||
+						questionDomain.includes('Domain 2');
+				case 'cost-optimized-architectures':
+					return questionDomain.includes('Design Cost-Optimized Architectures') ||
+						questionDomain.includes('Domain 4');
+
+				// CompTIA Domain Mapping (based on your actual data structure)
+				case 'cloud-architecture-design':
+					return questionDomain === 'Domain 1'; // Cloud Architecture and Design
+				case 'security':
+					return questionDomain === 'Domain 4'; // Security
+				case 'deployment':
+					return questionDomain === 'Domain 2'; // Deployment  
+				case 'operations-support':
+					return questionDomain === 'Domain 3'; // Operations and Support
+				case 'devops':
+					return questionDomain === 'Domain 5'; // DevOps
+				case 'troubleshooting':
+					return questionDomain === 'Domain 6'; // Troubleshooting
+				default:
+					return false;
+			}
+		});
+
+		const categories = [...new Set(domainQuestions.map(q => q.category))];
+
 		return {
 			...domain,
+			questions: domainQuestions,
 			categories,
-			totalQuestions: domain.questions.length
+			totalQuestions: domainQuestions.length
 		};
 	});
 };
 
-// Main certification configuration
+// Main certification configuration - will be populated asynchronously
 export const CERTIFICATIONS: CertificationData[] = [
 	{
 		id: 'comptia',
@@ -314,13 +249,13 @@ export const CERTIFICATIONS: CertificationData[] = [
 		fullName: 'CompTIA Cloud+ Certification',
 		code: 'CV0-003',
 		icon: '☁️',
-		domains: initializeDomains(COMPTIA_DOMAINS),
+		domains: COMPTIA_DOMAINS, // Will be populated with questions from PostgreSQL
 		examInfo: {
 			questionCount: 100,
 			timeLimit: 90,
 			passingScore: 750
 		},
-		totalQuestions: COMPTIA_DOMAINS.reduce((sum, domain) => sum + domain.questions.length, 0)
+		totalQuestions: 0 // Will be updated when questions are loaded
 	},
 	{
 		id: 'aws',
@@ -328,21 +263,32 @@ export const CERTIFICATIONS: CertificationData[] = [
 		fullName: 'AWS Certified Solutions Architect Associate',
 		code: 'SAA-C03',
 		icon: '🏗️',
-		domains: initializeDomains(AWS_DOMAINS),
+		domains: AWS_DOMAINS, // Will be populated with questions from PostgreSQL
 		examInfo: {
 			questionCount: 65,
 			timeLimit: 130,
 			passingScore: 720
 		},
-		totalQuestions: AWS_DOMAINS.reduce((sum, domain) => sum + domain.questions.length, 0)
+		totalQuestions: 0 // Will be updated when questions are loaded
 	}
 ];
 
-// Debug: Print final certification info
-console.log('=== FINAL CERTIFICATION INFO ===');
-CERTIFICATIONS.forEach(cert => {
-	console.log(`${cert.name}: ${cert.totalQuestions} total questions`);
-	cert.domains.forEach(domain => {
-		console.log(`  - ${domain.name}: ${domain.totalQuestions} questions`);
-	});
-});
+// Helper function to update certification with loaded questions
+export const updateCertificationWithQuestions = (
+	certificationId: 'comptia' | 'aws',
+	questions: Question[]
+): CertificationData => {
+	const cert = CERTIFICATIONS.find(c => c.id === certificationId);
+	if (!cert) {
+		throw new Error(`Certification ${certificationId} not found`);
+	}
+
+	const populatedDomains = populateDomainsWithQuestions(cert.domains, questions);
+	const totalQuestions = populatedDomains.reduce((sum, domain) => sum + domain.totalQuestions, 0);
+
+	return {
+		...cert,
+		domains: populatedDomains,
+		totalQuestions
+	};
+};
