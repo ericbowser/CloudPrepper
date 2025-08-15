@@ -9,8 +9,9 @@ import type {
     ExplanationDetails
 } from '../src/types/database';
 import type {Question} from '../src/types/preptypes';
+import {Client} from "pg";
 
-let connection: any = null;
+let connection: Client | null;
 
 // Helper function to safely parse JSON if it's a string
 const safeJsonParse = <T>(value: T | string): T | null => {
@@ -65,18 +66,22 @@ const transformDbRowToQuestion = (row: QuestionRow): {
 };
 
 async function getComptiaQuestions(): Promise<Question[]> {
-    if (!connection) {
+    if (connection === null || connection === undefined) {
         connection = await connectLocalPostgres();
     }
 
     const sql = 'SELECT * FROM prepper.comptia_cloud_plus_questions ORDER BY question_number';
 
     try {
-        const result = await connection.query(sql);
-        console.log(`Loaded ${result.rows.length} CompTIA questions from database`);
+        const result = await connection?.query(sql);
+        console.log(`Loaded ${result?.rows.length} CompTIA questions from database`);
 
+        if (result === null || result === undefined) {
+            return [];
+        }
         // Transform database rows to Question objects with type safety
-        return result.rows.map((row: ComptiaQuestionRow) => transformDbRowToQuestion(row));
+        const transformed = result?.rows.map((row: ComptiaQuestionRow) => transformDbRowToQuestion(row));
+        return transformed;
     } catch (error) {
         console.error('Error fetching CompTIA questions:', error);
         throw error;

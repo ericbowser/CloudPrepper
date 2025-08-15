@@ -5,10 +5,7 @@ import { CERTIFICATIONS, updateCertificationWithQuestions } from "./config/domai
 import { DomainQuestionSelection, type QuizConfig } from "./components/DomainQuestionSelection";
 import ExplanationCard from "./components/ExplanationCard";
 import { AnswerModeToggle } from "./components/AnswerModeToggle";
-import {
-	getComptiaQuestions,
-	getAwsQuestions,
-} from '../data/questions_repository';
+import { getComptiaQuestions, getAwsQuestions } from '../data/questions_repository';
 
 const CloudPrepApp: React.FC = () => {
 	// Certification management
@@ -61,7 +58,7 @@ const CloudPrepApp: React.FC = () => {
 			const [comptiaQuestions, awsQuestions] = await Promise.all([
 				getComptiaQuestions(),
 				getAwsQuestions()
-			]);
+			]).then();
 
 			console.log(`Loaded ${comptiaQuestions.length} CompTIA questions`);
 			console.log(`Loaded ${awsQuestions.length} AWS questions`);

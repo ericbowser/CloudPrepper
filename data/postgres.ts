@@ -1,12 +1,12 @@
 import {Client} from 'pg';
 
-const connectionString = 'postgres://postgres:1006@localhost:5432/localhost';
+const connectionString = 'postgres://postgres@localhost';
 
 async function connectLocalPostgres() {
   let client = null;
   try {
     client = new Client({
-      connectionString: connectionString,
+      connectionString,
       ssl: false
     });
 
