@@ -1,4 +1,4 @@
-﻿// src/types/preptypes.ts - Updated with domain-based question system
+// src/types/preptypes.ts - Updated with domain-based question system
 
 import type { ReactNode } from "react";
 

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {Question, AnswerRecord} from "../types/preptypes";
 export interface UserAnswer {
     questionId: number,

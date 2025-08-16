@@ -1,5 +1,4 @@
 // data/questions_repository.ts - Typed version with PostgreSQL integration
-import connectLocalPostgres from './postgres.js';
 import type {
     QuestionRow,
     ComptiaQuestionRow,
@@ -9,9 +8,10 @@ import type {
     ExplanationDetails
 } from '../src/types/database';
 import type {Question} from '../src/types/preptypes';
-import {Client} from "pg";
+import {sql, testDbConnection} from './postgres';
+import {Sql} from "postgres";
 
-let connection: Client | null;
+let connection: Sql<{}> | null = null;
 
 // Helper function to safely parse JSON if it's a string
 const safeJsonParse = <T>(value: T | string): T | null => {
@@ -67,21 +67,20 @@ const transformDbRowToQuestion = (row: QuestionRow): {
 
 async function getComptiaQuestions(): Promise<Question[]> {
     if (connection === null || connection === undefined) {
-        connection = await connectLocalPostgres();
+        const connection = await testDbConnection();
+        console.log('postgres connection in questions repo:', connection);
     }
 
-    const sql = 'SELECT * FROM prepper.comptia_cloud_plus_questions ORDER BY question_number';
-
     try {
-        const result = await connection?.query(sql);
-        console.log(`Loaded ${result?.rows.length} CompTIA questions from database`);
+        const result = await sql`SELECT * FROM "prepper".comptia_cloud_plus_questions ORDER BY question_number`;
+        console.log(`Loaded ${result?.length} CompTIA questions from database`);
 
         if (result === null || result === undefined) {
             return [];
         }
         // Transform database rows to Question objects with type safety
-        const transformed = result?.rows.map((row: ComptiaQuestionRow) => transformDbRowToQuestion(row));
-        return transformed;
+        const transformed = result?.map(row => transformDbRowToQuestion);
+        return transformed
     } catch (error) {
         console.error('Error fetching CompTIA questions:', error);
         throw error;
@@ -89,19 +88,17 @@ async function getComptiaQuestions(): Promise<Question[]> {
 }
 
 async function getAwsQuestions(): Promise<Question[]> {
-    if (!connection) {
-        connection = await connectLocalPostgres();
+    if (connection === null || connection === undefined) {
+        const connection = await testDbConnection();
+        console.log('connection test:', connection);
     }
 
-    // FIXED: Query the correct AWS table, not the CompTIA table
-    const sql = 'SELECT * FROM prepper.aws_certified_architect_associate_questions ORDER BY question_number';
-
     try {
-        const result = await connection.query(sql);
-        console.log(`Loaded ${result.rows.length} AWS questions from database`);
+        const result = await sql`SELECT * FROM "prepper".aws_certified_architect_associate_questions ORDER BY question_number`;
+        console.log(`Loaded ${result?.length} AWS questions from database`);
 
         // Transform database rows to Question objects with type safety
-        return result.rows.map((row: AwsQuestionRow) => transformDbRowToQuestion(row));
+        return result?.map(row => transformDbRowToQuestion);
     } catch (error) {
         console.error('Error fetching AWS questions:', error);
         throw error;

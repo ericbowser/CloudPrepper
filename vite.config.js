@@ -3,6 +3,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import {nodePolyfills} from 'vite-plugin-node-polyfills';
 
 import react from '@vitejs/plugin-react';  // ← Add this import
+import {HOST, PORT} from './env.json';
 
 export default defineConfig({
     build: {
@@ -10,8 +11,8 @@ export default defineConfig({
         sourcemap: true
     },
     server: {
-        port: 5436,
-        host: 'localhost',
+        port: PORT,
+        host: HOST, 
         proxy: [nodePolyfills() ]
     },
     plugins: [

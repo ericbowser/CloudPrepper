@@ -1,4 +1,4 @@
-﻿/*
+/*
 import { Question } from "@/types/preptypes";
 
 export const COMPTIA_QUESTIONS: Question[] = [

@@ -1,4 +1,4 @@
-﻿// src/App.tsx - Updated for PostgreSQL integration
+// src/App.tsx - Updated for PostgreSQL integration
 import React, { useEffect, useState } from 'react';
 import { AnswerMode, AnswerRecord, Question, QuizMode, SectionType, SelectedAnswer, CertificationData } from "./types/preptypes";
 import { CERTIFICATIONS, updateCertificationWithQuestions } from "./config/domainConfig";
