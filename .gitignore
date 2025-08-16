@@ -15,3 +15,5 @@ src/assets/styles/output.css
 /network
 /src/assets/styles/
 dist/
+
+env.json
