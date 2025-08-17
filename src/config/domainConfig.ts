@@ -1,14 +1,85 @@
-// src/config/domainConfig.ts - Updated for PostgreSQL integration
+// src/config/domainConfig.ts - Updated for API integration
 import { Domain, Question, CertificationData } from '../types/preptypes';
 
-// Domain configurations that will be populated with PostgreSQL data
+// Helper function to populate domains with questions based on domain matching
+const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]): Domain[] => {
+	return domains.map(domain => {
+		const domainQuestions = questions.filter(question => {
+			const questionDomain = question.domain.toLowerCase();
+
+			// CompTIA Cloud+ domain mapping (CV0-003)
+			if (domain.id === 'cloud-architecture') {
+				return questionDomain.includes('domain 1') ||
+					questionDomain.includes('cloud architecture');
+			}
+			if (domain.id === 'deployments') {
+				return questionDomain.includes('domain 2') ||
+					questionDomain.includes('deployment');
+			}
+			if (domain.id === 'operations-support') {
+				return questionDomain.includes('domain 3') ||
+					questionDomain.includes('operations') ||
+					questionDomain.includes('support');
+			}
+			if (domain.id === 'security') {
+				return questionDomain.includes('domain 4') ||
+					questionDomain.includes('security');
+			}
+			if (domain.id === 'devops') {
+				return questionDomain.includes('domain 5') ||
+					questionDomain.includes('devops');
+			}
+			if (domain.id === 'troubleshooting') {
+				return questionDomain.includes('domain 6') ||
+					questionDomain.includes('troubleshooting');
+			}
+
+			// AWS Solutions Architect domain mapping (SAA-C03)
+			if (domain.id === 'secure-architectures') {
+				return questionDomain.includes('secure') ||
+					questionDomain.includes('design secure') ||
+					(questionDomain.includes('domain 1') && questionDomain.includes('design'));
+			}
+			if (domain.id === 'resilient-architectures') {
+				return questionDomain.includes('resilient') ||
+					questionDomain.includes('design resilient') ||
+					(questionDomain.includes('domain 2') && questionDomain.includes('design'));
+			}
+			if (domain.id === 'high-performing-architectures') {
+				return questionDomain.includes('high-performing') ||
+					questionDomain.includes('design high-performing') ||
+					(questionDomain.includes('domain 3') && questionDomain.includes('design'));
+			}
+			if (domain.id === 'cost-optimized-architectures') {
+				return questionDomain.includes('cost-optimized') ||
+					questionDomain.includes('design cost-optimized') ||
+					(questionDomain.includes('domain 4') && questionDomain.includes('design'));
+			}
+
+			return false;
+		});
+
+		const categories = [...new Set(domainQuestions.map(q => q.category))];
+
+		console.log(`📊 Domain "${domain.name}": ${domainQuestions.length} questions, Categories: ${categories.slice(0, 3).join(', ')}${categories.length > 3 ? '...' : ''}`);
+
+		return {
+			...domain,
+			questions: domainQuestions,
+			categories,
+			totalQuestions: domainQuestions.length
+		};
+	});
+};
+
+// CompTIA Cloud+ Domains (CV0-003)
 export const COMPTIA_DOMAINS: Domain[] = [
 	{
-		id: 'cloud-architecture-design',
-		name: 'Cloud Architecture and Design',
-		description: 'Cloud concepts, models, and architectural designs',
+		id: 'cloud-architecture',
+		name: 'Cloud Architecture and Models',
+		description: 'Cloud concepts, deployment models, and service types (25%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 25,
@@ -22,11 +93,11 @@ export const COMPTIA_DOMAINS: Domain[] = [
 		}
 	},
 	{
-		id: 'deployment',
-		name: 'Deployment',
-		description: 'Cloud service deployment and migration strategies',
+		id: 'deployments',
+		name: 'Cloud Deployment',
+		description: 'Deployment strategies, migration, and integration (20%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -42,9 +113,9 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'operations-support',
 		name: 'Operations and Support',
-		description: 'Cloud operations, monitoring, and maintenance',
+		description: 'Cloud operations, monitoring, and maintenance (20%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -60,9 +131,9 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'security',
 		name: 'Security',
-		description: 'Cloud security implementations and best practices',
+		description: 'Cloud security principles and implementation (25%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 25,
@@ -77,10 +148,10 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	},
 	{
 		id: 'devops',
-		name: 'DevOps',
-		description: 'DevOps practices and automation in cloud environments',
+		name: 'DevOps and Automation',
+		description: 'DevOps practices and automation (5%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 5,
@@ -96,9 +167,9 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'troubleshooting',
 		name: 'Troubleshooting',
-		description: 'Problem diagnosis and resolution in cloud environments',
+		description: 'Problem identification and resolution (5%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 5,
@@ -113,13 +184,32 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	}
 ];
 
+// AWS Solutions Architect Domains (SAA-C03)
 export const AWS_DOMAINS: Domain[] = [
+	{
+		id: 'secure-architectures',
+		name: 'Design Secure Architectures',
+		description: 'Security best practices and secure architecture design (30%)',
+		progress: 0,
+		questions: [],
+		categories: [],
+		totalQuestions: 0,
+		weight: 30,
+		icon: '🛡️',
+		studyProgress: {
+			attempted: 0,
+			correct: 0,
+			accuracy: 0,
+			timeSpent: 0,
+			weakCategories: []
+		}
+	},
 	{
 		id: 'resilient-architectures',
 		name: 'Design Resilient Architectures',
-		description: 'High availability, disaster recovery, and fault tolerance',
+		description: 'High availability, disaster recovery, and fault tolerance (26%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 26,
@@ -135,9 +225,9 @@ export const AWS_DOMAINS: Domain[] = [
 	{
 		id: 'high-performing-architectures',
 		name: 'Design High-Performing Architectures',
-		description: 'Performance optimization and scalability',
+		description: 'Performance optimization and scalability (24%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 24,
@@ -151,29 +241,11 @@ export const AWS_DOMAINS: Domain[] = [
 		}
 	},
 	{
-		id: 'secure-architectures',
-		name: 'Design Secure Architectures',
-		description: 'Security best practices and secure architecture design',
-		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
-		categories: [],
-		totalQuestions: 0,
-		weight: 30,
-		icon: '🛡️',
-		studyProgress: {
-			attempted: 0,
-			correct: 0,
-			accuracy: 0,
-			timeSpent: 0,
-			weakCategories: []
-		}
-	},
-	{
 		id: 'cost-optimized-architectures',
 		name: 'Design Cost-Optimized Architectures',
-		description: 'Cost management and optimization strategies',
+		description: 'Cost management and optimization strategies (20%)',
 		progress: 0,
-		questions: [], // Will be populated from PostgreSQL
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -188,64 +260,7 @@ export const AWS_DOMAINS: Domain[] = [
 	}
 ];
 
-// Function to populate domains with questions from PostgreSQL
-export const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]): Domain[] => {
-	return domains.map(domain => {
-		// Filter questions by domain mapping - you may need to adjust this based on your actual domain values in the database
-		const domainQuestions = questions.filter(question => {
-			const questionDomain = question.domain.toLowerCase();
-			const domainId = domain.id.toLowerCase();
-
-			// NOTE: This hardcoded mapping is brittle. A more robust solution would be to have a
-			// `domain_id` column in your database tables that directly corresponds to the `id`
-			// of the domains defined here (e.g., 'resilient-architectures', 'security').
-			// This would remove the need for this switch statement.
-			// Add domain mapping logic based on your actual data
-			switch (domainId) {
-				// AWS Domain Mapping
-				case 'resilient-architectures':
-					return questionDomain.includes('Design Resilient Architectures') ||
-						questionDomain.includes('Domain 1');
-				case 'high-performing-architectures':
-					return questionDomain.includes('Design High-Performing Architectures') ||
-						questionDomain.includes('Domain 3');
-				case 'secure-architectures':
-					return questionDomain.includes('Design Secure Architectures') ||
-						questionDomain.includes('Domain 2');
-				case 'cost-optimized-architectures':
-					return questionDomain.includes('Design Cost-Optimized Architectures') ||
-						questionDomain.includes('Domain 4');
-
-				// CompTIA Domain Mapping (based on your actual data structure)
-				case 'cloud-architecture-design':
-					return questionDomain === 'Domain 1'; // Cloud Architecture and Design
-				case 'security':
-					return questionDomain === 'Domain 4'; // Security
-				case 'deployment':
-					return questionDomain === 'Domain 2'; // Deployment  
-				case 'operations-support':
-					return questionDomain === 'Domain 3'; // Operations and Support
-				case 'devops':
-					return questionDomain === 'Domain 5'; // DevOps
-				case 'troubleshooting':
-					return questionDomain === 'Domain 6'; // Troubleshooting
-				default:
-					return false;
-			}
-		});
-
-		const categories = [...new Set(domainQuestions.map(q => q.category))];
-
-		return {
-			...domain,
-			questions: domainQuestions,
-			categories,
-			totalQuestions: domainQuestions.length
-		};
-	});
-};
-
-// Main certification configuration - will be populated asynchronously
+// Main certification configuration - will be populated with questions from API
 export const CERTIFICATIONS: CertificationData[] = [
 	{
 		id: 'comptia',
@@ -253,9 +268,9 @@ export const CERTIFICATIONS: CertificationData[] = [
 		fullName: 'CompTIA Cloud+ Certification',
 		code: 'CV0-003',
 		icon: '☁️',
-		domains: COMPTIA_DOMAINS, // Will be populated with questions from PostgreSQL
+		domains: COMPTIA_DOMAINS,
 		examInfo: {
-			questionCount: 100,
+			questionCount: 90,
 			timeLimit: 90,
 			passingScore: 750
 		},
@@ -267,7 +282,7 @@ export const CERTIFICATIONS: CertificationData[] = [
 		fullName: 'AWS Certified Solutions Architect Associate',
 		code: 'SAA-C03',
 		icon: '🏗️',
-		domains: AWS_DOMAINS, // Will be populated with questions from PostgreSQL
+		domains: AWS_DOMAINS,
 		examInfo: {
 			questionCount: 65,
 			timeLimit: 130,
@@ -277,7 +292,7 @@ export const CERTIFICATIONS: CertificationData[] = [
 	}
 ];
 
-// Helper function to update certification with loaded questions
+// Helper function to update certification with loaded questions from API
 export const updateCertificationWithQuestions = (
 	certificationId: 'comptia' | 'aws',
 	questions: Question[]
@@ -287,9 +302,22 @@ export const updateCertificationWithQuestions = (
 		throw new Error(`Certification ${certificationId} not found`);
 	}
 
-	console.log('Questions: ', questions);
+	console.log(`🔄 Updating ${cert.name} with ${questions.length} questions`);
+
+	// Populate domains with questions based on domain matching
 	const populatedDomains = populateDomainsWithQuestions(cert.domains, questions);
 	const totalQuestions = populatedDomains.reduce((sum, domain) => sum + domain.totalQuestions, 0);
+
+	// Log domain distribution for debugging
+	console.log(`📈 ${cert.name} Domain Distribution:`);
+	populatedDomains.forEach(domain => {
+		console.log(`  📚 ${domain.name}: ${domain.totalQuestions} questions (${domain.weight}% of exam)`);
+	});
+
+	// Validation - ensure questions are properly distributed
+	if (totalQuestions === 0) {
+		console.warn(`⚠️ No questions mapped for ${cert.name}. Check domain mapping logic.`);
+	}
 
 	return {
 		...cert,
@@ -297,3 +325,24 @@ export const updateCertificationWithQuestions = (
 		totalQuestions
 	};
 };
+
+// Helper function to get question distribution statistics
+export const getQuestionDistributionStats = (certification: CertificationData) => {
+	const stats = {
+		totalQuestions: certification.totalQuestions,
+		domainStats: certification.domains.map(domain => ({
+			name: domain.name,
+			questionCount: domain.totalQuestions,
+			percentage: certification.totalQuestions > 0 ?
+				Math.round((domain.totalQuestions / certification.totalQuestions) * 100) : 0,
+			examWeight: domain.weight,
+			categories: domain.categories.length
+		})),
+		unmappedQuestions: 0 // Could be calculated if needed
+	};
+
+	return stats;
+};
+
+// Export individual domain arrays for reference
+export { populateDomainsWithQuestions };

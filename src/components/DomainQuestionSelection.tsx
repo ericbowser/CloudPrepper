@@ -1,5 +1,5 @@
 // components/DomainQuestionSelection.tsx - Updated for PostgreSQL integration
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { CertificationData, Question } from '../types/preptypes';
 
 export interface QuizConfig {
