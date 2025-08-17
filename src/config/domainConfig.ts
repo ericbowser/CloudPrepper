@@ -287,6 +287,7 @@ export const updateCertificationWithQuestions = (
 		throw new Error(`Certification ${certificationId} not found`);
 	}
 
+	console.log('Questions: ', questions);
 	const populatedDomains = populateDomainsWithQuestions(cert.domains, questions);
 	const totalQuestions = populatedDomains.reduce((sum, domain) => sum + domain.totalQuestions, 0);
 

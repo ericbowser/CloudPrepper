@@ -64,16 +64,16 @@ export interface SelectedAnswer {
 }
 
 export interface Question {
-    id: number;
-    questionNumber: number; // Useful for display and tracking
+    question_id: number;
+    question_number: number; // Useful for display and tracking
     category: string;
     difficulty: string;
     domain: string;
     question: string;
-    questionText: string;
+    question_text: string;
     options: QuestionOptionData[];
     explanation: string;
-    explanationDetails?: {
+    explanation_details?: {
         summary: string;
         breakdown: string[];
         otherOptions: string;

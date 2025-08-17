@@ -5,7 +5,7 @@ import { CERTIFICATIONS, updateCertificationWithQuestions } from "./config/domai
 import { DomainQuestionSelection, type QuizConfig } from "./components/DomainQuestionSelection";
 import ExplanationCard from "./components/ExplanationCard";
 import { AnswerModeToggle } from "./components/AnswerModeToggle";
-import { getComptiaQuestions, getAwsQuestions } from '../data/questions_repository';
+import getQuestions from '../api/questions_repository';
 
 const CloudPrepApp: React.FC = () => {
 	// Certification management
@@ -33,7 +33,7 @@ const CloudPrepApp: React.FC = () => {
 	// Current quiz questions and index
 	const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-	const [currentQuizConfig, setCurrentQuizConfig] = useState<any>(null);
+	const [currentQuizConfig, setCurrentQuizConfig] = useState<QuizConfig | null>(null);
 
 	// Tab switch monitoring for exam mode
 	const [tabSwitchCount, setTabSwitchCount] = useState(0);
@@ -44,25 +44,22 @@ const CloudPrepApp: React.FC = () => {
 
 	// Load questions from PostgreSQL on component mount
 	useEffect(() => {
-		loadQuestionsFromDatabase();
+		loadQuestionsFromApi().then(r => setCurrentQuizQuestions(r));
 	}, []);
 
-	const loadQuestionsFromDatabase = async () => {
+	const loadQuestionsFromApi = async () => {
 		setIsLoading(true);
 		setError(null);
 
 		try {
-			console.log('Loading questions from PostgreSQL...');
+			console.log('Loading questions from API...');
 
 			// Load both certification question sets
-			const [comptiaQuestions, awsQuestions] = await Promise.all([
-				getComptiaQuestions(),
-				getAwsQuestions()
-			]).then();
+			const {comptiaQuestions, awsQuestions} = await getQuestions();
 
 			console.log(`Loaded ${comptiaQuestions.length} CompTIA questions`);
 			console.log(`Loaded ${awsQuestions.length} AWS questions`);
-
+	
 			// Update certifications with loaded questions
 			const updatedCertifications = [
 				updateCertificationWithQuestions('comptia', comptiaQuestions),
@@ -71,10 +68,9 @@ const CloudPrepApp: React.FC = () => {
 
 			setLoadedCertifications(updatedCertifications);
 			console.log('Questions loaded and certifications updated successfully');
-
 		} catch (err) {
 			console.error('Error loading questions:', err);
-			setError(`Failed to load questions: ${err instanceof Error ? err.message : 'Unknown error'}`);
+			setError(`Failed to load questions. ${err instanceof Error ? err.message : 'Please check the API connection and try again.'}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -122,6 +118,13 @@ const CloudPrepApp: React.FC = () => {
 			// 5. Limit to requested count
 			if (config.questionCount && questions.length > config.questionCount) {
 				questions = questions.slice(0, config.questionCount);
+			}
+
+			if (questions.length === 0) {
+				// Handle the case where no questions match the filter criteria to prevent an empty quiz.
+				// We can reset the section to question-selection and show an alert or a message.
+				alert('No questions found matching your criteria. Please try a different selection.');
+				return; // Do not start the quiz
 			}
 
 			console.log(`Starting quiz with ${questions.length} questions`);
@@ -218,7 +221,7 @@ const CloudPrepApp: React.FC = () => {
 			<div className="min-h-screen bg-gray-50 flex items-center justify-center">
 				<div className="text-center">
 					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-					<p className="text-lg text-gray-600">Loading questions from database...</p>
+					<p className="text-lg text-gray-600">Loading questions from API...</p>
 				</div>
 			</div>
 		);
@@ -237,7 +240,7 @@ const CloudPrepApp: React.FC = () => {
 					<h2 className="text-xl font-semibold text-gray-900 mb-2">Database Connection Error</h2>
 					<p className="text-gray-600 mb-4">{error}</p>
 					<button
-						onClick={loadQuestionsFromDatabase}
+						onClick={loadQuestionsFromApi}
 						className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
 					>
 						Retry Connection
