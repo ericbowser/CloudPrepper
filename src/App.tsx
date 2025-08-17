@@ -7,6 +7,23 @@ import ExplanationCard from "./components/ExplanationCard";
 import { AnswerModeToggle } from "./components/AnswerModeToggle";
 import getQuestions from '../api/questions_repository';
 
+// Helper function to normalize question data from the API.
+// This makes the rest of the app resilient to API data structure changes (e.g., snake_case vs camelCase).
+const normalizeQuestion = (q: any): Question => {
+	return {
+		question: q.question_text,
+		question_id: q.question_id,
+		question_number: q.question_number,
+		category: q.category,
+		difficulty: q.difficulty,
+		domain: q.domain,
+		question_text: q.question_text, // This is the key fix for displaying the question
+		options: q.options,
+		explanation: q.explanation,
+		explanation_details: q.explanation_details
+	};
+};
+
 const CloudPrepApp: React.FC = () => {
 	// Certification management
 	const [currentCertification, setCurrentCertification] = useState<'comptia' | 'aws'>('comptia');
@@ -44,7 +61,7 @@ const CloudPrepApp: React.FC = () => {
 
 	// Load questions from PostgreSQL on component mount
 	useEffect(() => {
-		loadQuestionsFromApi().then(r => setCurrentQuizQuestions(r));
+		loadQuestionsFromApi();
 	}, []);
 
 	const loadQuestionsFromApi = async () => {
@@ -57,8 +74,13 @@ const CloudPrepApp: React.FC = () => {
 			// Load both certification question sets
 			const {comptiaQuestions, awsQuestions} = await getQuestions();
 
-			console.log(`Loaded ${comptiaQuestions.length} CompTIA questions`);
-			console.log(`Loaded ${awsQuestions.length} AWS questions`);
+			// Normalize the data from the API to match our frontend Question type.
+			// This prevents errors if the API sends snake_case keys or has inconsistencies.
+			const normalizedComptia = comptiaQuestions.map(normalizeQuestion);
+			const normalizedAws = awsQuestions.map(normalizeQuestion);
+
+			console.log(`Loaded ${normalizedComptia.length} CompTIA questions`);
+			console.log(`Loaded ${normalizedAws.length} AWS questions`);
 	
 			// Update certifications with loaded questions
 			const updatedCertifications = [
@@ -327,7 +349,7 @@ const CloudPrepApp: React.FC = () => {
                 </span>
 							</div>
 
-							<h3 className="text-lg font-medium mb-6">{currentQuestion.questionText}</h3>
+							<h3 className="text-lg font-medium mb-6">{currentQuestion.question_text}</h3>
 
 							<div className="space-y-3">
 								{currentQuestion.options.map((option, index) => (
@@ -335,8 +357,8 @@ const CloudPrepApp: React.FC = () => {
 										key={index}
 										onClick={() => handleAnswerSubmission(option.text)}
 										disabled={selectedAnswer !== null}
-										className={`w-full text-left p-4 rounded-lg border transition-colors ${
-											selectedAnswer === option.text
+										className={`w-full text-left p-4 rounded-lg border transition-colors 
+										${selectedAnswer === option.text
 												? option.isCorrect
 													? 'border-green-500 bg-green-50'
 													: 'border-red-500 bg-red-50'
