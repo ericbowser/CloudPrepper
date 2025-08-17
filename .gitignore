@@ -18,3 +18,5 @@ src/assets/styles/output.css
 dist/
 
 env.json
+/QuestionRepository/
+QuestionRepository/

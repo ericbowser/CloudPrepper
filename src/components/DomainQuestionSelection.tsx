@@ -1,15 +1,8 @@
 // components/DomainQuestionSelection.tsx - Updated for PostgreSQL integration
 import React, { useState, useEffect } from 'react';
 import type { CertificationData, Question } from '../types/preptypes';
+import {QuizConfig} from "@/types/preptypes";
 
-export interface QuizConfig {
-    testType: string;
-    selectedDomains: string[];
-    difficulty: string;
-    category: string;
-    questionCount: number;
-    certification: string;
-}
 
 interface DomainQuestionSelectionProps {
     certification: CertificationData | undefined;
