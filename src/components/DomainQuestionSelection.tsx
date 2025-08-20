@@ -1,6 +1,6 @@
 // components/DomainQuestionSelection.tsx - Updated for PostgreSQL integration
-import React, { useState, useEffect } from 'react';
-import type { CertificationData, Question } from '../types/preptypes';
+import React, {useState} from 'react';
+import type {CertificationData, Question} from '../types/preptypes';
 import {QuizConfig} from "@/types/preptypes";
 
 
@@ -36,14 +36,16 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
     if (certification.totalQuestions === 0) {
         return (
             <div className="max-w-4xl mx-auto p-6">
-                <div className="bg-white rounded-lg shadow p-8 text-center">
+                <div className="bg-blue-500 rounded-lg shadow p-8 text-center">
                     <div className="text-yellow-600 mb-4">
                         <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"/>
                         </svg>
                     </div>
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">No Questions Available</h2>
-                    <p className="text-gray-600">Please check your database connection and ensure questions are loaded.</p>
+                    <p className="text-gray-600">Please check your database connection and ensure questions are
+                        loaded.</p>
                 </div>
             </div>
         );
@@ -191,12 +193,13 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
                     {certification.fullName}
                 </h1>
                 <p className="text-gray-600">
-                    {certification.totalQuestions} total questions available across {certification.domains.length} domains
+                    {certification.totalQuestions} total questions available
+                    across {certification.domains.length} domains
                 </p>
             </div>
 
             {/* Test Type Selection */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-fuchsia-100 rounded-lg shadow p-6">
                 <h2 className="text-xl font-semibold mb-4">Choose Test Type</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {testTypeOptions.map(option => (
@@ -329,7 +332,8 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
                         <p className="text-gray-600">
                             {availableQuestions > 0 ? (
                                 <>
-                                    {getQuestionCountForTestType()} questions selected from {availableQuestions} available
+                                    {getQuestionCountForTestType()} questions selected
+                                    from {availableQuestions} available
                                 </>
                             ) : (
                                 'No questions match your current filters'

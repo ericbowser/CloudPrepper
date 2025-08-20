@@ -1,6 +1,6 @@
 // src/types/preptypes.ts - Updated with domain-based question system
 
-import type { ReactNode } from "react";
+import type {ReactNode} from "react";
 
 // Enhanced Domain interface with embedded questions
 export interface Domain {
@@ -50,7 +50,14 @@ export interface CertificationData {
 }
 
 // Updated section types to include question selection
-export type SectionType = 'dashboard' | 'practice' | 'analytics' | 'study-plan' | 'results' | 'review' | 'question-selection';
+export type SectionType =
+    'dashboard'
+    | 'practice'
+    | 'analytics'
+    | 'study-plan'
+    | 'results'
+    | 'review'
+    | 'question-selection';
 
 // Existing interfaces (keep these unchanged)
 export interface QuestionOptionData {
@@ -69,14 +76,13 @@ export interface Question {
     category: string;
     difficulty: string;
     domain: string;
-    question: string;
     question_text: string;
     options: QuestionOptionData[];
     explanation: string;
     explanation_details?: {
         summary: string;
         breakdown: string[];
-        otherOptions: string;
+        otherOptions: string[];
     };
 }
 
