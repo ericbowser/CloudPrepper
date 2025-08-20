@@ -1,6 +1,13 @@
 import React from 'react';
 
-const Nav: React.FC<{ setActiveSection: (section: string) => void; activeSection: string }> = ({ setActiveSection, activeSection }) => {
+const Nav: React.FC<{ activeSection: string, setActiveSection: (section: string) => void }> = ({
+                                                                                                   activeSection,
+                                                                                                   setActiveSection
+                                                                                               }:
+                                                                                               {
+                                                                                                   activeSection: string,
+                                                                                                   setActiveSection: (section: string) => void
+                                                                                               }) => {
     return (
         <nav className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-xl border border-white/20">
             <div className="flex justify-between items-center">
@@ -28,7 +35,7 @@ const Nav: React.FC<{ setActiveSection: (section: string) => void; activeSection
 };
 
 // Sub-components
-const NavTab: React.FC<{ label: string; isActive: boolean; onClick: () => void }> = ({ label, isActive, onClick }) => (
+const NavTab: React.FC<{ label: string; isActive: boolean; onClick: () => void }> = ({label, isActive, onClick}) => (
     <button
         onClick={onClick}
         className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${

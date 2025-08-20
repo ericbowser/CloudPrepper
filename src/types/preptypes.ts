@@ -57,6 +57,8 @@ export type SectionType =
     | 'study-plan'
     | 'results'
     | 'review'
+    | 'quiz'
+    | 'exam'
     | 'question-selection';
 
 // Existing interfaces (keep these unchanged)
@@ -82,7 +84,7 @@ export interface Question {
     explanation_details?: {
         summary: string;
         breakdown: string[];
-        otherOptions: string[];
+        otherOptions: string;
     };
 }
 

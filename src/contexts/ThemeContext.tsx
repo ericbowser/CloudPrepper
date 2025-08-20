@@ -1,9 +1,7 @@
-
-// 2. Create a Theme Context Provider
 // src/contexts/ThemeContext.jsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 
-const ThemeContext = createContext();
+const ThemeContext = createContext("dark");
 
 export const useTheme = () => {
     const context = useContext(ThemeContext);
@@ -13,7 +11,7 @@ export const useTheme = () => {
     return context;
 };
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider = ({children}: { children: React.ReactNode }) => {
     const [isDark, setIsDark] = useState(false);
 
     // Check localStorage and system preference on mount
@@ -43,8 +41,8 @@ export const ThemeProvider = ({ children }) => {
     };
 
     return (
-        <ThemeContext.Provider value={{ isDark, toggleTheme }}>
-    {children}
-    </ThemeContext.Provider>
-);
+        <ThemeContext.Provider value={{isDark, toggleTheme}}>
+            {children}
+        </ThemeContext.Provider>
+    );
 };
