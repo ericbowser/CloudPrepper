@@ -11,8 +11,10 @@ const root = createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
         <ThemeProvider>
-            <Header title={'Cloud Exam Prepper'}/>
-            <CloudPrepApp/>
+            <div className={''}>
+                <Header title={'Cloud Exam Prepper'}/>
+                <CloudPrepApp/>
+            </div>
         </ThemeProvider>
     </React.StrictMode>
 )

@@ -12,7 +12,7 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({children}: { children: React.ReactNode }) => {
-    const [isDark, setIsDark] = useState(false);
+    const [isDark, setIsDark] = useState(true);
 
     // Check localStorage and system preference on mount
     useEffect(() => {
