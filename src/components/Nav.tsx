@@ -1,6 +1,7 @@
 import React from 'react';
+import {SectionType} from "@/types/preptypes";
 
-const Nav: React.FC<{ setActiveSection: (section: string) => void; activeSection: string }> = ({ setActiveSection, activeSection }) => {
+const Nav: React.FC<{ setActiveSection: (section: SectionType) => void; activeSection: string }> = ({ setActiveSection, activeSection }) => {
     return (
         <nav className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-xl border border-white/20">
             <div className="flex justify-between items-center">

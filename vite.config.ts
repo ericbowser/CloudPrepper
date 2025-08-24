@@ -1,22 +1,23 @@
 import {defineConfig} from 'vite';
-
-export default defineConfig(({mode}) => ({
-    build: {
-        outDir: 'dist',
-        sourcemap: mode === 'development',
-        minify: mode === 'production' ? 'esbuild' : false,
-    },
-    server: {
-        https: {
-            key: './ssl_cert/127.0.0.1+1-key.pem',
-            cert: './ssl_cert/127.0.0.1+1.pem',
+import config from './env.json';
+export default defineConfig(function ({mode}: { mode: string }) {
+    return ({
+        build: {
+            outDir: 'dist',
+            sourcemap: config.NODE_ENV === 'development'
         },
-        css: {
-            postcss: {
-                plugins: [
-                    require('tailwindcss'),
-                ],
+        server: {
+            https: {
+                key: './ssl_cert/127.0.0.1+1-key.pem',
+                cert: './ssl_cert/127.0.0.1+1.pem',
             },
-        },
-    }
-}));
+            css: {
+                postcss: {
+                    plugins: [
+                        require('tailwindcss'),
+                    ],
+                },
+            },
+        }
+    });
+});
