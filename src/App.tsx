@@ -8,7 +8,8 @@ import {
     QuizConfig,
     QuizMode,
     SectionType,
-    SelectedAnswer
+    SelectedAnswer,
+    UserAnswer
 } from "./types/preptypes";
 import {updateCertificationWithQuestions} from "./config/domainConfig";
 import {DomainQuestionSelection} from "./components/DomainQuestionSelection";
@@ -32,7 +33,7 @@ const CloudPrepApp: React.FC = () => {
 
     // Quiz state
     const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
-    const [userAnswers, setUserAnswers] = useState<AnswerRecord[] | null>(null);
+    const [userAnswers, setUserAnswers] = useState<UserAnswer[] | null>(null);
     const [quizStartTime, setQuizStartTime] = useState<Date>(new Date());
     const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
     const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
@@ -350,11 +351,12 @@ const CloudPrepApp: React.FC = () => {
                                             key={index}
                                             onClick={() => handleAnswerSubmission(option.text)}
                                             disabled={selectedAnswer !== null}
-                                            className={`w-full text-left p-4 rounded-lg border transition-colors
-                                                ? ${option.isCorrect}
+                                            className={`w-full text-left p-4 rounded-lg border transition-colors \n
+                                        ${selectedAnswer === option.text
+                                                ? option.isCorrect
                                                     ? 'border-green-500 bg-green-50'
                                                     : 'border-red-500 bg-red-50'
-                                                : ${selectedAnswer !== null && option.isCorrect}
+                                                : selectedAnswer !== null && option.isCorrect
                                                     ? 'border-green-500 bg-green-50'
                                                     : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                                             }`}
@@ -396,43 +398,6 @@ const CloudPrepApp: React.FC = () => {
                         <div>
                             <QuizResults userAnswers={userAnswers} questions={currentQuizQuestions}/>
                         </div>
-                        /*
-                                                <div className="bg-white rounded-lg shadow p-6">
-                                                    <h2 className="text-2xl font-bold mb-6">Quiz Results</h2>
-                        
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                                        <div className="text-center">
-                                                            <div className="text-3xl font-bold text-blue-600">
-                                                                {Math.round((userAnswers.filter(a => a.isCorrect).length / userAnswers.length) * 100)}%
-                                                            </div>
-                                                            <div className="text-gray-600">Overall Score</div>
-                                                        </div>
-                        
-                                                        <div className="text-center">
-                                                            <div className="text-3xl font-bold text-green-600">
-                                                                {userAnswers.filter(a => a.isCorrect).length}
-                                                            </div>
-                                                            <div className="text-gray-600">Correct Answers</div>
-                                                        </div>
-                        
-                                                        <div className="text-center">
-                                                            <div className="text-3xl font-bold text-red-600">
-                                                                {userAnswers.filter(a => !a.isCorrect).length}
-                                                            </div>
-                                                            <div className="text-gray-600">Incorrect Answers</div>
-                                                        </div>
-                                                    </div>
-                        
-                                                    <div className="flex justify-center space-x-4">
-                                                        <button
-                                                            onClick={resetQuiz}
-                                                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                                        >
-                                                            Start New Quiz
-                                                        </button>
-                                                    </div>
-                                                </div>
-                        */
                     )}
                 </main>
             </div>
