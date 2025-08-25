@@ -191,8 +191,8 @@ const CloudPrepApp: React.FC = () => {
     );
 
     return (
-        <div className={'dark:bg-gray-800 dark:text-white text-black bg-amber-50'}>
-            <nav className="bg-transparent backdrop-blur-sm border-b border-black/20 text-black">
+        <div className={'dark:bg-gray-800 dark:text-white bg-gradient-to-tr text-xl text-white'}>
+            <nav className="container-fluid bg-white/95 backdrop-blur-sm border-b border-blue-600 text-black">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-8">
@@ -224,7 +224,7 @@ const CloudPrepApp: React.FC = () => {
                                 <button
                                     onClick={() => setActiveSection('results')}
                                     disabled={userAnswers.length === 0}
-                                    className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
+                                    className={`dark:bg-gray-800 dark:text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
                                         activeSection === 'results' ? 'bg-white/20' : ''
                                     }`}
                                 >
@@ -237,7 +237,7 @@ const CloudPrepApp: React.FC = () => {
                         <select
                             value={currentCertification}
                             onChange={(e) => handleCertificationChange(e.target.value as 'comptia' | 'aws')}
-                            className="bg-white/20 text-white border border-white/30 rounded-lg px-3 py-1 text-sm backdrop-blur-sm"
+                            className="dark:bg-gray-800 dark:text-white bg-white/20 text-white border border-white/30 rounded-lg px-3 py-1 text-sm backdrop-blur-sm"
                         >
                             <option value="comptia" className="text-gray-800">☁️ CompTIA Cloud+</option>
                             <option value="aws" className="text-gray-800">🏗️ AWS Solutions Architect</option>
