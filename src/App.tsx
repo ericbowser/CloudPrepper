@@ -224,16 +224,21 @@ const CloudPrepApp: React.FC = () => {
                                 <button
                                     onClick={() => setActiveSection('results')}
                                     disabled={userAnswers.length === 0}
-                                    className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
-                                        activeSection === 'results' ? 'bg-white/20' : ''
+                                    className={`dark:bg-gray-800 dark:text-white/90  
+                                    text-white/90 hover:text-white px-3 py-2 
+                                     rounded-md text-sm font-medium transition-colors
+                                      disabled:opacity-50 ${
+                                        activeSection === 'results' 
+                                            ? 'bg-white/20' 
+                                            : ''
                                     }`}
                                 >
                                     📊 Results
                                 </button>
                             </div>
                         </div>
-
-                        Certification Switcher
+                            
+                            Certification Switcher
                         <select
                             value={currentCertification}
                             onChange={(e) => handleCertificationChange(e.target.value as 'comptia' | 'aws')}
