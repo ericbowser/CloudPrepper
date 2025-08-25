@@ -1,7 +1,24 @@
 import React from 'react';
 import {SectionType} from "@/types/preptypes";
+import {CERTIFICATIONS} from "../config/domainConfig";
 
-const Nav: React.FC<{ setActiveSection: (section: SectionType) => void; activeSection: string }> = ({ setActiveSection, activeSection }) => {
+const Nav: React.FC<{
+    setActiveSection: (section: SectionType) => void,
+    activeSection: string,
+    setCu
+    darkMode: string,
+}> = (
+    {
+        setActiveSection,
+        activeSection,
+        darkMode
+    }) => {
+    // Get current certification data
+    const getCurrentCertification = () => {
+        const cert = CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
+        console.log("current certification: ", cert);
+        return cert;
+    }
     return (
         <nav className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-xl border border-white/20">
             <div className="flex justify-between items-center">
@@ -29,7 +46,7 @@ const Nav: React.FC<{ setActiveSection: (section: SectionType) => void; activeSe
 };
 
 // Sub-components
-const NavTab: React.FC<{ label: string; isActive: boolean; onClick: () => void }> = ({ label, isActive, onClick }) => (
+const NavTab: React.FC<{ label: string; isActive: boolean; onClick: () => void }> = ({label, isActive, onClick}) => (
     <button
         onClick={onClick}
         className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
