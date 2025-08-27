@@ -5,7 +5,6 @@ import {CERTIFICATIONS} from "../config/domainConfig";
 const Nav: React.FC<{
     setActiveSection: (section: SectionType) => void,
     activeSection: string,
-    setCu
     darkMode: string,
 }> = (
     {

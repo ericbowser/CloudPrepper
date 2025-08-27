@@ -176,7 +176,7 @@ const CloudPrepApp: React.FC = () => {
     }> = ({children, isSelected, isCorrect = false, isIncorrect = false, onClick}) => (
         <div
             onClick={onClick}
-            className={`p-4 rounded-lg cursor-pointer transition-all duration-300 border-2 ${
+            className={`dark:bg-gray-800 dark:text-white p-4 rounded-lg cursor-pointer transition-all duration-300 border-2 ${
                 isCorrect
                     ? 'bg-green-500 text-white border-green-600'
                     : isIncorrect
@@ -191,8 +191,9 @@ const CloudPrepApp: React.FC = () => {
     );
 
     return (
-        <div className={'dark:bg-gray-800 dark:text-white bg-gradient-to-tr text-xl text-white'}>
-            <nav className="container-fluid bg-white/95 backdrop-blur-sm border-b border-blue-600 text-black">
+        <div className={'dark:bg-gray-800 dark:text-white bg-gradient-to-tr text-xl'}>
+            <nav
+                className="dark:bg-gray-800 dark:text-white text-gray-800 font-bold text-blackcontainer-fluid backdrop-blur-sm border-b border-blue-600">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-8">
@@ -200,14 +201,14 @@ const CloudPrepApp: React.FC = () => {
                                 <BsFillMoonStarsFill className={'cursor-pointer 2xl'}
                                                      onClick={() => setDarkMode(!darkMode)}/>
                             </div>
-                            <div className="text-white font-bold text-xl">
+                            <div className="font-bold text-xl">
                                 {getCurrentCertification().icon} {getCurrentCertification().name}
                             </div>
                             <div className="hidden md:flex space-x-6">
                                 <button
                                     onClick={() => setActiveSection('question-selection')}
-                                    className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                                        activeSection === 'question-selection' ? 'bg-white/20' : ''
+                                    className={`dark:bg-gray-800 dark:text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                        activeSection === 'question-selection' ? 'bg-black' : ''
                                     }`}
                                 >
                                     📚 Study
@@ -215,7 +216,7 @@ const CloudPrepApp: React.FC = () => {
                                 <button
                                     onClick={() => setActiveSection('practice')}
                                     disabled={currentQuizQuestions.length === 0}
-                                    className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
+                                    className={`dark:bg-gray-800 dark:text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
                                         activeSection === 'practice' ? 'bg-white/20' : ''
                                     }`}
                                 >
