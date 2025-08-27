@@ -225,8 +225,13 @@ const CloudPrepApp: React.FC = () => {
                                 <button
                                     onClick={() => setActiveSection('results')}
                                     disabled={userAnswers.length === 0}
-                                    className={`dark:bg-gray-800 dark:text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
-                                        activeSection === 'results' ? 'bg-white/20' : ''
+                                    className={`dark:bg-gray-800 dark:text-white/90  
+                                    text-white/90 hover:text-white px-3 py-2 
+                                     rounded-md text-sm font-medium transition-colors
+                                      disabled:opacity-50 ${
+                                        activeSection === 'results'
+                                            ? 'bg-white/20'
+                                            : ''
                                     }`}
                                 >
                                     📊 Results
@@ -238,7 +243,7 @@ const CloudPrepApp: React.FC = () => {
                         <select
                             value={currentCertification}
                             onChange={(e) => handleCertificationChange(e.target.value as 'comptia' | 'aws')}
-                            className="dark:bg-gray-800 dark:text-white bg-white/20 text-white border border-white/30 rounded-lg px-3 py-1 text-sm backdrop-blur-sm"
+                            className="bg-white/20 text-white border border-white/30 rounded-lg px-3 py-1 text-sm backdrop-blur-sm"
                         >
                             <option value="comptia" className="text-gray-800">☁️ CompTIA Cloud+</option>
                             <option value="aws" className="text-gray-800">🏗️ AWS Solutions Architect</option>
