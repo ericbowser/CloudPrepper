@@ -1,9 +1,65 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "tailwindcss";
- 
 
-.body {
-    background-color: black;
+@layer base {
+    body {
+        @apply bg-gray-50 text-gray-900 dark:bg-blackBlue dark:text-gray-100;
+        font-size: medium;
+        margin-right: 10%;
+        margin-left: 10%;
+    }
+}
+
+@layer components {
+    /* Main content card styling */
+    .card {
+        @apply backdrop-blur-sm rounded-2xl p-6 shadow-xl border bg-white/60 dark:bg-gray-800/60 border-black/10 dark:border-white/10;
+    }
+
+    /* Navigation link styling */
+    .nav-link {
+        @apply px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-500 hover:text-blue-600 dark:hover:text-blue-400;
+    }
+    .nav-link-active {
+        @apply text-blue-600 dark:text-blue-400;
+    }
+
+    /* Button styles */
+    .btn {
+        @apply px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    .btn-primary {
+        @apply bg-blue-600 text-white hover:bg-blue-700;
+    }
+    .btn-secondary {
+        @apply bg-gray-500 text-white hover:bg-gray-600;
+    }
+    .btn-success {
+        @apply bg-green-600 text-white hover:bg-green-700;
+    }
+    .btn-purple {
+        @apply w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-purple-700;
+    }
+
+    /* Form element styling */
+    .form-select {
+        @apply rounded-lg px-3 py-1 text-sm bg-transparent dark:bg-gray-800 border border-gray-300 dark:border-gray-600;
+    }
+
+    /* Stat card styling (used in Results) */
+    .stat-card {
+        @apply rounded-lg p-6 text-center border bg-blue-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700;
+    }
+
+    /* Explanation Card */
+    .explanation-card {
+        @apply mt-6 p-6 rounded-lg border animate-fade-in bg-blue-50 border-blue-200 dark:bg-gray-800 dark:border-gray-700;
+    }
+    .explanation-card h4 {
+        @apply font-semibold text-lg mb-3 flex items-center text-blue-800 dark:text-blue-300;
+    }
+    .explanation-card p, .explanation-card li {
+        @apply text-gray-700 dark:text-gray-300;
+    }
 }

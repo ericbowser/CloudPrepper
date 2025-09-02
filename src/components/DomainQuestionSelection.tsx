@@ -297,7 +297,7 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
                                 )}
                             </div>
 
-                            <div className="dark:text-white dark:bg-gray-800 text-sm text-gray-600 mb-2">
+                            <div className="dark:text-white dark:bg-gray-800 text-sm text-gray-200 mb-2">
                                 {stat.domain.totalQuestions} questions available
                             </div>
 

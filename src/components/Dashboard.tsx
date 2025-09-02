@@ -7,7 +7,7 @@ export function Dashboard(userAnswers: AnswerRecord[] | null, length: number) {
     return (
         <div>
             <div
-                className="dark:bg-gray-800 dark:text-white bg-gradient-to-tr text-xl text-black bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                className="dark:bg-gray-800 dark:text-white/10 bg-gradient-to-tr text-xl text-black bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div
                     className="bg-white/90 backdrop-blur-sm rounded-xl p-6 text-center shadow-lg border border-white/20">
                     <div className="text-3xl font-bold text-blue-600 mb-2">{userAnswers?.length ?? 0}</div>

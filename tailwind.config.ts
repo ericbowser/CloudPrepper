@@ -16,7 +16,16 @@ module.exports = {
       colors: {
         primary: "#0725ec",
         blackRed: "#0b0000",
-        blackBlue: "#000209"
+        blackBlue: "#000209",
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.5s ease-out forwards',
       }
     },
   },
