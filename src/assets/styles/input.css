@@ -2,12 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+.scale-container {
+    /* Scale the content to 70% of its original size */
+    transform: scale(0.9);
+
+    /* Set the origin point for the transform to the top-left corner */
+    transform-origin: top right;
+
+    /* Optional: Set the width and height of the container to 70%
+       to prevent extra blank space and maintain a proper layout. */
+    width: 90%;
+    height: 90%;
+}
+
 @layer base {
     body {
         @apply bg-gray-50 text-gray-900 dark:bg-blackBlue dark:text-gray-100;
-        font-size: medium;
-        margin-right: 10%;
-        margin-left: 10%;
     }
 }
 

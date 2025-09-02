@@ -1,61 +1,91 @@
 import React from 'react';
-import {SectionType} from "@/types/preptypes";
-import {CERTIFICATIONS} from "../config/domainConfig";
+import {CertificationData, SectionType} from '../types/preptypes';
+import {BsFillMoonStarsFill} from 'react-icons/bs';
 
-const Nav: React.FC<{
-    setActiveSection: (section: SectionType) => void,
-    activeSection: string,
-    darkMode: string,
-}> = (
-    {
-        setActiveSection,
-        activeSection,
-        darkMode
-    }) => {
-    // Get current certification data
-    const getCurrentCertification = () => {
-        const cert = CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
-        console.log("current certification: ", cert);
-        return cert;
-    }
+interface NavProps {
+    darkMode: boolean;
+    setDarkMode: (value: boolean) => void;
+    certification: CertificationData;
+    activeSection: SectionType;
+    setActiveSection: (section: SectionType) => void;
+    isPracticeDisabled: boolean;
+    isResultsDisabled: boolean;
+    currentCertificationId: 'comptia' | 'aws';
+    onCertificationChange: (newCert: 'comptia' | 'aws') => void;
+}
+
+const Nav: React.FC<NavProps> = ({
+                                     darkMode,
+                                     setDarkMode,
+                                     certification,
+                                     activeSection,
+                                     setActiveSection,
+                                     isPracticeDisabled,
+                                     isResultsDisabled,
+                                     currentCertificationId,
+                                     onCertificationChange,
+                                 }) => {
     return (
-        <nav className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-xl border border-white/20">
-            <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold text-blue-600">{activeSection}</div>
-                <div className="flex gap-5">
-                    <NavTab
-                        label="Dashboard"
-                        isActive={activeSection === 'dashboard'}
-                        onClick={() => setActiveSection('dashboard')}
-                    />
-                    <NavTab
-                        label="Practice"
-                        isActive={activeSection === 'practice'}
-                        onClick={() => setActiveSection('practice')}
-                    />
-                    <NavTab
-                        label="Analytics"
-                        isActive={activeSection === 'analytics'}
-                        onClick={() => setActiveSection('analytics')}
-                    />
+        <nav
+            className="text-2xl font-bold backdrop-blur-sm border-b border-black/10 dark:border-white/10 sticky top-0 z-10 bg-gray-50/80 dark:bg-gray-900/80">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="flex space-between justify-between items-center h-16">
+                    <div className="flex items-center space-x-8">
+                        <div>
+                            <BsFillMoonStarsFill className={'cursor-pointer 2xl'}
+                                                 onClick={() => setDarkMode(!darkMode)}/>
+                        </div>
+                        <div>
+                            {certification.name}
+                        </div>
+                        <div className="md:flex space-x-6">
+                            <button
+                                onClick={() => setActiveSection('question-selection')}
+                                className={`nav-link ${
+                                    activeSection === 'question-selection' ? 'nav-link-active' : ''
+                                }`}
+                            >
+                                📚 Study
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('practice')}
+                                disabled={isPracticeDisabled}
+                                className={`nav-link disabled:opacity-50 ${
+                                    activeSection === 'practice' ? 'nav-link-active' : ''
+                                }`}
+                            >
+                                ✏️ Practice
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('results')}
+                                disabled={isResultsDisabled}
+                                className={`nav-link disabled:opacity-50 ${
+                                    activeSection === 'results' ? 'nav-link-active' : ''
+                                }`}
+                            >
+                                📊 Results
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Certification Switcher */}
+                    <div className="mx-2 w-full">
+
+                        <select
+                            id="certification"
+                            name="certification"
+                            value={currentCertificationId}
+                            onChange={(e) => onCertificationChange(e.target.value as 'comptia' | 'aws')}
+                            className="form-select"
+                        >
+                            <option value="comptia">☁️ CompTIA Cloud+</option>
+                            <option value="aws">🏗️ AWS Solutions Architect</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </nav>
-    )
+    );
 };
-
-// Sub-components
-const NavTab: React.FC<{ label: string; isActive: boolean; onClick: () => void }> = ({label, isActive, onClick}) => (
-    <button
-        onClick={onClick}
-        className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
-            isActive
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-        }`}
-    >
-        {label}
-    </button>
-);
 
 export default Nav;

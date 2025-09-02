@@ -10,6 +10,12 @@ import {
     getCompTiaQuestionsByDifficulty,
     getCompTiaQuestionStats
 } from '../helpers/utils';
+import { GiBullseye } from "react-icons/gi";
+import { LuScale } from "react-icons/lu";
+import { MdDomain } from "react-icons/md";
+import { GiSwordSmithing } from "react-icons/gi";
+import { BsTrophy } from "react-icons/bs";
+import { CiBoxList } from "react-icons/ci";
 
 interface DomainQuestionSelectionProps {
     certification: CertificationData;
@@ -71,7 +77,7 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
         }
     };
 
-    const getAllCategories = (): string[] => {
+    const getAllCategories = (): number => {
         if (certification.id === 'comptia') {
             const stats = getCompTiaQuestionStats();
             return stats.categories; // Should already be an array
@@ -212,32 +218,32 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
             value: 'comprehensive',
             label: 'Comprehensive (25 questions)',
             description: 'Deep knowledge assessment',
-            icon: '🎯'
+            icon: <GiBullseye color={'#f10909'}/>
         },
         {
             value: 'balanced',
             label: 'Balanced by Domain (15 questions)',
             description: 'Questions weighted by exam importance',
-            icon: '⚖️'
+            icon: <LuScale color={'#33d507'}/>
         },
         {
             value: 'domain-focused',
             label: 'Domain Focused (Custom)',
             description: 'Focus on specific domains',
-            icon: '🔍'
+            icon: <MdDomain color={'#e31a5b'}/>
         },
         {
             value: 'weak-areas',
             label: 'Weak Areas Focus (15 questions)',
             description: 'Target your problem areas',
-            icon: '🎪',
+            icon: <GiSwordSmithing color={"#400101"}/>,
             disabled: !domainStats.some(stat => stat.needsWork)
         },
         {
             value: 'full-exam',
             label: `Full Exam Simulation (${certification.examInfo.questionCount} questions)`,
             description: 'Complete exam experience',
-            icon: '🏆'
+            icon: <BsTrophy color={"#a69f04"}/>
         }
     ];
 
@@ -255,26 +261,28 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
                         </h1>
                         <p className="text-gray-600">{certification.fullName} ({certification.code})</p>
                     </div>
-                    <select
+                 {/*   <select
+                        id="certification"
+                        name="certification"
                         value={certification.id}
                         onChange={(e) => onCertificationChange(e.target.value as 'comptia' | 'aws')}
                         className="dark:bg-gray-800 dark:text-white bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
                     >
                         <option value="comptia">☁️ CompTIA Cloud+</option>
                         <option value="aws">🏗️ AWS Solutions Architect</option>
-                    </select>
+                    </select>*/}
                 </div>
             </div>
 
             {/* Domain Overview */}
             <div
-                className="dark:bg-gray-800 dark:text-white bg-gradient-to-tr text-xl text-black bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Domain Overview</h2>
+                className="dark:bg-gray-800 dark:text-white text-xl text-black bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
+                <h2 className="text-2xl font-bold mb-6">Domain Overview</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {domainStats.map((stat, index) => (
                         <div
                             key={stat.domain.id}
-                            className={`dark:bg-gray-800 dark:text-white p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                            className={`text-black dark:bg-gray-800 dark:text-white p-4 rounded-lg border-2 cursor-pointer transition-all ${
                                 selectedDomains.includes(stat.domain.id) || selectedDomains.includes('all')
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200 hover:border-blue-300'
@@ -282,11 +290,11 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
                             onClick={() => handleDomainToggle(stat.domain.id)}
                         >
                             <div className="dark:text-white dark:bg-gray-800 flex items-start justify-between mb-2">
-                                <div className="dark:text-white dark:bg-gray-800 flex items-center gap-2">
+                                <div className="flex items-center gap-2">
                                     <span className="text-xl">{stat.domain.icon}</span>
                                     <div>
-                                        <div className="font-semibold text-gray-800">{stat.domain.name}</div>
-                                        <div className="text-xs text-gray-500">{stat.domain.weight}% of exam</div>
+                                        <div className="text-black dark:text-white dark:bg-gray-800 font-semibold ">{stat.domain.name}</div>
+                                        <div className="dark:text-white dark:bg-gray-800 text-xs text-gray-800">{stat.domain.weight}% of exam</div>
                                     </div>
                                 </div>
                                 {stat.needsWork && (
@@ -297,7 +305,7 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
                                 )}
                             </div>
 
-                            <div className="dark:text-white dark:bg-gray-800 text-sm text-gray-200 mb-2">
+                            <div className="dark:text-white dark:bg-gray-800 text-sm text-gray-800 mb-2">
                                 {stat.domain.totalQuestions} questions available
                             </div>
 

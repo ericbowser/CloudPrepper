@@ -4,8 +4,8 @@ import {AnswerMode, AnswerRecord, Question, QuizMode, SectionType, SelectedAnswe
 import {CERTIFICATIONS} from "./config/domainConfig";
 import {DomainQuestionSelection} from "./components/DomainQuestionSelection";
 import ExplanationCard from "./components/ExplanationCard";
-import {AnswerModeToggle} from "./components/AnswerModeToggle";
-import {BsFillMoonStarsFill} from "react-icons/bs";
+import {AnswerModeToggle} from "./components/AnswerModeToggle"; 
+import Nav from "./components/Nav";
 
 const CloudPrepApp: React.FC = () => {
     // Certification management
@@ -192,60 +192,17 @@ const CloudPrepApp: React.FC = () => {
 
     return (
         <div className={'font-bold text-xl min-h-screen'}>
-            <nav
-                className="font-bold backdrop-blur-sm border-b border-black/10 dark:border-white/10 sticky top-0 z-10 bg-gray-50/80 dark:bg-gray-900/80">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center space-x-8">
-                            <div>
-                                <BsFillMoonStarsFill className={'cursor-pointer 2xl'}
-                                                     onClick={() => setDarkMode(!darkMode)}/>
-                            </div>
-                            <div className="font-bold text-xl">
-                                {getCurrentCertification().icon} {getCurrentCertification().name}
-                            </div>
-                            <div className="hidden md:flex space-x-6">
-                                <button
-                                    onClick={() => setActiveSection('question-selection')}
-                                    className={`nav-link ${
-                                        activeSection === 'question-selection' ? 'nav-link-active' : ''
-                                    }`}
-                                >
-                                    📚 Study
-                                </button>
-                                <button
-                                    onClick={() => setActiveSection('practice')}
-                                    disabled={currentQuizQuestions.length === 0}
-                                    className={`nav-link disabled:opacity-50 ${
-                                        activeSection === 'practice' ? 'nav-link-active' : ''
-                                    }`}
-                                >
-                                    ✏️ Practice
-                                </button>
-                                <button
-                                    onClick={() => setActiveSection('results')}
-                                    disabled={userAnswers.length === 0}
-                                    className={`nav-link disabled:opacity-50 ${
-                                        activeSection === 'results' ? 'nav-link-active' : ''
-                                    }`}
-                                >
-                                    📊 Results
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Certification Switcher */}
-                        <select
-                            value={currentCertification}
-                            onChange={(e) => handleCertificationChange(e.target.value as 'comptia' | 'aws')}
-                            className="form-select"
-                        >
-                            <option value="comptia">☁️ CompTIA Cloud+</option>
-                            <option value="aws">🏗️ AWS Solutions Architect</option>
-                        </select>
-                    </div>
-                </div>
-            </nav>
+            <Nav
+                darkMode={darkMode}
+                setDarkMode={setDarkMode}
+                certification={getCurrentCertification()}
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
+                isPracticeDisabled={currentQuizQuestions.length === 0}
+                isResultsDisabled={userAnswers.length === 0}
+                currentCertificationId={currentCertification}
+                onCertificationChange={handleCertificationChange}
+            />
 
             <div className="max-w-7xl mx-auto p-5">
                 {/* Answer Mode Toggle for practice sessions */}

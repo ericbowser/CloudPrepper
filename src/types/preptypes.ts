@@ -1,6 +1,7 @@
 ﻿// src/types/preptypes.ts - Updated with domain-based question system
 
 import React from "react";
+import { BiCertification } from "react-icons/bi";
 
 // Enhanced Domain interface with embedded questions
 export interface Domain {
@@ -39,7 +40,7 @@ export interface CertificationData {
     name: string;
     fullName: string;
     code: string;
-    icon: string;
+    icon: string,
     domains: Domain[];
     examInfo: {
         questionCount: number;
