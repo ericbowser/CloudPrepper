@@ -1,118 +1,85 @@
-// src/config/domainConfig.ts - FIXED VERSION that matches your question structure
+// src/config/domainConfig.ts - Updated for API integration
 import { Domain, Question, CertificationData } from '../types/preptypes';
-import { COMPTIA_QUESTIONS } from '../QuestionRepository/CompTIA_Cloud_Plus_Questions';
-import { AWS_QUESTIONS } from '../QuestionRepository/AWS_Certified_Architect_Associate_Questions';
 
-console.log('Loading questions...');
-console.log('CompTIA questions:', COMPTIA_QUESTIONS?.length || 0);
-console.log('AWS questions:', AWS_QUESTIONS?.length || 0);
+// Helper function to populate domains with questions based on domain matching
+const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]): Domain[] => {
+	return domains.map(domain => {
+		const domainQuestions = questions.filter(question => {
+			const questionDomain = question.domain.toLowerCase();
 
-// Map questions to domains based on actual domain values in your questions
-const mapCompTIAQuestions = () => {
-	const domainMapping: { [key: string]: Question[] } = {
-		'cloud-architecture': [],
-		'deployments': [],
-		'operations': [],
-		'security': [],
-		'devops': [],
-		'troubleshooting': []
-	};
+			// CompTIA Cloud+ domain mapping (CV0-003)
+			if (domain.id === 'cloud-architecture') {
+				return questionDomain.includes('domain 1') ||
+					questionDomain.includes('cloud architecture');
+			}
+			if (domain.id === 'deployments') {
+				return questionDomain.includes('domain 2') ||
+					questionDomain.includes('deployment');
+			}
+			if (domain.id === 'operations-support') {
+				return questionDomain.includes('domain 3') ||
+					questionDomain.includes('operations') ||
+					questionDomain.includes('support');
+			}
+			if (domain.id === 'security') {
+				return questionDomain.includes('domain 4') ||
+					questionDomain.includes('security');
+			}
+			if (domain.id === 'devops') {
+				return questionDomain.includes('domain 5') ||
+					questionDomain.includes('devops');
+			}
+			if (domain.id === 'troubleshooting') {
+				return questionDomain.includes('domain 6') ||
+					questionDomain.includes('troubleshooting');
+			}
 
-	if (!COMPTIA_QUESTIONS) {
-		console.log('No CompTIA questions found');
-		return domainMapping;
-	}
+			// AWS Solutions Architect domain mapping (SAA-C03)
+			if (domain.id === 'secure-architectures') {
+				return questionDomain.includes('secure') ||
+					questionDomain.includes('design secure') ||
+					(questionDomain.includes('domain 1') && questionDomain.includes('design'));
+			}
+			if (domain.id === 'resilient-architectures') {
+				return questionDomain.includes('resilient') ||
+					questionDomain.includes('design resilient') ||
+					(questionDomain.includes('domain 2') && questionDomain.includes('design'));
+			}
+			if (domain.id === 'high-performing-architectures') {
+				return questionDomain.includes('high-performing') ||
+					questionDomain.includes('design high-performing') ||
+					(questionDomain.includes('domain 3') && questionDomain.includes('design'));
+			}
+			if (domain.id === 'cost-optimized-architectures') {
+				return questionDomain.includes('cost-optimized') ||
+					questionDomain.includes('design cost-optimized') ||
+					(questionDomain.includes('domain 4') && questionDomain.includes('design'));
+			}
 
-	COMPTIA_QUESTIONS.forEach(question => {
-		const domain = question.domain;
+			return false;
+		});
 
-		// Map based on actual domain values in your questions
-		switch (domain) {
-			case 'Domain 1':
-				domainMapping['cloud-architecture'].push(question);
-				break;
-			case 'Domain 2':
-				domainMapping['deployments'].push(question);
-				break;
-			case 'Domain 3':
-				domainMapping['operations'].push(question);
-				break;
-			case 'Domain 4':
-				domainMapping['security'].push(question);
-				break;
-			case 'Domain 5':
-				domainMapping['devops'].push(question);
-				break;
-			case 'Domain 6':
-				domainMapping['troubleshooting'].push(question);
-				break;
-			default:
-				console.log(`Unmapped CompTIA domain: "${domain}" - adding to cloud-architecture`);
-				domainMapping['cloud-architecture'].push(question);
-		}
+		const categories = [...new Set(domainQuestions.map(q => q.category))];
+
+		console.log(`📊 Domain "${domain.name}": ${domainQuestions.length} questions, Categories: ${categories.slice(0, 3).join(', ')}${categories.length > 3 ? '...' : ''}`);
+
+		return {
+			...domain,
+			questions: domainQuestions,
+			categories,
+			totalQuestions: domainQuestions.length
+		};
 	});
-
-	// Log the mapping results
-	console.log('=== CompTIA DOMAIN MAPPING ===');
-	Object.entries(domainMapping).forEach(([key, questions]) => {
-		console.log(`${key}: ${questions.length} questions`);
-	});
-
-	return domainMapping;
 };
 
-const mapAWSQuestions = () => {
-	const domainMapping: { [key: string]: Question[] } = {
-		'secure-architectures': [],
-		'resilient-architectures': [],
-		'high-performing-architectures': [],
-		'cost-optimized-architectures': []
-	};
-
-	if (!AWS_QUESTIONS) {
-		console.log('No AWS questions found');
-		return domainMapping;
-	}
-
-	AWS_QUESTIONS.forEach(question => {
-		const domain = question.domain;
-
-		// Map based on actual domain values in your AWS questions
-		if (domain.includes('Domain 1') || domain.includes('Resilient')) {
-			domainMapping['resilient-architectures'].push(question);
-		} else if (domain.includes('Domain 2') || domain.includes('High-Performing')) {
-			domainMapping['high-performing-architectures'].push(question);
-		} else if (domain.includes('Domain 3') || domain.includes('Secure')) {
-			domainMapping['secure-architectures'].push(question);
-		} else if (domain.includes('Domain 4') || domain.includes('Cost-Optimized')) {
-			domainMapping['cost-optimized-architectures'].push(question);
-		} else {
-			console.log(`Unmapped AWS domain: "${domain}"`);
-			domainMapping['secure-architectures'].push(question);
-		}
-	});
-
-	// Log the mapping results
-	console.log('=== AWS DOMAIN MAPPING ===');
-	Object.entries(domainMapping).forEach(([key, questions]) => {
-		console.log(`${key}: ${questions.length} questions`);
-	});
-
-	return domainMapping;
-};
-
-// Create the mappings
-const comptiaQuestionsByDomain = mapCompTIAQuestions();
-const awsQuestionsByDomain = mapAWSQuestions();
-
-// CompTIA Cloud+ Domain Configuration
+// CompTIA Cloud+ Domains (CV0-003)
 export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'cloud-architecture',
-		name: 'Cloud Architecture',
-		description: 'Cloud concepts, models, and architectural designs',
+		name: 'Cloud Architecture and Models',
+		description: 'Cloud concepts, deployment models, and service types (25%)',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['cloud-architecture'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 25,
@@ -127,10 +94,10 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	},
 	{
 		id: 'deployments',
-		name: 'Deployments',
-		description: 'Cloud service deployment and migration strategies',
+		name: 'Cloud Deployment',
+		description: 'Deployment strategies, migration, and integration (20%)',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['deployments'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -144,11 +111,11 @@ export const COMPTIA_DOMAINS: Domain[] = [
 		}
 	},
 	{
-		id: 'operations',
-		name: 'Operations',
-		description: 'Cloud operations, monitoring, and maintenance',
+		id: 'operations-support',
+		name: 'Operations and Support',
+		description: 'Cloud operations, monitoring, and maintenance (20%)',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['operations'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -164,13 +131,13 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'security',
 		name: 'Security',
-		description: 'Cloud security, compliance, and risk management',
+		description: 'Cloud security principles and implementation (25%)',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['security'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 25,
-		icon: '🔒',
+		icon: '🛡️',
 		studyProgress: {
 			attempted: 0,
 			correct: 0,
@@ -181,10 +148,10 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	},
 	{
 		id: 'devops',
-		name: 'DevOps',
-		description: 'Automation, CI/CD, and development operations',
+		name: 'DevOps and Automation',
+		description: 'DevOps practices and automation (5%)',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['devops'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 5,
@@ -200,9 +167,9 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'troubleshooting',
 		name: 'Troubleshooting',
-		description: 'Problem diagnosis and resolution in cloud environments',
+		description: 'Problem identification and resolution (5%)',
 		progress: 0,
-		questions: comptiaQuestionsByDomain['troubleshooting'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 5,
@@ -217,14 +184,32 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	}
 ];
 
-// AWS Solutions Architect Domains
+// AWS Solutions Architect Domains (SAA-C03)
 export const AWS_DOMAINS: Domain[] = [
+	{
+		id: 'secure-architectures',
+		name: 'Design Secure Architectures',
+		description: 'Security best practices and secure architecture design (30%)',
+		progress: 0,
+		questions: [],
+		categories: [],
+		totalQuestions: 0,
+		weight: 30,
+		icon: '🛡️',
+		studyProgress: {
+			attempted: 0,
+			correct: 0,
+			accuracy: 0,
+			timeSpent: 0,
+			weakCategories: []
+		}
+	},
 	{
 		id: 'resilient-architectures',
 		name: 'Design Resilient Architectures',
-		description: 'High availability, disaster recovery, and fault tolerance',
+		description: 'High availability, disaster recovery, and fault tolerance (26%)',
 		progress: 0,
-		questions: awsQuestionsByDomain['resilient-architectures'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 26,
@@ -240,9 +225,9 @@ export const AWS_DOMAINS: Domain[] = [
 	{
 		id: 'high-performing-architectures',
 		name: 'Design High-Performing Architectures',
-		description: 'Performance optimization and scalability',
+		description: 'Performance optimization and scalability (24%)',
 		progress: 0,
-		questions: awsQuestionsByDomain['high-performing-architectures'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 24,
@@ -256,29 +241,11 @@ export const AWS_DOMAINS: Domain[] = [
 		}
 	},
 	{
-		id: 'secure-architectures',
-		name: 'Design Secure Architectures',
-		description: 'Security best practices and secure architecture design',
-		progress: 0,
-		questions: awsQuestionsByDomain['secure-architectures'] || [],
-		categories: [],
-		totalQuestions: 0,
-		weight: 30,
-		icon: '🛡️',
-		studyProgress: {
-			attempted: 0,
-			correct: 0,
-			accuracy: 0,
-			timeSpent: 0,
-			weakCategories: []
-		}
-	},
-	{
 		id: 'cost-optimized-architectures',
 		name: 'Design Cost-Optimized Architectures',
-		description: 'Cost management and optimization strategies',
+		description: 'Cost management and optimization strategies (20%)',
 		progress: 0,
-		questions: awsQuestionsByDomain['cost-optimized-architectures'] || [],
+		questions: [],
 		categories: [],
 		totalQuestions: 0,
 		weight: 20,
@@ -293,20 +260,7 @@ export const AWS_DOMAINS: Domain[] = [
 	}
 ];
 
-// Initialize domain metadata after questions are loaded
-export const initializeDomains = (domains: Domain[]): Domain[] => {
-	return domains.map(domain => {
-		const categories = [...new Set(domain.questions.map(q => q.category))];
-		console.log(`Domain ${domain.name}: ${domain.questions.length} questions, categories:`, categories.slice(0, 3));
-		return {
-			...domain,
-			categories,
-			totalQuestions: domain.questions.length
-		};
-	});
-};
-
-// Main certification configuration
+// Main certification configuration - will be populated with questions from API
 export const CERTIFICATIONS: CertificationData[] = [
 	{
 		id: 'comptia',
@@ -314,13 +268,13 @@ export const CERTIFICATIONS: CertificationData[] = [
 		fullName: 'CompTIA Cloud+ Certification',
 		code: 'CV0-003',
 		icon: '☁️',
-		domains: initializeDomains(COMPTIA_DOMAINS),
+		domains: COMPTIA_DOMAINS,
 		examInfo: {
-			questionCount: 100,
+			questionCount: 90,
 			timeLimit: 90,
 			passingScore: 750
 		},
-		totalQuestions: COMPTIA_DOMAINS.reduce((sum, domain) => sum + domain.questions.length, 0)
+		totalQuestions: 0 // Will be updated when questions are loaded
 	},
 	{
 		id: 'aws',
@@ -328,21 +282,67 @@ export const CERTIFICATIONS: CertificationData[] = [
 		fullName: 'AWS Certified Solutions Architect Associate',
 		code: 'SAA-C03',
 		icon: '🏗️',
-		domains: initializeDomains(AWS_DOMAINS),
+		domains: AWS_DOMAINS,
 		examInfo: {
 			questionCount: 65,
 			timeLimit: 130,
 			passingScore: 720
 		},
-		totalQuestions: AWS_DOMAINS.reduce((sum, domain) => sum + domain.questions.length, 0)
+		totalQuestions: 0 // Will be updated when questions are loaded
 	}
 ];
 
-// Debug: Print final certification info
-console.log('=== FINAL CERTIFICATION INFO ===');
-CERTIFICATIONS.forEach(cert => {
-	console.log(`${cert.name}: ${cert.totalQuestions} total questions`);
-	cert.domains.forEach(domain => {
-		console.log(`  - ${domain.name}: ${domain.totalQuestions} questions`);
+// Helper function to update certification with loaded questions from API
+export const updateCertificationWithQuestions = (
+	certificationId: 'comptia' | 'aws',
+	questions: Question[]
+): CertificationData => {
+	const cert = CERTIFICATIONS.find(c => c.id === certificationId);
+	if (!cert) {
+		throw new Error(`Certification ${certificationId} not found`);
+	}
+
+	console.log(`🔄 Updating ${cert.name} with ${questions.length} questions`);
+
+	// Populate domains with questions based on domain matching
+	const populatedDomains = populateDomainsWithQuestions(cert.domains, questions);
+	const totalQuestions = populatedDomains.reduce((sum, domain) => sum + domain.totalQuestions, 0);
+
+	// Log domain distribution for debugging
+	console.log(`📈 ${cert.name} Domain Distribution:`);
+	populatedDomains.forEach(domain => {
+		console.log(`  📚 ${domain.name}: ${domain.totalQuestions} questions (${domain.weight}% of exam)`);
 	});
-});
+
+	// Validation - ensure questions are properly distributed
+	if (totalQuestions === 0) {
+		console.warn(`⚠️ No questions mapped for ${cert.name}. Check domain mapping logic.`);
+	}
+
+	return {
+		...cert,
+		domains: populatedDomains,
+		totalQuestions
+	};
+};
+
+// Helper function to get question distribution statistics
+export const getQuestionDistributionStats = (certification: CertificationData) => {
+	const stats = {
+		totalQuestions: certification.totalQuestions,
+		domainStats: certification.domains.map(domain => ({
+			name: domain.name,
+			questionCount: domain.totalQuestions,
+			percentage: certification.totalQuestions > 0 ?
+				Math.round((domain.totalQuestions / certification.totalQuestions) * 100) : 0,
+			examWeight: domain.weight,
+			categories: domain.categories.length
+		})),
+		unmappedQuestions: 0 // Could be calculated if needed
+	};
+
+	return stats;
+};
+
+// Export individual domain arrays for reference
+export { populateDomainsWithQuestions };

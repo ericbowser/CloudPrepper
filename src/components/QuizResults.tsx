@@ -1,19 +1,12 @@
-﻿import React from 'react';
-import {Question, AnswerRecord} from "../types/preptypes";
-export interface UserAnswer {
-    questionId: number,
-    selectedIndex: number,
-    isCorrect: boolean,
-    timeSpent: number,
-    userAnswers?: AnswerRecord[]
-}
-// QuizResults Component
-export const QuizResults: React.FC<{
+import React from 'react';
+import {Question, UserAnswer} from "../types/preptypes";
+
+const QuizResults: React.FC<{
     userAnswers: UserAnswer[];
     questions: Question[];
     onRestart: () => void;
     onReviewAnswers: () => void;
-}> = ({ userAnswers, questions, onRestart, onReviewAnswers }) => {
+}> = ({userAnswers, questions, onRestart, onReviewAnswers}) => {
     const totalQuestions = questions.length;
     const correctAnswers = userAnswers.filter(a => a.isCorrect).length;
     const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
@@ -80,12 +73,12 @@ export const QuizResults: React.FC<{
                 <h3 className="text-xl font-bold mb-6">Question Breakdown</h3>
                 <div className="space-y-4">
                     {questions.map((question, index) => {
-                        const userAnswer = userAnswers.find(a => a.questionId === question.id);
+                        const userAnswer = userAnswers.find(a => a.questionId === question.question_id);
                         const correctOption = question.options.find(opt => opt.isCorrect);
-                        const userSelectedOption = question.options[userAnswer?.selectedIndex || 0];
+                        const userSelectedOption = question.options[userAnswer.selectedIndex];
 
                         return (
-                            <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                            <div key={question.question_id} className="border border-gray-200 rounded-lg p-4">
                                 <div className="flex items-start justify-between mb-2">
                                     <span className="font-medium">Question {index + 1}</span>
                                     <span className={`px-2 py-1 rounded text-sm ${
@@ -96,7 +89,7 @@ export const QuizResults: React.FC<{
                                         {userAnswer?.isCorrect ? 'Correct' : 'Incorrect'}
                                     </span>
                                 </div>
-                                <p className="text-gray-700 mb-3">{question.questionText}</p>
+                                <p className="text-gray-700 mb-3">{question.question_text}</p>
 
                                 {!userAnswer?.isCorrect && (
                                     <div className="text-sm space-y-1">
@@ -116,3 +109,5 @@ export const QuizResults: React.FC<{
         </div>
     );
 };
+
+export default QuizResults;

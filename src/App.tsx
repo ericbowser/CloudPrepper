@@ -1,426 +1,443 @@
-﻿// src/App.tsx - Updated to use domain-based question system
-import React, { useState } from 'react';
-import { AnswerMode, AnswerRecord, Question, QuizMode, SectionType, SelectedAnswer } from "./types/preptypes";
-import { CERTIFICATIONS } from "./config/domainConfig";
-import { DomainQuestionSelection } from "./components/DomainQuestionSelection";
+// src/App.tsx - Updated for PostgreSQL integration
+import React, {useEffect, useState} from 'react';
+import {
+    AnswerMode,
+    AnswerRecord,
+    CertificationData,
+    Question,
+    QuizConfig,
+    QuizMode,
+    SectionType,
+    SelectedAnswer
+} from "./types/preptypes";
+import {updateCertificationWithQuestions} from "./config/domainConfig";
+import {DomainQuestionSelection} from "./components/DomainQuestionSelection";
 import ExplanationCard from "./components/ExplanationCard";
-import { AnswerModeToggle } from "./components/AnswerModeToggle";
+import {AnswerModeToggle} from "./components/AnswerModeToggle";
+import getQuestions from '../api/questions_repository';
+import QuizResults from "./components/QuizResults";
 
 const CloudPrepApp: React.FC = () => {
-	// Certification management
-	const [currentCertification, setCurrentCertification] = useState<'comptia' | 'aws'>('comptia');
+    // Certification management
+    const [currentCertification, setCurrentCertification] = useState<'comptia' | 'aws'>('comptia');
 
-	// Main application state
-	const [activeSection, setActiveSection] = useState<SectionType>('question-selection');
-	const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
+    // Data loading state
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [loadedCertifications, setLoadedCertifications] = useState<CertificationData[]>([]);
 
-	// Quiz state
-	const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
-	const [userAnswers, setUserAnswers] = useState<AnswerRecord[]>([]);
-/*
-	const [quizStartTime, setQuizStartTime] = useState<Date>(new Date());
-*/
-	const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
-	const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
-	const [answerMode, setAnswerMode] = React.useState<AnswerMode | number>(AnswerMode.inline);
-	const [showExplanation, setShowExplanation] = React.useState<boolean>(false);
-	const [doneStudying, setDoneStudying] = React.useState<boolean>(false);
+    // Main application state
+    const [activeSection, setActiveSection] = useState<SectionType | string>("question-selection");
+    const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
 
-	// Current quiz questions and index
-	const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
-	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-	const [currentQuizConfig, setCurrentQuizConfig] = useState<any>(null);
+    // Quiz state
+    const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
+    const [userAnswers, setUserAnswers] = useState<AnswerRecord[] | null>(null);
+    const [quizStartTime, setQuizStartTime] = useState<Date>(new Date());
+    const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
+    const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
+    const [answerMode, setAnswerMode] = useState<AnswerMode>(AnswerMode.inline);
+    const [showExplanation, setShowExplanation] = useState<boolean>(false);
+    const [doneStudying, setDoneStudying] = useState<boolean>(false);
 
-	// Get current question safely
-	const currentQuestion = currentQuizQuestions[currentQuestionIndex];
-	const totalQuestions = currentQuizQuestions.length;
+    // Current quiz questions and index
+    const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [currentQuizConfig, setCurrentQuizConfig] = useState<QuizConfig | null>(null);
 
-	// Get current certification data
-	const getCurrentCertification = () => {
-		const cert = CERTIFICATIONS.find(cert => cert.id === currentCertification)!;
-		console.log("current certification: ", cert);
-		return cert;
-	}
+    // Tab switch monitoring for exam mode
+    const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
-	// Handle starting a new quiz from domain selection
-	const handleStartQuiz = (questions: Question[], config: any) => {
-		setCurrentQuizQuestions(questions);
-		setCurrentQuizConfig(config);
-		setCurrentQuestionIndex(0);
-		setSelectedAnswer(null);
-		setUserAnswers([]);
-		setIsAnswered(false);
-		setShowExplanation(false);
-		setDoneStudying(false);
-/*
-		setQuizStartTime(new Date());
-*/
-		setQuestionStartTime(new Date());
-		setActiveSection('practice');
-	};
+    // Get current question safely
+    const currentQuestion = currentQuizQuestions[currentQuestionIndex];
+    const totalQuestions = currentQuizQuestions.length;
 
-	// Handle certification change
-	const handleCertificationChange = (newCert: 'comptia' | 'aws') => {
-		console.log("Setting certification to:", newCert);
-		setCurrentCertification(newCert);
-		setCurrentQuizQuestions([]);
-		setUserAnswers([]);
-		setCurrentQuestionIndex(0);
-		setCurrentQuizConfig(null);
-		setActiveSection('question-selection');
-	};
+    // Load questions from PostgreSQL on component mount
+    useEffect(() => {
+        loadQuestionsFromApi();
+    }, []);
 
-	// Your existing quiz logic (keep all of this)
-	const nextQuestion = (): void => {
-		if (currentQuestionIndex < totalQuestions - 1) {
-			setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-			setIsAnswered(false);
-			setSelectedAnswer(null);
-			setShowExplanation(false);
-			setQuestionStartTime(new Date());
-		} else {
-			setActiveSection('results');
-		}
-	};
+    const loadQuestionsFromApi = async () => {
+        setIsLoading(true);
+        setError(null);
 
-	const previousQuestion = (): void => {
-		if (currentQuestionIndex > 0) {
-			setCurrentQuestionIndex(prevIndex => prevIndex - 1);
-			const previousAnswer = userAnswers.find(answer => answer.questionIndex === currentQuestionIndex - 1);
+        try {
+            console.log('Loading questions from API...');
 
-			if (previousAnswer) {
-				setIsAnswered(true);
-				setSelectedAnswer({
-					index: previousAnswer.selectedOptionIndex,
-					isCorrect: previousAnswer.isCorrect
-				});
-				setShowExplanation(answerMode === AnswerMode.inline);
-			} else {
-				setIsAnswered(false);
-				setSelectedAnswer(null);
-				setShowExplanation(false);
-			}
-			setQuestionStartTime(new Date());
-		}
-	};
+            // Load both certification question sets
+            const {comptiaQuestions, awsQuestions} = await getQuestions();
 
-	const selectOption = (optionIndex: number, isCorrect: boolean): void => {
-		setSelectedAnswer({index: optionIndex, isCorrect});
-	};
+            console.log(`Loaded ${comptiaQuestions.length} CompTIA questions`);
+            console.log(`Loaded ${awsQuestions.length} AWS questions`);
 
-	const submitAnswer = (): void => {
-		if (!selectedAnswer) return;
+            // Update certifications with loaded questions
+            const updatedCertifications = [
+                updateCertificationWithQuestions('comptia', comptiaQuestions),
+                updateCertificationWithQuestions('aws', awsQuestions)
+            ];
 
-		const timeTaken = new Date().getTime() - questionStartTime.getTime();
-		const newAnswer: AnswerRecord = {
-			questionIndex: currentQuestionIndex,
-			selectedOptionIndex: selectedAnswer.index,
-			isCorrect: selectedAnswer.isCorrect,
-			timeTaken: timeTaken
-		};
+            setLoadedCertifications(updatedCertifications);
+            console.log('Questions loaded and certifications updated successfully');
+        } catch (err) {
+            console.error('Error loading questions:', err);
+            setError(`Failed to load questions. ${err instanceof Error ? err.message : 'Please check the API connection and try again.'}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-		setUserAnswers(prev => {
-			const existingIndex = prev.findIndex(ans => ans.questionIndex === currentQuestionIndex);
-			if (existingIndex !== -1) {
-				const updated = [...prev];
-				updated[existingIndex] = newAnswer;
-				return updated;
-			}
-			return [...prev, newAnswer];
-		});
+    // Get current certification data
+    const getCurrentCertification = (): CertificationData | undefined => {
+        return loadedCertifications.find(cert => cert.id === currentCertification);
+    };
 
-		setIsAnswered(true);
+    // Start a new quiz with questions from PostgreSQL
+    const startQuiz = async (config: QuizConfig) => {
+        try {
+            setCurrentQuizConfig(config);
+            const currentCert = getCurrentCertification();
+            if (!currentCert) {
+                setError('Could not find data for the selected certification.');
+                return;
+            }
 
-		if (answerMode === AnswerMode.inline) {
-			setShowExplanation(true);
-			setDoneStudying(false);
-		} else {
-			setShowExplanation(false);
-			setDoneStudying(true);
-		}
+            let questions: Question[] = [];
 
-		if (doneStudying && showExplanation) {
-			setTimeout(() => nextQuestion(), 300);
-		} else if (doneStudying && !showExplanation) {
-			setTimeout(() => nextQuestion(), 300);
-		}
-	};
+            // 1. Get base set of questions from selected domains
+            if (config.selectedDomains.includes('all')) {
+                questions = currentCert.domains.flatMap(domain => domain.questions);
+            } else {
+                questions = currentCert.domains
+                    .filter(domain => config.selectedDomains.includes(domain.id))
+                    .flatMap(domain => domain.questions);
+            }
 
-	const QuestionOption: React.FC<{
-		children: React.ReactNode;
-		isSelected: boolean;
-		isCorrect?: boolean;
-		isIncorrect?: boolean;
-		onClick: () => void;
-	}> = ({children, isSelected, isCorrect = false, isIncorrect = false, onClick}) => (
-		<div
-			onClick={onClick}
-			className={`p-4 rounded-lg cursor-pointer transition-all duration-300 border-2 ${
-				isCorrect
-					? 'bg-green-500 text-white border-green-600'
-					: isIncorrect
-						? 'bg-red-500 text-white border-red-600'
-						: isSelected
-							? 'bg-blue-500 text-white border-blue-600'
-							: 'bg-gray-50 border-gray-200 hover:bg-blue-50 hover:border-blue-300'
-			}`}
-		>
-			{children}
-		</div>
-	);
+            // 2. Apply category filter
+            if (config.category && config.category !== 'all') {
+                questions = questions.filter(q => q.category === config.category);
+            }
 
-	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-500 to-black to-white">
-			{/* Enhanced Navigation */}
-			<nav className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-				<div className="max-w-7xl mx-auto px-4">
-					<div className="flex justify-between items-center h-16">
-						<div className="flex items-center space-x-8">
-							<div className="text-white font-bold text-xl">
-								{getCurrentCertification().icon} {getCurrentCertification().name}
-							</div>
-							<div className="hidden md:flex space-x-6">
-								<button
-									onClick={() => setActiveSection('question-selection')}
-									className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-										activeSection === 'question-selection' ? 'bg-white/20' : ''
-									}`}
-								>
-									📚 Study
-								</button>
-								<button
-									onClick={() => setActiveSection('practice')}
-									disabled={currentQuizQuestions.length === 0}
-									className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
-										activeSection === 'practice' ? 'bg-white/20' : ''
-									}`}
-								>
-									✏️ Practice
-								</button>
-								<button
-									onClick={() => setActiveSection('results')}
-									disabled={userAnswers.length === 0}
-									className={`text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 ${
-										activeSection === 'results' ? 'bg-white/20' : ''
-									}`}
-								>
-									📊 Results
-								</button>
-							</div>
-						</div>
+            // 3. Apply difficulty filter
+            if (config.difficulty && config.difficulty !== 'all') {
+                questions = questions.filter(q => q.difficulty === config.difficulty);
+            }
 
-						{/* Certification Switcher */}
-						<select
-							value={currentCertification}
-							onChange={(e) => handleCertificationChange(e.target.value as 'comptia' | 'aws')}
-							className="bg-white/20 text-white border border-white/30 rounded-lg px-3 py-1 text-sm backdrop-blur-sm"
-						>
-							<option value="comptia" className="text-gray-800">☁️ CompTIA Cloud+</option>
-							<option value="aws" className="text-gray-800">🏗️ AWS Solutions Architect</option>
-						</select>
-					</div>
-				</div>
-			</nav>
+            // 4. Shuffle questions
+            questions = questions.sort(() => 0.5 - Math.random());
 
-			<div className="max-w-7xl mx-auto p-5">
-				{/* Answer Mode Toggle for practice sessions */}
-				{(activeSection === 'practice' || activeSection === 'review') && (
-					<AnswerModeToggle
-						answerMode={answerMode}
-						setAnswerMode={(mode) => setAnswerMode(mode)}
-					/>
-				)}
+            // 5. Limit to requested count
+            if (config.questionCount && questions.length > config.questionCount) {
+                questions = questions.slice(0, config.questionCount);
+            }
 
-				{/* Domain-Based Question Selection */}
-				{activeSection === 'question-selection' && (
-					<DomainQuestionSelection
-						certification={getCurrentCertification()}
-						userAnswers={userAnswers}
-						onStartQuiz={handleStartQuiz}
-						onCertificationChange={handleCertificationChange}
-					/>
-				)}
+            if (questions.length === 0) {
+                // Handle the case where no questions match the filter criteria to prevent an empty quiz.
+                // We can reset the section to question-selection and show an alert or a message.
+                alert('No questions found matching your criteria. Please try a different selection.');
+                return; // Do not start the quiz
+            }
 
-				{/* Practice Mode */}
-				{activeSection === 'practice' && quizMode === 'quiz' && currentQuestion && (
-					<div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-						{/* Progress Sidebar */}
-						<div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20">
-							<div className="mb-6">
-								<div className="flex justify-between items-center mb-2">
-									<span className="text-sm text-gray-600">Progress</span>
-									<span className="text-sm font-medium text-gray-800">
-                                        {currentQuestionIndex + 1} of {totalQuestions}
+            console.log(`Starting quiz with ${questions.length} questions`);
+            setCurrentQuizQuestions(questions);
+            setCurrentQuestionIndex(0);
+            setActiveSection("quiz");
+            setQuizStartTime(new Date());
+            setQuestionStartTime(new Date());
+            setUserAnswers([]);
+            setSelectedAnswer(null);
+            setIsAnswered(null);
+            setShowExplanation(false);
+
+        } catch (err) {
+            console.error('Error starting quiz:', err);
+            setError(`Failed to start quiz: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+    };
+
+    // Handle answer submission
+    const handleAnswerSubmission = (answer: string) => {
+        const endTime = new Date();
+        const timeSpent = endTime.getTime() - questionStartTime.getTime();
+
+        const answerRecord: AnswerRecord = {
+            questionId: currentQuestion.question_id,
+            selectedAnswers: Array.isArray(answer) ? answer : [answer],
+            isCorrect: checkAnswer(answer),
+            timeSpent,
+            timestamp: endTime
+        };
+
+        setUserAnswers(prev => [...prev, answerRecord]);
+        setSelectedAnswer(answer);
+        setIsAnswered(answerRecord.isCorrect);
+
+        if (answerMode === AnswerMode.inline) {
+            setShowExplanation(true);
+        }
+    };
+
+    // Check if answer is correct
+    const checkAnswer = (answer: string): boolean => {
+        if (!currentQuestion) return false;
+
+        // This logic currently only supports single-choice answers.
+        // To support multiple correct answers, the UI and this function would need to be updated
+        // to handle an array of selected answer strings.
+        const correctOption = currentQuestion.options.find(option => option.isCorrect);
+        return correctOption ? correctOption.text === answer : false;
+    };
+
+    // Navigate to next question
+    const nextQuestion = () => {
+        if (currentQuestionIndex < totalQuestions - 1) {
+            setCurrentQuestionIndex(prev => prev + 1);
+            setSelectedAnswer(null);
+            setIsAnswered(null);
+            setShowExplanation(false);
+            setQuestionStartTime(new Date());
+        } else {
+            // Quiz completed
+            setActiveSection('results');
+        }
+    };
+
+    // Navigate to previous question
+    const previousQuestion = () => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(prev => prev - 1);
+            setSelectedAnswer(null);
+            setIsAnswered(null);
+            setShowExplanation(false);
+            setQuestionStartTime(new Date());
+        }
+    };
+
+    // Reset quiz
+    const resetQuiz = () => {
+        setActiveSection('question-selection');
+        setCurrentQuizQuestions([]);
+        setCurrentQuestionIndex(0);
+        setUserAnswers([]);
+        setSelectedAnswer(null);
+        setIsAnswered(null);
+        setShowExplanation(false);
+        setDoneStudying(false);
+        setCurrentQuizConfig(null);
+    };
+
+    // Handle loading state
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-lg text-gray-600">Loading questions from API...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Handle error state
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center max-w-md mx-auto p-6">
+                    <div className="text-red-600 mb-4">
+                        <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Database Connection Error</h2>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button
+                        onClick={loadQuestionsFromApi}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                        Retry Connection
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-gray-50">
+            <div className="min-h-screen bg-blue-100">
+                {/* Header */}
+                <header className="bg-gray-100 shadow-sm border-b">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-16">
+                            <div className="flex items-center">
+                                <h1 className="text-xl font-semibold text-gray-900">
+                                    Exam Prepper - Cloud Tech Professional
+                                </h1>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <select
+                                    value={currentCertification}
+                                    onChange={(e) => setCurrentCertification(e.target.value as 'comptia' | 'aws')}
+                                    className="border border-gray-300 rounded-md px-3 py-1"
+                                >
+                                    <option value="comptia">CompTIA Cloud+</option>
+                                    <option value="aws">AWS Solutions Architect</option>
+                                </select>
+                                {activeSection !== 'question-selection' && (
+                                    <button
+                                        onClick={resetQuiz}
+                                        className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                                    >
+                                        Back to Selection
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Main Content */}
+                <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    {activeSection === 'question-selection' && (
+                        <DomainQuestionSelection
+                            certification={getCurrentCertification()}
+                            onStartQuiz={startQuiz}
+                        />
+                    )}
+
+                    {activeSection === 'quiz' && currentQuestion && (
+                        <div className="space-y-6">
+                            {/* Quiz Progress */}
+                            <div className="bg-blue-100 rounded-lg shadow p-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-lg font-medium">
+                                        Question {currentQuestionIndex + 1} of {totalQuestions}
+                                    </h2>
+                                    <div className="flex items-center space-x-2 bg-black text-white">
+                                        <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
+                                    </div>
+                                </div>
+
+                                <div className="w-full bg-gray-300 rounded-full h-2">
+                                    <div
+                                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                        style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
+                                    ></div>
+                                </div>
+                            </div>
+
+                            {/* Question Display */}
+                            <div className="bg-white rounded-lg shadow p-6">
+                                <div className="mb-4">
+                                    <span
+                                        className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-2">
+                                      {currentQuestion.category}
                                     </span>
-								</div>
-								<div className="w-full bg-gray-200 rounded-full h-2">
-									<div
-										className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-										style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
-									/>
-								</div>
-							</div>
+                                    <span
+                                        className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mr-2">
+                                        {currentQuestion.difficulty}
+                                    </span>
+                                    <span
+                                        className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                        {currentQuestion.domain}
+                                    </span>
+                                </div>
 
-							{/* Quiz Config Info */}
-							{currentQuizConfig && (
-								<div className="mb-6 p-4 bg-blue-50 rounded-lg">
-									<h3 className="font-semibold text-blue-800 mb-2">Quiz Details</h3>
-									<div className="text-sm text-blue-700 space-y-1">
-										<div>Type: {currentQuizConfig.testType}</div>
-										<div>Questions: {totalQuestions}</div>
-										<div>Certification: {getCurrentCertification().code}</div>
-									</div>
-								</div>
-							)}
+                                <h3 className="text-lg font-medium mb-6">{currentQuestion.question_text}</h3>
 
-							{/* Quick Actions */}
-							<div className="space-y-3">
-								<button
-									onClick={() => setActiveSection('question-selection')}
-									className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-purple-700 transition-colors"
-								>
-									📝 New Quiz
-								</button>
+                                <div className="space-y-3">
+                                    {currentQuestion.options.map((option, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleAnswerSubmission(option.text)}
+                                            disabled={selectedAnswer !== null}
+                                            className={`w-full text-left p-4 rounded-lg border transition-colors
+                                                ? ${option.isCorrect}
+                                                    ? 'border-green-500 bg-green-50'
+                                                    : 'border-red-500 bg-red-50'
+                                                : ${selectedAnswer !== null && option.isCorrect}
+                                                    ? 'border-green-500 bg-green-50'
+                                                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                                            }`}
+                                        >
+                                            {option.text}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
 
-								{/* Current Question Info */}
-								<div className="p-3 bg-gray-50 rounded-lg">
-									<div className="text-sm text-gray-600 space-y-1">
-										<div><strong>Domain:</strong> {currentQuestion.domain}</div>
-										<div><strong>Difficulty:</strong> {currentQuestion.difficulty}</div>
-										<div><strong>Category:</strong> {currentQuestion.category}</div>
-									</div>
-								</div>
-							</div>
-						</div>
+                            {/* Explanation */}
+                            {showExplanation && currentQuestion && (
+                                <ExplanationCard question={currentQuestion}/>
+                            )}
 
-						{/* Question Content */}
-						<div className="lg:col-span-3">
-							<div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
-								<div className="mb-6">
-									<div className="flex justify-between items-center mb-4">
-                                        <span className="text-sm text-gray-500">
-                                            Question {currentQuestionIndex + 1} of {totalQuestions}
-                                        </span>
-										<div className="flex gap-2">
-                                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                                                {currentQuestion.difficulty}
-                                            </span>
-											<span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
-                                                {currentQuestion.domain}
-                                            </span>
-										</div>
-									</div>
-									<h2 className="text-xl font-semibold text-gray-800 mb-4">
-										{currentQuestion.questionText}
-									</h2>
-								</div>
+                            {/* Navigation */}
+                            <div className="flex justify-between">
+                                <button
+                                    onClick={previousQuestion}
+                                    disabled={currentQuestionIndex === 0}
+                                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Previous
+                                </button>
 
-								<div className="space-y-3 mb-8">
-									{currentQuestion.options.map((option, index) => (
-										<QuestionOption
-											key={index}
-											isSelected={selectedAnswer?.index === index}
-											isCorrect={isAnswered && option.isCorrect}
-											isIncorrect={isAnswered && selectedAnswer?.index === index && !option.isCorrect}
-											onClick={() => !isAnswered && selectOption(index, option.isCorrect)}
-										>
-											{option.text}
-										</QuestionOption>
-									))}
-								</div>
+                                {selectedAnswer && (
+                                    <button
+                                        onClick={nextQuestion}
+                                        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                    >
+                                        {currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
-								<div className="flex justify-between items-center">
-									<button
-										onClick={previousQuestion}
-										disabled={currentQuestionIndex === 0}
-										className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-									>
-										Previous
-									</button>
-
-									{!isAnswered ? (
-										<button
-											onClick={submitAnswer}
-											disabled={!selectedAnswer}
-											className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-										>
-											Submit Answer
-										</button>
-									) : (
-										<button
-											onClick={nextQuestion}
-											className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-										>
-											{currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
-										</button>
-									)}
-								</div>
-
-								{showExplanation && answerMode === AnswerMode.inline && (
-									<ExplanationCard
-										setDoneStudying={setDoneStudying}
-										doneStudying={doneStudying}
-										question={currentQuestion}
-									/>
-								)}
-							</div>
-						</div>
-					</div>
-				)}
-
-				{/* Results Section */}
-				{activeSection === 'results' && (
-					<div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
-						<h2 className="text-2xl font-bold mb-6">Quiz Results</h2>
-
-						{/* Quick Stats */}
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-							<div className="bg-blue-50 rounded-lg p-6 text-center">
-								<div className="text-3xl font-bold text-blue-600 mb-2">{userAnswers.length}</div>
-								<div className="text-blue-800">Questions Answered</div>
-							</div>
-							<div className="bg-green-50 rounded-lg p-6 text-center">
-								<div className="text-3xl font-bold text-green-600 mb-2">
-									{userAnswers.length > 0 ? Math.round((userAnswers.filter(a => a.isCorrect).length / userAnswers.length) * 100) : 0}%
-								</div>
-								<div className="text-green-800">Accuracy</div>
-							</div>
-							<div className="bg-purple-50 rounded-lg p-6 text-center">
-								<div className="text-3xl font-bold text-purple-600 mb-2">
-									{Math.round(userAnswers.reduce((sum, ans) => sum + ans.timeTaken, 0) / 60000)}
-								</div>
-								<div className="text-purple-800">Minutes Spent</div>
-							</div>
-						</div>
-
-						{/* Actions */}
-						<div className="flex gap-4 justify-center">
-							<button
-								onClick={() => setActiveSection('question-selection')}
-								className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-							>
-								📚 Take Another Quiz
-							</button>
-							<button
-								onClick={() => setActiveSection('practice')}
-								disabled={currentQuizQuestions.length === 0}
-								className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
-							>
-								🔄 Review Questions
-							</button>
-						</div>
-					</div>
-				)}
-			</div>
-		</div>
-	);
+                    {activeSection === 'results' && (
+                        <div>
+                            <QuizResults userAnswers={userAnswers} questions={currentQuizQuestions}/>
+                        </div>
+                        /*
+                                                <div className="bg-white rounded-lg shadow p-6">
+                                                    <h2 className="text-2xl font-bold mb-6">Quiz Results</h2>
+                        
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                                        <div className="text-center">
+                                                            <div className="text-3xl font-bold text-blue-600">
+                                                                {Math.round((userAnswers.filter(a => a.isCorrect).length / userAnswers.length) * 100)}%
+                                                            </div>
+                                                            <div className="text-gray-600">Overall Score</div>
+                                                        </div>
+                        
+                                                        <div className="text-center">
+                                                            <div className="text-3xl font-bold text-green-600">
+                                                                {userAnswers.filter(a => a.isCorrect).length}
+                                                            </div>
+                                                            <div className="text-gray-600">Correct Answers</div>
+                                                        </div>
+                        
+                                                        <div className="text-center">
+                                                            <div className="text-3xl font-bold text-red-600">
+                                                                {userAnswers.filter(a => !a.isCorrect).length}
+                                                            </div>
+                                                            <div className="text-gray-600">Incorrect Answers</div>
+                                                        </div>
+                                                    </div>
+                        
+                                                    <div className="flex justify-center space-x-4">
+                                                        <button
+                                                            onClick={resetQuiz}
+                                                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                                        >
+                                                            Start New Quiz
+                                                        </button>
+                                                    </div>
+                                                </div>
+                        */
+                    )}
+                </main>
+            </div>
+        </div>
+    );
 };
 
 export default CloudPrepApp;
-
-// INTEGRATION NOTES:
-// 1. Replace your current domains array with the COMPTIA_DOMAINS from domainConfig.ts
-// 2. Update your questions to have proper domain matching (or use the organizeQuestionsByDomain function)
-// 3. Replace the old utils.ts functions with the new domainUtils functions
-// 4. The DomainQuestionSelection component replaces your current quiz config
-// 5. All existing quiz logic (submitAnswer, nextQuestion, etc.) works unchanged!

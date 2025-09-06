@@ -1,5 +1,6 @@
-﻿
+
 node_modules/
+node_modules
 .idea
 
 build
@@ -15,3 +16,7 @@ src/assets/styles/output.css
 /network
 /src/assets/styles/
 dist/
+
+env.json
+/QuestionRepository/
+QuestionRepository/

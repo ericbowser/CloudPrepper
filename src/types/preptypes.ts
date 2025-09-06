@@ -1,6 +1,6 @@
-﻿// src/types/preptypes.ts - Updated with domain-based question system
+// src/types/preptypes.ts - Updated with domain-based question system
 
-import React from "react";
+import type {ReactNode} from "react";
 
 // Enhanced Domain interface with embedded questions
 export interface Domain {
@@ -50,7 +50,16 @@ export interface CertificationData {
 }
 
 // Updated section types to include question selection
-export type SectionType = 'dashboard' | 'practice' | 'analytics' | 'study-plan' | 'results' | 'review' | 'question-selection';
+export type SectionType =
+    'dashboard'
+    | 'practice'
+    | 'analytics'
+    | 'study-plan'
+    | 'results'
+    | 'review'
+    | 'quiz'
+    | 'exam'
+    | 'question-selection';
 
 // Existing interfaces (keep these unchanged)
 export interface QuestionOptionData {
@@ -64,15 +73,15 @@ export interface SelectedAnswer {
 }
 
 export interface Question {
-    id: number;
-    questionNumber: number; // Useful for display and tracking
+    question_id: number;
+    question_number: number; // Useful for display and tracking
     category: string;
     difficulty: string;
     domain: string;
-    questionText: string;
+    question_text: string;
     options: QuestionOptionData[];
     explanation: string;
-    explanationDetails?: {
+    explanation_details?: {
         summary: string;
         breakdown: string[];
         otherOptions: string;
@@ -81,10 +90,11 @@ export interface Question {
 
 // A specific type for recording a user's submitted answer
 export interface AnswerRecord {
-    questionIndex: number;
-    selectedOptionIndex: number;
+    questionId: number;
+    selectedAnswers: string[];
     isCorrect: boolean;
-    timeTaken: number;
+    timeSpent: number; // in milliseconds
+    timestamp: Date;
 }
 
 export interface NavTabProps {
@@ -109,7 +119,7 @@ export interface DomainProgressProps {
 }
 
 export interface QuestionOptionProps {
-    children: React.ReactNode;
+    children: ReactNode;
     isSelected: boolean;
     isCorrect?: boolean;
     isIncorrect?: boolean;

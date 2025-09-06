@@ -1,90 +1,110 @@
-import {AWS_QUESTIONS} from "../QuestionRepository/AWS_Certified_Architect_Associate_Questions";
-import {COMPTIA_QUESTIONS} from "../QuestionRepository/CompTIA_Cloud_Plus_Questions";
+// src/helpers/utils.ts - Updated for PostgreSQL integration
 import {Question} from "../types/preptypes";
-// Helper functions for question management
-export const getAwsQuestionsByDomain = (domain: string): Question[] => {
-	const awsdomain = AWS_QUESTIONS.filter(q => q.domain === domain);
-	console.log("AWS Domomain Questions:", awsdomain.length);
-	return awsdomain;
-};
-export const getCompTiaQuestionsByDomain = (domain: string): Question[] => {
-	const comptiadomain = COMPTIA_QUESTIONS.filter(q => q.domain === domain);
-	console.log("CompTIA Domain Questions:", comptiadomain.length);
-	return comptiadomain;
+
+// Filter functions that work with arrays of questions (from PostgreSQL)
+export const getQuestionsByDifficulty = (questions: Question[], difficulty: string): Question[] => {
+    const filtered = questions.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
+    console.log(`Filtered ${filtered.length} questions by difficulty: ${difficulty}`);
+    return filtered;
 };
 
-export const getAwsQuestionsByDifficulty = (difficulty: string): Question[] => {
-	const awsdifficulty = AWS_QUESTIONS.filter(q => q.difficulty === difficulty);
-	console.log("AWS Difficulty Questions:", awsdifficulty.length);
-	return awsdifficulty;
-};
-export const getCompTiaQuestionsByDifficulty = (difficulty: string): Question[] => {
-	const comptiadifficulty = COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty);
-	console.log("CompTIA Difficulty Questions:", comptiadifficulty.length);
-	return comptiadifficulty;
-};
-export const getAllQuestionsByDifficulty = (difficulty: string): Question[] => {
-	const x = [...AWS_QUESTIONS, ...COMPTIA_QUESTIONS].filter(q => q.difficulty === difficulty);
-	console.log("CompTIA Difficulty Questions:", x.length);
-	return x;
+export const getQuestionsByCategory = (questions: Question[], category: string): Question[] => {
+    const filtered = questions.filter(q => q.category.toLowerCase().includes(category.toLowerCase()));
+    console.log(`Filtered ${filtered.length} questions by category: ${category}`);
+    return filtered;
 };
 
-export const getAwsQuestionsByCategory = (category: string): Question[] => {
-	const awscategory = AWS_QUESTIONS.filter(q => q.category.includes(category));
-	console.log("AWS Category Questions:", awscategory.length);
-	return awscategory;
+export const getQuestionsByDomain = (questions: Question[], domain: string): Question[] => {
+    const filtered = questions.filter(q => q.domain.toLowerCase().includes(domain.toLowerCase()));
+    console.log(`Filtered ${filtered.length} questions by domain: ${domain}`);
+    return filtered;
 };
-export const getCompTiaQuestionsByCategory = (category: string): Question[] => {
-	const comptiacategory = COMPTIA_QUESTIONS.filter(q => q.category.includes(category));
-	console.log("CompTIA Category Questions:", comptiacategory.length);
-	return comptiacategory;
+
+export const getRandomQuestions = (questions: Question[], count: number): Question[] => {
+    const shuffled = [...questions].sort(() => 0.5 - Math.random());
+    console.log(`Selected ${Math.min(count, shuffled.length)} random questions from ${questions.length} total`);
+    return shuffled.slice(0, count);
 };
-export const getRandomQuestions = (count: number): Question[] => {
-	const shuffled = [...COMPTIA_QUESTIONS, ...AWS_QUESTIONS].sort(() => 0.5 - Math.random());
-	console.log("Shuffled Questions:", shuffled.length);
-	return shuffled.slice(0, count);
+
+export const shuffleQuestions = (questions: Question[]): Question[] => {
+    return [...questions].sort(() => 0.5 - Math.random());
 };
 
 // Statistics for dashboard
-export const getAwsQuestionStats = () => {
-	const domains = [...new Set(AWS_QUESTIONS.map(q => q.domain))];
-	const difficulties = [...new Set(AWS_QUESTIONS.map(q => q.difficulty))];
-	const categories = [...new Set(AWS_QUESTIONS.map(q => q.category))];
+export const getQuestionStats = (questions: Question[]) => {
+    const domains = [...new Set(questions.map(q => q.domain))];
+    const difficulties = [...new Set(questions.map(q => q.difficulty))];
+    const categories = [...new Set(questions.map(q => q.category))];
 
-	console.log('AWS Domain Question Count', domains.length);
-	console.log('AWS Difficulty Question Count', difficulties.length);
-	console.log('AWS Categories Question Count', categories.length);
-	return {
-		total: AWS_QUESTIONS.length,
-		byDomain: domains.map(domain => ({
-			domain,
-			count: AWS_QUESTIONS.filter(q => q.domain === domain).length
-		})),
-		byDifficulty: difficulties.map(difficulty => ({
-			difficulty,
-			count: AWS_QUESTIONS.filter(q => q.difficulty === difficulty).length
-		})),
-		categories: categories.length
-	};
+    console.log(`Question stats: ${questions.length} total, ${domains.length} domains, ${difficulties.length} difficulties, ${categories.length} categories`);
+
+    return {
+        total: questions.length,
+        byDomain: domains.map(domain => ({
+            domain,
+            count: questions.filter(q => q.domain === domain).length
+        })),
+        byDifficulty: difficulties.map(difficulty => ({
+            difficulty,
+            count: questions.filter(q => q.difficulty === difficulty).length
+        })),
+        byCategory: categories.map(category => ({
+            category,
+            count: questions.filter(q => q.category === category).length
+        })),
+        domains: domains.length,
+        difficulties: difficulties.length,
+        categories: categories.length
+    };
 };
-export const getCompTiaQuestionStats = () => {
-	const domains = [...new Set(COMPTIA_QUESTIONS.map(q => q.domain))];
-	const difficulties = [...new Set(COMPTIA_QUESTIONS.map(q => q.difficulty))];
-	const categories = [...new Set(COMPTIA_QUESTIONS.map(q => q.category))];
 
-	console.log('CompTIA Domain Question Count', domains.length);
-	console.log('CompTIA Difficulty Question Count', difficulties.length);
-	console.log('CompTIA Categories Question Count', categories.length);
-	return {
-		total: COMPTIA_QUESTIONS.length,
-		byDomain: domains.map(domain => ({
-			domain,
-			count: COMPTIA_QUESTIONS.filter(q => q.domain === domain).length
-		})),
-		byDifficulty: difficulties.map(difficulty => ({
-			difficulty,
-			count: COMPTIA_QUESTIONS.filter(q => q.difficulty === difficulty).length
-		})),
-		categories: categories.length
-	};
+// Combine questions from multiple certifications
+export const combineQuestions = (...questionArrays: Question[][]): Question[] => {
+    const combined = questionArrays.flat();
+    console.log(`Combined ${combined.length} questions from ${questionArrays.length} sources`);
+    return combined;
+};
+
+// Search questions by text content
+export const searchQuestions = (questions: Question[], searchTerm: string): Question[] => {
+    const term = searchTerm.toLowerCase();
+    const filtered = questions.filter(q =>
+        q.questionText.toLowerCase().includes(term) ||
+        q.category.toLowerCase().includes(term) ||
+        q.domain.toLowerCase().includes(term) ||
+        q.explanation.toLowerCase().includes(term) ||
+        q.options.some(option => option.text.toLowerCase().includes(term))
+    );
+
+    console.log(`Found ${filtered.length} questions matching search term: ${searchTerm}`);
+    return filtered;
+};
+
+// Helper to format question for display
+export const formatQuestionForDisplay = (question: Question): Question => {
+    return {
+        ...question,
+        isCurrentQuestion: false,
+        onClick: () => console.log(`Question ${question.id} clicked`)
+    };
+};
+
+// Validate question structure
+export const validateQuestion = (question: any): question is Question => {
+    return (
+        question &&
+        typeof question.id !== 'undefined' &&
+        typeof question.question === 'string' &&
+        Array.isArray(question.options) &&
+        question.options.length > 0 &&
+        typeof question.correctAnswer === 'string' &&
+        typeof question.explanation === 'string'
+    );
+};
+
+// Filter valid questions from array
+export const filterValidQuestions = (questions: any[]): Question[] => {
+    const valid = questions.filter(validateQuestion);
+    console.log(`Filtered ${valid.length} valid questions from ${questions.length} total`);
+    return valid;
 };
