@@ -69,7 +69,7 @@ export const combineQuestions = (...questionArrays: Question[][]): Question[] =>
 export const searchQuestions = (questions: Question[], searchTerm: string): Question[] => {
     const term = searchTerm.toLowerCase();
     const filtered = questions.filter(q =>
-        q.questionText.toLowerCase().includes(term) ||
+        q.question_text.toLowerCase().includes(term) ||
         q.category.toLowerCase().includes(term) ||
         q.domain.toLowerCase().includes(term) ||
         q.explanation.toLowerCase().includes(term) ||

@@ -1,5 +1,6 @@
 // src/contexts/ThemeContext.jsx
 import React, {createContext, useContext, useEffect, useState} from 'react';
+import { MdDarkMode } from "react-icons/md";
 
 const ThemeContext = createContext("dark");
 
@@ -38,11 +39,15 @@ export const ThemeProvider = ({children}: { children: React.ReactNode }) => {
 
     const toggleTheme = () => {
         setIsDark(!isDark);
+        console.log("dark mode", isDark);
     };
 
     return (
-        <ThemeContext.Provider value={{isDark, toggleTheme}}>
-            {children}
+        <ThemeContext.Provider value={"dark"}>
+            <div className={'dark:bg-dark-600 dark:text-white bg-white text-black'}>
+                <MdDarkMode onClick={toggleTheme} />
+                {children}
+            </div>
         </ThemeContext.Provider>
     );
 };

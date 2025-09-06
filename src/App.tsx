@@ -16,6 +16,8 @@ import ExplanationCard from "./components/ExplanationCard";
 import {AnswerModeToggle} from "./components/AnswerModeToggle";
 import getQuestions from '../api/questions_repository';
 import QuizResults from "./components/QuizResults";
+import Nav from "./components/Nav";
+import {Dashboard} from "./components/Dashboard";
 
 const CloudPrepApp: React.FC = () => {
     // Certification management
@@ -262,7 +264,9 @@ const CloudPrepApp: React.FC = () => {
     }
 
     return (
-        <div className="bg-gray-50">
+        <div className="dark:bg-dark-600 dark:text-white bg-white text-black">
+            <Nav activeSection={activeSection} setActiveSection={setActiveSection}/>
+            <Dashboard userAnswers={userAnswers} length={totalQuestions}/>
             <div className="min-h-screen bg-blue-100">
                 {/* Header */}
                 <header className="bg-gray-100 shadow-sm border-b">

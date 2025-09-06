@@ -1,38 +1,39 @@
 import React from 'react';
 
-const Nav: React.FC<{ activeSection: string, setActiveSection: (section: string) => void }> = ({
-                                                                                                   activeSection,
-                                                                                                   setActiveSection
-                                                                                               }:
-                                                                                               {
-                                                                                                   activeSection: string,
-                                                                                                   setActiveSection: (section: string) => void
-                                                                                               }) => {
-    return (
-        <nav className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-xl border border-white/20">
-            <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold text-blue-600">{activeSection}</div>
-                <div className="flex gap-5">
-                    <NavTab
-                        label="Dashboard"
-                        isActive={activeSection === 'dashboard'}
-                        onClick={() => setActiveSection('dashboard')}
-                    />
-                    <NavTab
-                        label="Practice"
-                        isActive={activeSection === 'practice'}
-                        onClick={() => setActiveSection('practice')}
-                    />
-                    <NavTab
-                        label="Analytics"
-                        isActive={activeSection === 'analytics'}
-                        onClick={() => setActiveSection('analytics')}
-                    />
+const Nav: React.FC<{ activeSection: string, setActiveSection: (section: string) => void }> =
+    ({
+         activeSection,
+         setActiveSection
+     }:
+     {
+         activeSection: string,
+         setActiveSection: (section: string) => void
+     }) => {
+        return (
+            <nav className="dark:bg-dark-600 dark:text-white bg-white/10 text-gray-200">
+                <div className="flex justify-between items-center">
+                    <div className="text-2xl font-bold text-blue-600">{activeSection}</div>
+                    <div className="flex gap-5">
+                        <NavTab
+                            label="Dashboard"
+                            isActive={activeSection === 'dashboard'}
+                            onClick={() => setActiveSection('dashboard')}
+                        />
+                        <NavTab
+                            label="Practice"
+                            isActive={activeSection === 'practice'}
+                            onClick={() => setActiveSection('practice')}
+                        />
+                        <NavTab
+                            label="Analytics"
+                            isActive={activeSection === 'analytics'}
+                            onClick={() => setActiveSection('analytics')}
+                        />
+                    </div>
                 </div>
-            </div>
-        </nav>
-    )
-};
+            </nav>
+        )
+    };
 
 // Sub-components
 const NavTab: React.FC<{ label: string; isActive: boolean; onClick: () => void }> = ({label, isActive, onClick}) => (
