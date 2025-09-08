@@ -1,11 +1,10 @@
-import {defineConfig} from 'vite';
-import commonjs from "@rollup/plugin-commonjs";
-import {nodePolyfills} from 'vite-plugin-node-polyfills';
+const {defineConfig} = require('vite');
+const commonjs = require("@rollup/plugin-commonjs");
+const {nodePolyfills} = require('vite-plugin-node-polyfills');
+const react = require('@vitejs/plugin-react');
+const {HOST, PORT} = require('./env.json');
 
-import react from '@vitejs/plugin-react';  // ← Add this import
-import {HOST, PORT} from './env.json';
-
-export default defineConfig({
+module.exports = defineConfig({
     build: {
         outDir: 'dist',
         sourcemap: true

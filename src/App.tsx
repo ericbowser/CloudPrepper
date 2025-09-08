@@ -4,11 +4,10 @@ import {
     AnswerMode,
     AnswerRecord,
     CertificationData,
-    Question,
+    Question, QuestionOptionData,
     QuizConfig,
     QuizMode,
     SectionType,
-    SelectedAnswer
 } from "./types/preptypes";
 import {updateCertificationWithQuestions} from "./config/domainConfig";
 import {DomainQuestionSelection} from "./components/DomainQuestionSelection";
@@ -18,10 +17,12 @@ import getQuestions from '../api/questions_repository';
 import QuizResults from "./components/QuizResults";
 import Nav from "./components/Nav";
 import {Dashboard} from "./components/Dashboard";
+import {Header} from "./components/Header";
+import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
 
 const CloudPrepApp: React.FC = () => {
     // Certification management
-    const [currentCertification, setCurrentCertification] = useState<'comptia' | 'aws'>('comptia');
+    const [currentCertification, setCurrentCertification] = useState<'comptia' | 'aws' | null>(null);
 
     // Data loading state
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -33,7 +34,7 @@ const CloudPrepApp: React.FC = () => {
     const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
 
     // Quiz state
-    const [selectedAnswer, setSelectedAnswer] = useState<SelectedAnswer | null>(null);
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [userAnswers, setUserAnswers] = useState<AnswerRecord[] | null>(null);
     const [quizStartTime, setQuizStartTime] = useState<Date>(new Date());
     const [questionStartTime, setQuestionStartTime] = useState<Date>(new Date());
@@ -263,42 +264,61 @@ const CloudPrepApp: React.FC = () => {
         );
     }
 
-    return (
-        <div className="dark:bg-dark-600 dark:text-white bg-white text-black">
-            <Nav activeSection={activeSection} setActiveSection={setActiveSection}/>
-            <Dashboard userAnswers={userAnswers} length={totalQuestions}/>
-            <div className="min-h-screen bg-blue-100">
-                {/* Header */}
-                <header className="bg-gray-100 shadow-sm border-b">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center h-16">
-                            <div className="flex items-center">
-                                <h1 className="text-xl font-semibold text-gray-900">
-                                    Exam Prepper - Cloud Tech Professional
-                                </h1>
-                            </div>
-                            <div className="flex items-center space-x-4">
-                                <select
-                                    value={currentCertification}
-                                    onChange={(e) => setCurrentCertification(e.target.value as 'comptia' | 'aws')}
-                                    className="border border-gray-300 rounded-md px-3 py-1"
-                                >
-                                    <option value="comptia">CompTIA Cloud+</option>
-                                    <option value="aws">AWS Solutions Architect</option>
-                                </select>
-                                {activeSection !== 'question-selection' && (
-                                    <button
-                                        onClick={resetQuiz}
-                                        className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                                    >
-                                        Back to Selection
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </header>
+    if (!currentCertification) {
+        return (
+            <div className="dark:bg-dark-800 dark:text-white bg-gray-50 min-h-screen">
+                <Header title="Cloud Prepper"/>
+                <CertificationSelectionPage
+                    certifications={loadedCertifications}
+                    onSelect={(id) => setCurrentCertification(id)}
+                />
+            </div>
+        );
+    }
 
+    const handleBackToCertSelection = () => {
+        setCurrentCertification(null);
+        resetQuiz();
+    };
+
+    const getOptionClassName = (option: QuestionOptionData) => {
+        const baseClasses = "w-full text-left p-4 rounded-lg border transition-colors dark:text-gray-200";
+
+        if (selectedAnswer !== null) {
+            const isSelected = selectedAnswer === option.text;
+            if (option.isCorrect) {
+                return `${baseClasses} border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-700`;
+            }
+            if (isSelected && !option.isCorrect) {
+                return `${baseClasses} border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-700`;
+            }
+            return `${baseClasses} border-gray-200 dark:border-gray-600`;
+        }
+
+        return `${baseClasses} border-gray-200 dark:border-gray-600 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-dark-600`;
+    };
+
+    return (
+        <div className="dark:bg-dark-800 dark:text-white bg-gray-50 text-black">
+            <Header title={`${getCurrentCertification()?.name} Prepper`}>
+                <button
+                    onClick={handleBackToCertSelection}
+                    className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                >
+                    Change Certification
+                </button>
+                {activeSection !== 'question-selection' && (
+                    <button
+                        onClick={resetQuiz}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                    >
+                        Back to Selection
+                    </button>
+                )}
+            </Header>
+            <Nav activeSection={activeSection} setActiveSection={setActiveSection}/>
+            <Dashboard userAnswers={userAnswers} length={totalQuestions}></Dashboard>
+            <div className="min-h-screen bg-gray-100 dark:bg-dark-800">
                 {/* Main Content */}
                 <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                     {activeSection === 'question-selection' && (
@@ -311,17 +331,17 @@ const CloudPrepApp: React.FC = () => {
                     {activeSection === 'quiz' && currentQuestion && (
                         <div className="space-y-6">
                             {/* Quiz Progress */}
-                            <div className="bg-blue-100 rounded-lg shadow p-6">
+                            <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-lg font-medium">
                                         Question {currentQuestionIndex + 1} of {totalQuestions}
                                     </h2>
-                                    <div className="flex items-center space-x-2 bg-black text-white">
+                                    <div className="flex items-center space-x-2 text-white">
                                         <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
                                     </div>
                                 </div>
 
-                                <div className="w-full bg-gray-300 rounded-full h-2">
+                                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                                     <div
                                         className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                                         style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
@@ -330,7 +350,7 @@ const CloudPrepApp: React.FC = () => {
                             </div>
 
                             {/* Question Display */}
-                            <div className="bg-white rounded-lg shadow p-6">
+                            <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
                                 <div className="mb-4">
                                     <span
                                         className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-2">
@@ -341,7 +361,7 @@ const CloudPrepApp: React.FC = () => {
                                         {currentQuestion.difficulty}
                                     </span>
                                     <span
-                                        className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                        className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full dark:bg-green-900 dark:text-green-200">
                                         {currentQuestion.domain}
                                     </span>
                                 </div>
@@ -354,14 +374,7 @@ const CloudPrepApp: React.FC = () => {
                                             key={index}
                                             onClick={() => handleAnswerSubmission(option.text)}
                                             disabled={selectedAnswer !== null}
-                                            className={`w-full text-left p-4 rounded-lg border transition-colors
-                                                ? ${option.isCorrect}
-                                                    ? 'border-green-500 bg-green-50'
-                                                    : 'border-red-500 bg-red-50'
-                                                : ${selectedAnswer !== null && option.isCorrect}
-                                                    ? 'border-green-500 bg-green-50'
-                                                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                                            }`}
+                                            className={getOptionClassName(option)}
                                         >
                                             {option.text}
                                         </button>
@@ -379,7 +392,7 @@ const CloudPrepApp: React.FC = () => {
                                 <button
                                     onClick={previousQuestion}
                                     disabled={currentQuestionIndex === 0}
-                                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Previous
                                 </button>
