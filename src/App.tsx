@@ -30,7 +30,7 @@ const CloudPrepApp: React.FC = () => {
     const [loadedCertifications, setLoadedCertifications] = useState<CertificationData[]>([]);
 
     // Main application state
-    const [activeSection, setActiveSection] = useState<SectionType | string>("question-selection");
+    const [activeSection, setActiveSection] = useState<SectionType | string >('question-selection');
     const [quizMode, setQuizMode] = useState<QuizMode>('quiz');
 
     // Quiz state
@@ -90,12 +90,12 @@ const CloudPrepApp: React.FC = () => {
     };
 
     // Get current certification data
-    const getCurrentCertification = (): CertificationData | undefined => {
+    const getCurrentCertification: () => CertificationData | undefined = (): CertificationData | undefined => {
         return loadedCertifications.find(cert => cert.id === currentCertification);
     };
 
     // Start a new quiz with questions from PostgreSQL
-    const startQuiz = async (config: QuizConfig) => {
+    const startQuiz: (config: QuizConfig) => void = async (config: QuizConfig) => {
         try {
             setCurrentQuizConfig(config);
             const currentCert = getCurrentCertification();
@@ -217,7 +217,7 @@ const CloudPrepApp: React.FC = () => {
 
     // Reset quiz
     const resetQuiz = () => {
-        setActiveSection('question-selection');
+        setActiveSection('');
         setCurrentQuizQuestions([]);
         setCurrentQuestionIndex(0);
         setUserAnswers([]);
@@ -276,12 +276,12 @@ const CloudPrepApp: React.FC = () => {
         );
     }
 
-    const handleBackToCertSelection = () => {
+    const handleBackToCertSelection: () => void = () => {
         setCurrentCertification(null);
         resetQuiz();
     };
 
-    const getOptionClassName = (option: QuestionOptionData) => {
+    const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
         const baseClasses = "w-full text-left p-4 rounded-lg border transition-colors dark:text-gray-200";
 
         if (selectedAnswer !== null) {
@@ -413,43 +413,6 @@ const CloudPrepApp: React.FC = () => {
                         <div>
                             <QuizResults userAnswers={userAnswers} questions={currentQuizQuestions}/>
                         </div>
-                        /*
-                                                <div className="bg-white rounded-lg shadow p-6">
-                                                    <h2 className="text-2xl font-bold mb-6">Quiz Results</h2>
-                        
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                                        <div className="text-center">
-                                                            <div className="text-3xl font-bold text-blue-600">
-                                                                {Math.round((userAnswers.filter(a => a.isCorrect).length / userAnswers.length) * 100)}%
-                                                            </div>
-                                                            <div className="text-gray-600">Overall Score</div>
-                                                        </div>
-                        
-                                                        <div className="text-center">
-                                                            <div className="text-3xl font-bold text-green-600">
-                                                                {userAnswers.filter(a => a.isCorrect).length}
-                                                            </div>
-                                                            <div className="text-gray-600">Correct Answers</div>
-                                                        </div>
-                        
-                                                        <div className="text-center">
-                                                            <div className="text-3xl font-bold text-red-600">
-                                                                {userAnswers.filter(a => !a.isCorrect).length}
-                                                            </div>
-                                                            <div className="text-gray-600">Incorrect Answers</div>
-                                                        </div>
-                                                    </div>
-                        
-                                                    <div className="flex justify-center space-x-4">
-                                                        <button
-                                                            onClick={resetQuiz}
-                                                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                                        >
-                                                            Start New Quiz
-                                                        </button>
-                                                    </div>
-                                                </div>
-                        */
                     )}
                 </main>
             </div>

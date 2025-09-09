@@ -20,7 +20,7 @@ const QuizResults: React.FC<{
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="dark:bg-dark-800 dark:text-white bg-gray-50 min-h-screen max-w-4xl mx-auto">
             {/* Score Overview */}
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20 mb-8">
                 <div className="text-center mb-8">
@@ -28,7 +28,7 @@ const QuizResults: React.FC<{
                     <div className={`text-6xl font-bold mb-2 ${getScoreColor(accuracy)}`}>
                         {accuracy}%
                     </div>
-                    <p className="text-gray-600">
+                    <p className="dark:text-gray-200 text-gray-600 text-sm">
                         {correctAnswers} out of {totalQuestions} questions correct
                     </p>
                 </div>

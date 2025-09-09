@@ -6,10 +6,11 @@ const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]):
 	return domains.map(domain => {
 		const domainQuestions = questions.filter(question => {
 			const questionDomain = question.domain.toLowerCase();
+            const category = question.category.toLowerCase();
 
 			// CompTIA Cloud+ domain mapping (CV0-003)
 			if (domain.id === 'cloud-architecture') {
-				return questionDomain.includes('domain 1') ||
+				return category.includes('cloud architecture') ||
 					questionDomain.includes('cloud architecture');
 			}
 			if (domain.id === 'deployments') {

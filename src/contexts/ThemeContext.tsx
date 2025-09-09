@@ -1,10 +1,9 @@
 // src/contexts/ThemeContext.jsx
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {MdDarkMode} from "react-icons/md";
 import {MoonIcon, SunIcon} from "../assets/icons/icons";
 
 const ThemeContext = createContext({
-    theme: 'light',
+    theme: 'dark',
     setTheme: (theme: 'light' | 'dark'): void => {},
 });
 
@@ -46,7 +45,7 @@ export const ThemeToggle: () => React.ReactElement = () => {
     return (
         <button
             onClick={toggleTheme}
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800"
+            className="p-2 rounded-full  dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800"
             aria-label="Toggle theme"
         >
             {theme === 'light' ? <MoonIcon className="w-5 h-5"/> : <SunIcon className="w-5 h-5"/>}
