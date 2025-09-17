@@ -9,24 +9,24 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({question}: Expl
     : React.ReactElement<any, string | React.JSXElementConstructor<any>> => {
 
     return (
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6 animate-fade-in">
+        <div className="dark:bg-dark-900 dark:text-white dark:boldest mt-6 bg-white/10 border dark:border-blue-200 rounded-lg p-6 animate-fade-in">
             <h4 className="font-semibold text-blue-800 mb-3 flex items-center text-lg">
                 💡 Explanation
             </h4>
-            <p className="text-gray-700 mb-4">{question.explanation}</p>
+            <p className="dark:text-white dark:bolder text-gray-700 mb-4">{question.explanation}</p>
 
             {question.explanation_details && (
                 <>
-                    <div className="mb-4">
-                        <h5 className="font-medium text-blue-700 mb-2">{question.explanation_details.summary}</h5>
-                        <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                    <div className="mt-6 bg-white/10 border border-gray-200 rounded-lg p-6 animate-fade-inmb-4">
+                        <h5 className="dark:text-white dark:bolder font-medium text-blue-700 mb-2">{question.explanation_details.summary}</h5>
+                        <ul className="dark:text-white dark:bolder list-disc pl-5 text-gray-700 space-y-1">
                             {question.explanation_details.breakdown.map((item, i) => (
                                 <li key={i}>{item}</li>
                             ))}
-                        </ul>
+                            </ul>
                     </div>
 
-                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                    <div className="dark:bg-dark-800 dark:text-white mt-6 bg-gray-100 border border-gray-200 rounded-lg p-6 animate-fade-in text-sm text-gray-600 bg-gray-50 p-3 rounded">
                         <strong>Why other options are incorrect:</strong>
                         <div className="mt-1 whitespace-pre-line">{question.explanation_details.otherOptions}</div>
                     </div>

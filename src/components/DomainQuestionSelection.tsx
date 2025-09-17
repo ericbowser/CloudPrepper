@@ -186,7 +186,7 @@ export const DomainQuestionSelection: React.FC<DomainQuestionSelectionProps> = (
     const canStartQuiz = availableQuestions > 0;
 
     return (
-        <div className={'dark:bg-dark-800 dark:text-white bg-gray-100'}>
+        <div className={'font-burtons dark:bg-dark-800 dark:text-white bg-gray-100'}>
             <div className="max-w-6xl mx-auto p-6 space-y-8">
                 {/* Header */}
                 <div className="text-center">

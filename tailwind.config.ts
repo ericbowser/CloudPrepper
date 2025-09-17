@@ -9,6 +9,9 @@ const config: Config = {
     darkMode: 'class', // Enable class-based dark mode
     theme: {
         extend: {
+            fontFamily: {
+                burtons: ['Burtons']
+            },
             colors: {
                 // Custom dark mode colors
                 dark: {

@@ -9,7 +9,9 @@ const root = createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
         <ThemeProvider>
-            <CloudPrepApp/>
+            <div className={'font-burtons'}>
+                <CloudPrepApp />
+            </div>
         </ThemeProvider>
     </React.StrictMode>
 )

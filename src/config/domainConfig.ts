@@ -66,7 +66,10 @@ const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]):
 
 		return {
 			...domain,
-			questions: domainQuestions,
+			questions: domainQuestions.map(q => ({
+                ...q,
+                domainId: domain.id // Add domain ID to each question for easier filtering later
+            })),
 			categories,
 			totalQuestions: domainQuestions.length
 		};
