@@ -1,48 +1,54 @@
 // src/contexts/ThemeContext.jsx
 import React, {createContext, useContext, useEffect, useState} from 'react';
+import {MoonIcon, SunIcon} from "../assets/icons/icons";
 
-const ThemeContext = createContext("dark");
-
-export const useTheme = () => {
-    const context = useContext(ThemeContext);
-    if (!context) {
-        throw new Error('useTheme must be used within a ThemeProvider');
-    }
-    return context;
-};
+const ThemeContext = createContext({
+    theme: 'dark',
+    setTheme: (theme: 'light' | 'dark'): void => {},
+});
 
 export const ThemeProvider = ({children}: { children: React.ReactNode }) => {
-    const [isDark, setIsDark] = useState(true);
-
-    // Check localStorage and system preference on mount
-    useEffect(() => {
+    const [theme, setThemeState] = useState(() => {
         const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
         if (savedTheme) {
-            setIsDark(savedTheme === 'dark');
-        } else {
-            setIsDark(prefersDark);
+            return savedTheme;
         }
-    }, []);
+        const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return userPrefersDark ? 'dark' : 'light';
+    });
 
-    // Apply theme to document
     useEffect(() => {
-        if (isDark) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }, [isDark]);
+        const root = window.document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(theme);
+        localStorage.setItem('theme', theme);
+    }, [theme]);
 
-    const toggleTheme = () => {
-        setIsDark(!isDark);
+    const setTheme = (newTheme: 'light' | 'dark'): void => {
+        setThemeState(newTheme);
     };
 
     return (
-        <ThemeContext.Provider value={{isDark, toggleTheme}}>
+        <ThemeContext.Provider value={{ theme, setTheme }}>
             {children}
         </ThemeContext.Provider>
+    );
+};
+
+export const ThemeToggle: () => React.ReactElement = () => {
+    const {theme, setTheme} = useContext(ThemeContext);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
+
+    return (
+        <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full  dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800"
+            aria-label="Toggle theme"
+        >
+            {theme === 'light' ? <MoonIcon className="w-5 h-5"/> : <SunIcon className="w-5 h-5"/>}
+        </button>
     );
 };

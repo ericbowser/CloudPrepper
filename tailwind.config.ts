@@ -3,10 +3,15 @@ import type {Config} from 'tailwindcss'
 const config: Config = {
     content: [
         "./src/**/*.{js,jsx,ts,tsx}",
+        "./index.html",
+        ".src/*.{js,jsx,ts,tsx}"
     ],
     darkMode: 'class', // Enable class-based dark mode
     theme: {
         extend: {
+            fontFamily: {
+                burtons: ['Burtons']
+            },
             colors: {
                 // Custom dark mode colors
                 dark: {

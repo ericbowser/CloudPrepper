@@ -5,11 +5,12 @@ interface BaseQuestionRow {
     question_id: number;
     question_number: number;
     category: string | null;
-    difficulty: string | null;
     domain: string | null;
     question_text: string;
     options: QuestionOption[] | string; // JSONB can come as parsed object or string
     correct_answer: string;
+    multiple_answers: boolean,
+    correct_answers: [],
     explanation: string | null;
     explanation_details: ExplanationDetails | string; // JSONB can come as parsed object or string
 }
@@ -29,21 +30,22 @@ export interface ExplanationDetails {
 
 // CompTIA specific row type
 export interface ComptiaQuestionRow extends BaseQuestionRow {
-    // CompTIA uses these specific difficulty levels
-    difficulty: 'Knowledge' | 'Comprehension' | 'Application' | 'Analysis' | 'Expert' | null;
-    // CompTIA uses these domain patterns
-    domain: 'Domain 1' | 'Domain 2' | 'Domain 3' | 'Domain 4' | 'Domain 5' | 'Domain 6' | null;
+    domain: 'Cloud Architecture and Design'
+        | 'Cloud Deployment'
+        | 'Operations and Support'
+        | 'Security'
+        | 'DevOps and Automation'
+        | 'Troubleshooting'
+        | null;
 }
 
 // AWS specific row type  
 export interface AwsQuestionRow extends BaseQuestionRow {
-    // AWS uses these specific difficulty levels
-    difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert' | 'Application' | null;
-    // AWS uses these domain patterns
-    domain: 'Domain 1: Design Resilient Architectures' |
-        'Domain 2: Design Secure Architectures' |
-        'Domain 3: Design High-Performing Architectures' |
-        'Domain 4: Design Cost-Optimized Architectures' | null;
+    domain: 'Design Resilient Architectures' 
+        | 'Design Secure Architectures' 
+        | 'Design High-Performing Architectures' 
+        | 'Design Cost-Optimized Architectures'
+        | null;
 }
 
 // Union type for any question row

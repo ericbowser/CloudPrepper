@@ -27,8 +27,8 @@ export interface Domain {
 export interface QuizConfig {
     testType: string;
     selectedDomains: string[];
+    selectedCategories: string[];
     difficulty: string;
-    category: string;
     questionCount: number;
     certification: 'comptia' | 'aws';
 }
@@ -67,19 +67,18 @@ export interface QuestionOptionData {
     isCorrect: boolean;
 }
 
-export interface SelectedAnswer {
-    index: number;
-    isCorrect: boolean;
-}
-
 export interface Question {
     question_id: number;
     question_number: number; // Useful for display and tracking
     category: string;
     difficulty: string;
+    domainId?: string; // Added to link question to a specific domain config
     domain: string;
     question_text: string;
     options: QuestionOptionData[];
+    correct_answer: string;
+    multiple_answers: boolean;
+    correct_answers: string[];
     explanation: string;
     explanation_details?: {
         summary: string;
@@ -111,19 +110,6 @@ export interface StatCardProps {
     title: string;
     value: string;
     subtitle?: string;
-}
-
-export interface DomainProgressProps {
-    name: string;
-    progress: number;
-}
-
-export interface QuestionOptionProps {
-    children: ReactNode;
-    isSelected: boolean;
-    isCorrect?: boolean;
-    isIncorrect?: boolean;
-    onClick: () => void;
 }
 
 export interface UserAnswer {

@@ -1,19 +1,6 @@
 // src/helpers/utils.ts - Updated for PostgreSQL integration
 import {Question} from "../types/preptypes";
 
-// Filter functions that work with arrays of questions (from PostgreSQL)
-export const getQuestionsByDifficulty = (questions: Question[], difficulty: string): Question[] => {
-    const filtered = questions.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
-    console.log(`Filtered ${filtered.length} questions by difficulty: ${difficulty}`);
-    return filtered;
-};
-
-export const getQuestionsByCategory = (questions: Question[], category: string): Question[] => {
-    const filtered = questions.filter(q => q.category.toLowerCase().includes(category.toLowerCase()));
-    console.log(`Filtered ${filtered.length} questions by category: ${category}`);
-    return filtered;
-};
-
 export const getQuestionsByDomain = (questions: Question[], domain: string): Question[] => {
     const filtered = questions.filter(q => q.domain.toLowerCase().includes(domain.toLowerCase()));
     console.log(`Filtered ${filtered.length} questions by domain: ${domain}`);
@@ -69,7 +56,7 @@ export const combineQuestions = (...questionArrays: Question[][]): Question[] =>
 export const searchQuestions = (questions: Question[], searchTerm: string): Question[] => {
     const term = searchTerm.toLowerCase();
     const filtered = questions.filter(q =>
-        q.questionText.toLowerCase().includes(term) ||
+        q.question_text.toLowerCase().includes(term) ||
         q.category.toLowerCase().includes(term) ||
         q.domain.toLowerCase().includes(term) ||
         q.explanation.toLowerCase().includes(term) ||

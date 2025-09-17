@@ -17,7 +17,7 @@ export const AnswerModeToggle: React.FC<AnswerModeToggleProps> = ({
     };
 
     return (
-        <div className="flex items-center justify-center gap-3 mb-8">
+        <div className="dark:bg-dark-700 dark:text-white flex items-center justify-center gap-3 mb-8">
             <span className="text-sm font-medium text-white">Answer Mode:</span>
             <div className="flex bg-white/20 backdrop-blur-sm rounded-lg p-1">
                 <button
