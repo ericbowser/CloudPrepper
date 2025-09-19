@@ -1,4 +1,4 @@
-// src/App.tsx - Updated for PostgreSQL integration
+// src/App.tsx - Updated for caching and state persistence
 import React, {useEffect, useState} from 'react';
 import {
     AnswerMode,
@@ -18,6 +18,8 @@ import {Header} from "./components/Header";
 import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
 import {PracticeSetup} from "./components/PracticeSetup";
 import OcrProcessor from "./components/OcrProcessor";
+
+const CACHE_KEY = 'cloudPrepQuizState';
 
 const CloudPrepApp: React.FC = () => {
     // Certification management
@@ -46,16 +48,69 @@ const CloudPrepApp: React.FC = () => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [currentQuizConfig, setCurrentQuizConfig] = useState<QuizConfig | null>(null);
 
-    // Tab switch monitoring for exam mode
+    // Effect to load cached state on mount
+    useEffect(() => {
+        const cachedState = localStorage.getItem(CACHE_KEY);
+        if (cachedState) {
+            try {
+                const parsedState = JSON.parse(cachedState);
+                if (parsedState) {
+                    setCurrentCertification(parsedState.currentCertification);
+                    setActiveSection(parsedState.activeSection);
+                    setCurrentQuizConfig(parsedState.currentQuizConfig);
+                    setCurrentQuizQuestions(parsedState.currentQuizQuestions);
+                    setCurrentQuestionIndex(parsedState.currentQuestionIndex);
+                    setUserAnswers(parsedState.userAnswers);
+                    setQuizStartTime(new Date(parsedState.quizStartTime));
+                    setSelectedAnswers(parsedState.selectedAnswers);
+                    setIsAnswered(parsedState.isAnswered);
+                    setShowExplanation(parsedState.showExplanation);
+                }
+            } catch (e) {
+                console.error("Failed to parse cached state:", e);
+                localStorage.removeItem(CACHE_KEY);
+            }
+        }
+        loadQuestionsFromApi();
+    }, []);
+
+    // Effect to save state to localStorage whenever it changes
+    useEffect(() => {
+        if (!isLoading && currentCertification) {
+            const stateToCache = {
+                currentCertification,
+                activeSection,
+                currentQuizConfig,
+                currentQuizQuestions,
+                currentQuestionIndex,
+                userAnswers,
+                quizStartTime: quizStartTime.toISOString(),
+                selectedAnswers,
+                isAnswered,
+                showExplanation,
+            };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(stateToCache));
+        }
+    }, [
+        currentCertification,
+        activeSection,
+        currentQuizConfig,
+        currentQuizQuestions,
+        currentQuestionIndex,
+        userAnswers,
+        quizStartTime,
+        selectedAnswers,
+        isAnswered,
+        showExplanation,
+        isLoading
+    ]);
+
 
     // Get current question safely
     const currentQuestion = currentQuizQuestions[currentQuestionIndex];
     const totalQuestions = currentQuizQuestions.length;
 
     // Load questions from PostgreSQL on component mount
-    useEffect(() => {
-        loadQuestionsFromApi();
-    }, []);
     const loadQuestionsFromApi = async () => {
         setIsLoading(true);
         setError(null);
@@ -101,6 +156,7 @@ const CloudPrepApp: React.FC = () => {
     // Start a new quiz with questions from PostgreSQL
     const startQuiz = (config: QuizConfig, currentCert: CertificationData) => {
         try {
+            localStorage.removeItem(CACHE_KEY); // Clear previous cache
             setCurrentQuizConfig(config);
 
             let questions: Question[] = [];
@@ -123,10 +179,8 @@ const CloudPrepApp: React.FC = () => {
             }
 
             if (questions.length === 0) {
-                // Handle the case where no questions match the filter criteria to prevent an empty quiz.
-                // We can reset the section to question-selection and show an alert or a message.
                 alert('No questions found matching your criteria. Please try a different selection.');
-                return; // Do not start the quiz
+                return;
             }
 
             console.log(`Starting quiz with ${questions.length} questions`);
@@ -148,15 +202,19 @@ const CloudPrepApp: React.FC = () => {
 
     // Handle answer submission
     const handleOptionSelection = (optionText: string) => {
+        if (isAnswered !== null) {
+            setIsAnswered(null);
+            setShowExplanation(false);
+            setUserAnswers(prev => (prev || []).filter(ans => ans.questionId !== currentQuestion.question_id));
+        }
+
         if (currentQuestion.multiple_answers) {
-            // Checkbox-style selection for multiple-answer questions
             setSelectedAnswers(prev =>
                 prev.includes(optionText)
                     ? prev.filter(ans => ans !== optionText)
                     : [...prev, optionText]
             );
         } else {
-            // Radio-button-style selection for single-answer questions
             setSelectedAnswers([optionText]);
         }
     };
@@ -166,7 +224,6 @@ const CloudPrepApp: React.FC = () => {
 
         const endTime = new Date();
         const timeSpent = endTime.getTime() - questionStartTime.getTime();
-
         const isCorrect = checkAnswer();
 
         const answerRecord: AnswerRecord = {
@@ -184,7 +241,7 @@ const CloudPrepApp: React.FC = () => {
             setShowExplanation(true);
         }
     };
-    
+
     // Check if answer is correct
     const checkAnswer = (): boolean => {
         if (!currentQuestion) return false;
@@ -197,7 +254,6 @@ const CloudPrepApp: React.FC = () => {
             return false;
         }
 
-        // Use a Set for efficient lookup and to handle cases where array order differs
         const correctSet = new Set(correctOptionsTexts);
         return selectedAnswers.every(answer => correctSet.has(answer));
     };
@@ -205,13 +261,22 @@ const CloudPrepApp: React.FC = () => {
     // Navigate to next question
     const nextQuestion = () => {
         if (currentQuestionIndex < totalQuestions - 1) {
-            setCurrentQuestionIndex(prev => prev + 1);
-            setSelectedAnswers([]);
-            setIsAnswered(null);
-            setShowExplanation(false);
+            const nextIndex = currentQuestionIndex + 1;
+            const nextQuestionData = currentQuizQuestions[nextIndex];
+            const answerData = userAnswers?.find(a => a.questionId === nextQuestionData.question_id);
+
+            setCurrentQuestionIndex(nextIndex);
             setQuestionStartTime(new Date());
+            if (answerData) {
+                setSelectedAnswers(answerData.selectedAnswers);
+                setIsAnswered(answerData.isCorrect);
+                setShowExplanation(true);
+            } else {
+                setSelectedAnswers([]);
+                setIsAnswered(null);
+                setShowExplanation(false);
+            }
         } else {
-            // Quiz completed
             setActiveSection('results');
         }
     };
@@ -219,16 +284,27 @@ const CloudPrepApp: React.FC = () => {
     // Navigate to previous question
     const previousQuestion = () => {
         if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
-            setSelectedAnswers([]);
-            setIsAnswered(null);
-            setShowExplanation(false);
+            const prevIndex = currentQuestionIndex - 1;
+            const prevQuestionData = currentQuizQuestions[prevIndex];
+            const answerData = userAnswers?.find(a => a.questionId === prevQuestionData.question_id);
+
+            setCurrentQuestionIndex(prevIndex);
             setQuestionStartTime(new Date());
+            if (answerData) {
+                setSelectedAnswers(answerData.selectedAnswers);
+                setIsAnswered(answerData.isCorrect);
+                setShowExplanation(true);
+            } else {
+                setSelectedAnswers([]);
+                setIsAnswered(null);
+                setShowExplanation(false);
+            }
         }
     };
 
     // Reset quiz
     const resetQuiz = () => {
+        localStorage.removeItem(CACHE_KEY);
         setCurrentCertification(null);
         setCurrentQuizQuestions([]);
         setCurrentQuestionIndex(0);
@@ -237,6 +313,7 @@ const CloudPrepApp: React.FC = () => {
         setIsAnswered(null);
         setShowExplanation(false);
         setCurrentQuizConfig(null);
+        setActiveSection('practice'); // Go back to practice setup
     };
 
     const handleRestartQuiz = () => {
@@ -260,8 +337,7 @@ const CloudPrepApp: React.FC = () => {
         </div>
     );
 
-    // Handle loading state
-    if (isLoading) {
+    if (isLoading && !currentCertification) { // Show loading only if no cached cert
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center font-burtons">
                 <div className="text-center">
@@ -273,7 +349,6 @@ const CloudPrepApp: React.FC = () => {
         );
     }
 
-    // Handle error state
     if (error) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center font-burtons">
@@ -324,7 +399,7 @@ const CloudPrepApp: React.FC = () => {
     const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
         const baseClasses = "w-full text-left p-4 rounded-lg border transition-colors dark:text-gray-200";
 
-        if (isAnswered !== null) { // Answer has been submitted
+        if (isAnswered !== null) {
             const isSelected = selectedAnswers.includes(option.text);
             if (option.isCorrect) {
                 return `${baseClasses} border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-700`;
@@ -332,12 +407,11 @@ const CloudPrepApp: React.FC = () => {
             if (isSelected && !option.isCorrect) {
                 return `${baseClasses} border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-700`;
             }
-            return `${baseClasses} border-gray-300 dark:border-gray-600`; // Unselected, not correct
+            return `${baseClasses} border-gray-300 dark:border-gray-600`;
         }
 
-        // Before answer is submitted
         if (selectedAnswers.includes(option.text)) {
-            return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-400`; // Highlight selected
+            return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-400`;
         }
 
         return `${baseClasses} border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-dark-600`;
@@ -363,7 +437,6 @@ const CloudPrepApp: React.FC = () => {
               <Dashboard userAnswers={userAnswers} length={totalQuestions}></Dashboard>
             }
             <div className="min-h-screen bg-gray-100 dark:bg-dark-800">
-                {/* Main Content */}
                 <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                     {activeSection === 'practice' && (
                         <PracticeSetup
@@ -373,7 +446,6 @@ const CloudPrepApp: React.FC = () => {
                     )}
                     {activeSection === 'quiz' && currentQuestion && (
                         <div className="space-y-6">
-                            {/* Quiz Progress */}
                             <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-lg font-medium">
@@ -392,7 +464,6 @@ const CloudPrepApp: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Question Display */}
                             <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
                                 <div className="mb-4">
                                     <span
@@ -421,7 +492,6 @@ const CloudPrepApp: React.FC = () => {
                                         <button
                                             key={index}
                                             onClick={() => handleOptionSelection(option.text)}
-                                            disabled={isAnswered !== null}
                                             className={getOptionClassName(option)}
                                         >
                                             {option.text}
@@ -430,12 +500,10 @@ const CloudPrepApp: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Explanation */}
                             {showExplanation && currentQuestion && (
                                 <ExplanationCard question={currentQuestion}/>
                             )}
 
-                            {/* Navigation */}
                             <div className="flex justify-between">
                                 <button
                                     onClick={previousQuestion}
