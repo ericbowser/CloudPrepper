@@ -11,13 +11,14 @@ import {
 import {updateCertificationWithQuestions} from "./config/domainConfig";
 import ExplanationCard from "./components/ExplanationCard";
 import {AnswerModeToggle} from "./components/AnswerModeToggle";
-import getQuestions from '../api/questions_repository';
+import {getQuestions} from '../api/questions_repository';
 import QuizResults from "./components/QuizResults";
 import {Dashboard} from "./components/Dashboard";
 import {Header} from "./components/Header";
 import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
 import {PracticeSetup} from "./components/PracticeSetup";
 import OcrProcessor from "./components/OcrProcessor";
+import QuestionManagement from "./components/QuestionPost";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 
@@ -33,6 +34,7 @@ const CloudPrepApp: React.FC = () => {
     // Main application state
     const [activeSection, setActiveSection] = useState<SectionType | string>('quiz');
     const [showOcr, setShowOcr] = useState<boolean>(false);
+    const [showQuestionForm, setShowQuestionForm] = useState<boolean>(false);
 
     // Quiz state
     const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
@@ -326,7 +328,7 @@ const CloudPrepApp: React.FC = () => {
     const ocrModal = showOcr && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
             <div className="relative bg-white dark:bg-dark-800 p-4 rounded-lg shadow-lg max-w-3xl w-full">
-                <OcrProcessor />
+                <OcrProcessor/>
                 <button
                     onClick={() => setShowOcr(false)}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
@@ -427,12 +429,24 @@ const CloudPrepApp: React.FC = () => {
                     OCR Tool
                 </button>
                 <button
+                    onClick={() => setShowQuestionForm(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium mr-4"
+                >
+                    Add New Question
+                </button>
+
+                <button
                     onClick={resetQuiz}
                     className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
                 >
                     Change Certification
                 </button>
             </Header>
+            {showQuestionForm ?
+                <QuestionManagement>
+
+                </QuestionManagement>
+                : null}
             {activeSection === 'dashboard' &&
               <Dashboard userAnswers={userAnswers} length={totalQuestions}></Dashboard>
             }

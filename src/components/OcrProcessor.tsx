@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 
 declare const Tesseract: any;
 
@@ -38,7 +37,7 @@ const OcrProcessor: React.FC = () => {
     };
 
     return (
-        <div className="p-6 max-w-2xl mx-auto bg-white dark:bg-dark-700 rounded-lg shadow-md">
+        <div className="container p-6 max-w-2xl mx-auto bg-white dark:bg-dark-700 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4">OCR Processor</h2>
             <div className="mb-4">
                 <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -54,7 +53,7 @@ const OcrProcessor: React.FC = () => {
             </div>
             {image && (
                 <div className="mb-4">
-                    <img src={image} alt="Selected" className="max-w-full h-auto rounded-lg" />
+                    <img src={image} alt="Selected" className="max-w-full h-auto rounded-lg"/>
                 </div>
             )}
             <button
