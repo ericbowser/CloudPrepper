@@ -1,7 +1,8 @@
 // src/context/QuestionContext.tsx
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import { Question, CertificationData, Domain } from '../types/preptypes';
-import { CERTIFICATIONS } from '../config/domainConfig';
+import React, {createContext, useCallback, useContext, useEffect, useReducer} from 'react';
+import {CertificationData, Question} from '../types/preptypes';
+import {CERTIFICATIONS} from '../config/domainConfig';
+import {addQuestion, getQuestions} from '../../api/questions_repository';
 
 // Types for the context
 interface QuestionState {
@@ -58,8 +59,12 @@ interface QuestionContextType extends QuestionState {
     getQuestionsByCategory: (category: string, certification: 'comptia' | 'aws') => Question[];
 
     // Statistics
-    getStatsByDomain: (certification: 'comptia' | 'aws') => Array<{domain: string; count: number; percentage: number}>;
-    getStatsByDifficulty: (certification: 'comptia' | 'aws') => Array<{difficulty: string; count: number}>;
+    getStatsByDomain: (certification: 'comptia' | 'aws') => Array<{
+        domain: string;
+        count: number;
+        percentage: number
+    }>;
+    getStatsByDifficulty: (certification: 'comptia' | 'aws') => Array<{ difficulty: string; count: number }>;
 }
 
 // Action types for reducer
@@ -101,16 +106,16 @@ const initialState: QuestionState = {
 const questionReducer = (state: QuestionState, action: QuestionAction): QuestionState => {
     switch (action.type) {
         case 'SET_LOADING':
-            return { ...state, isLoading: action.payload };
+            return {...state, isLoading: action.payload};
 
         case 'SET_SUBMITTING':
-            return { ...state, isSubmitting: action.payload };
+            return {...state, isSubmitting: action.payload};
 
         case 'SET_ERROR':
-            return { ...state, error: action.payload, isLoading: false, isSubmitting: false };
+            return {...state, error: action.payload, isLoading: false, isSubmitting: false};
 
         case 'SET_QUESTIONS': {
-            const { comptiaQuestions, awsQuestions } = action.payload;
+            const {comptiaQuestions, awsQuestions} = action.payload;
             return {
                 ...state,
                 comptiaQuestions,
@@ -127,10 +132,10 @@ const questionReducer = (state: QuestionState, action: QuestionAction): Question
         }
 
         case 'ADD_QUESTION': {
-            const { question, certification } = action.payload;
+            const {question, certification} = action.payload;
             const newState = certification === 'comptia'
-                ? { ...state, comptiaQuestions: [...state.comptiaQuestions, question] }
-                : { ...state, awsQuestions: [...state.awsQuestions, question] };
+                ? {...state, comptiaQuestions: [...state.comptiaQuestions, question]}
+                : {...state, awsQuestions: [...state.awsQuestions, question]};
 
             return {
                 ...newState,
@@ -146,23 +151,23 @@ const questionReducer = (state: QuestionState, action: QuestionAction): Question
         }
 
         case 'UPDATE_QUESTION': {
-            const { question, certification } = action.payload;
+            const {question, certification} = action.payload;
             const updateQuestions = (questions: Question[]) =>
                 questions.map(q => q.question_id === question.question_id ? question : q);
 
             return certification === 'comptia'
-                ? { ...state, comptiaQuestions: updateQuestions(state.comptiaQuestions), isSubmitting: false }
-                : { ...state, awsQuestions: updateQuestions(state.awsQuestions), isSubmitting: false };
+                ? {...state, comptiaQuestions: updateQuestions(state.comptiaQuestions), isSubmitting: false}
+                : {...state, awsQuestions: updateQuestions(state.awsQuestions), isSubmitting: false};
         }
 
         case 'DELETE_QUESTION': {
-            const { questionId, certification } = action.payload;
+            const {questionId, certification} = action.payload;
             const filterQuestions = (questions: Question[]) =>
                 questions.filter(q => q.question_id !== questionId);
 
             const newState = certification === 'comptia'
-                ? { ...state, comptiaQuestions: filterQuestions(state.comptiaQuestions) }
-                : { ...state, awsQuestions: filterQuestions(state.awsQuestions) };
+                ? {...state, comptiaQuestions: filterQuestions(state.comptiaQuestions)}
+                : {...state, awsQuestions: filterQuestions(state.awsQuestions)};
 
             return {
                 ...newState,
@@ -200,27 +205,21 @@ const questionReducer = (state: QuestionState, action: QuestionAction): Question
 const QuestionContext = createContext<QuestionContextType | null>(null);
 
 // Provider component
-export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [state, dispatch] = useReducer(questionReducer, initialState);
 
     // API call functions
     const fetchQuestions = useCallback(async () => {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        dispatch({ type: 'SET_ERROR', payload: null });
+        dispatch({type: 'SET_LOADING', payload: true});
+        dispatch({type: 'SET_ERROR', payload: null});
 
         try {
-            const response = await fetch('/getExamQuestions');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
+            const response = await getQuestions();
             dispatch({
                 type: 'SET_QUESTIONS',
                 payload: {
-                    comptiaQuestions: data.comptiaQuestions || [],
-                    awsQuestions: data.awsQuestions || []
+                    comptiaQuestions: response.comptiaQuestions || [],
+                    awsQuestions: response.awsQuestions || []
                 }
             });
         } catch (error) {
@@ -232,18 +231,14 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     }, []);
 
-    const addQuestion = useCallback(async (questionData: Partial<Question>, certification: 'comptia' | 'aws'): Promise<Question> => {
-        dispatch({ type: 'SET_SUBMITTING', payload: true });
-        dispatch({ type: 'SET_ERROR', payload: null });
+    const addNewQuestion = useCallback(async (questionData: Question, certification: 'comptia' | 'aws'): Promise<Question> => {
+        dispatch({type: 'SET_SUBMITTING', payload: true});
+        dispatch({type: 'SET_ERROR', payload: null});
 
         try {
-            const response = await fetch('/api/questions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...questionData, certification })
-            });
+            const response = await addQuestion(questionData);
 
-            if (!response.ok) {
+            if (!response) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -252,7 +247,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
             dispatch({
                 type: 'ADD_QUESTION',
-                payload: { question: newQuestion, certification }
+                payload: {question: newQuestion, certification}
             });
 
             return newQuestion;
@@ -267,14 +262,14 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, []);
 
     const updateQuestion = useCallback(async (questionId: number, updates: Partial<Question>, certification: 'comptia' | 'aws'): Promise<Question> => {
-        dispatch({ type: 'SET_SUBMITTING', payload: true });
-        dispatch({ type: 'SET_ERROR', payload: null });
+        dispatch({type: 'SET_SUBMITTING', payload: true});
+        dispatch({type: 'SET_ERROR', payload: null});
 
         try {
             const response = await fetch(`/api/questions/${questionId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...updates, certification })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({...updates, certification})
             });
 
             if (!response.ok) {
@@ -286,7 +281,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
             dispatch({
                 type: 'UPDATE_QUESTION',
-                payload: { question: updatedQuestion, certification }
+                payload: {question: updatedQuestion, certification}
             });
 
             return updatedQuestion;
@@ -301,14 +296,14 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, []);
 
     const deleteQuestion = useCallback(async (questionId: number, certification: 'comptia' | 'aws'): Promise<void> => {
-        dispatch({ type: 'SET_SUBMITTING', payload: true });
-        dispatch({ type: 'SET_ERROR', payload: null });
+        dispatch({type: 'SET_SUBMITTING', payload: true});
+        dispatch({type: 'SET_ERROR', payload: null});
 
         try {
             const response = await fetch(`/api/questions/${questionId}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ certification })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({certification})
             });
 
             if (!response.ok) {
@@ -317,7 +312,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
             dispatch({
                 type: 'DELETE_QUESTION',
-                payload: { questionId, certification }
+                payload: {questionId, certification}
             });
         } catch (error) {
             console.error('Error deleting question:', error);
@@ -333,11 +328,11 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // Filter and search functions
     const setFilter = useCallback((filterType: keyof QuestionState['filters'], value: string) => {
-        dispatch({ type: 'SET_FILTER', payload: { filterType, value } });
+        dispatch({type: 'SET_FILTER', payload: {filterType, value}});
     }, []);
 
     const clearFilters = useCallback(() => {
-        dispatch({ type: 'CLEAR_FILTERS' });
+        dispatch({type: 'CLEAR_FILTERS'});
     }, []);
 
     const getFilteredQuestions = useCallback((): Question[] => {
@@ -461,7 +456,7 @@ export const useQuestions = (): QuestionContextType => {
 
 // Additional convenience hooks
 export const useQuestionStats = (certification?: 'comptia' | 'aws') => {
-    const { stats, getStatsByDomain, getStatsByDifficulty } = useQuestions();
+    const {stats, getStatsByDomain, getStatsByDifficulty} = useQuestions();
 
     return {
         totalStats: stats,
@@ -471,7 +466,7 @@ export const useQuestionStats = (certification?: 'comptia' | 'aws') => {
 };
 
 export const useQuestionFilters = () => {
-    const { filters, setFilter, clearFilters, getFilteredQuestions } = useQuestions();
+    const {filters, setFilter, clearFilters, getFilteredQuestions} = useQuestions();
 
     return {
         filters,
