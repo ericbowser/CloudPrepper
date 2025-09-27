@@ -182,13 +182,16 @@ const questionReducer = (state: QuestionState, action: QuestionAction): Question
         }
 
         case 'SET_FILTER':
-            return {
+            console.log('Reducer SET_FILTER:', action.payload);
+            const newState = {
                 ...state,
                 filters: {
                     ...state.filters,
                     [action.payload.filterType]: action.payload.value
                 }
             };
+            console.log('New filter state:', newState.filters);
+            return newState;
 
         case 'CLEAR_FILTERS':
             return {
@@ -242,7 +245,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
                 throw new Error('HTTP error adding a new question.');
             }
 
-            const newQuestion = result.question;
+            const newQuestion = response.question;
 
             dispatch({
                 type: 'ADD_QUESTION',
@@ -327,6 +330,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
 
     // Filter and search functions
     const setFilter = useCallback((filterType: keyof QuestionState['filters'], value: string) => {
+        console.log('Setting filter:', filterType, value);
         dispatch({type: 'SET_FILTER', payload: {filterType, value}});
     }, []);
 
@@ -347,15 +351,14 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         }
 
         // Apply filters
-
         return questions.filter(question => {
-
-            const matchesDomain = !state.filters.domain || question.domain.toLowerCase().includes(state.filters.domain.toLowerCase());
-            const matchesCategory = !state.filters.category || question.category.toLowerCase().includes(state.filters.category.toLowerCase());
+            const matchesDomain = !state.filters.domain || question.domain?.toLowerCase().includes(state.filters.domain.toLowerCase());
+            const matchesCategory = !state.filters.category || question.category?.toLowerCase().includes(state.filters.category.toLowerCase());
             const matchesDifficulty = !state.filters.difficulty || question.difficulty === state.filters.difficulty;
             const matchesSearch = !state.filters.searchText ||
-                question.question_text.toLowerCase().includes(state.filters.searchText.toLowerCase()) ||
-                question.category.toLowerCase().includes(state.filters.searchText.toLowerCase());
+                question.question_text?.toLowerCase().includes(state.filters.searchText.toLowerCase()) ||
+                question.category?.toLowerCase().includes(state.filters.searchText.toLowerCase()) ||
+                question.domain?.toLowerCase().includes(state.filters.searchText.toLowerCase());
 
             return matchesDomain && matchesCategory && matchesDifficulty && matchesSearch;
         });
@@ -406,6 +409,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
             count
         })).sort((a, b) => b.count - a.count);
     }, [state.comptiaQuestions, state.awsQuestions]);
+
 
     // Load questions on mount
     useEffect(() => {
@@ -467,13 +471,56 @@ export const useQuestionStats = (certification?: 'comptia' | 'aws') => {
 };
 
 export const useQuestionFilters = () => {
-    const {filters, setFilter, clearFilters, getFilteredQuestions} = useQuestions();
+    const context = useContext(QuestionContext);
+    if (!context) {
+        throw new Error('useQuestionFilters must be used within a QuestionProvider');
+    }
+
+    const {filters, setFilter, clearFilters, comptiaQuestions, awsQuestions} = context;
+
+    // State to track filtered questions
+    const [filteredQuestions, setFilteredQuestions] = React.useState<Question[]>([]);
+
+    // Effect to recalculate filtered questions when dependencies change
+    useEffect(() => {
+        let questions: Question[] = [];
+
+        // Select questions based on certification filter
+        if (filters.certification === 'comptia') {
+            questions = comptiaQuestions;
+        } else if (filters.certification === 'aws') {
+            questions = awsQuestions;
+        } else {
+            questions = [...comptiaQuestions, ...awsQuestions];
+        }
+
+        console.log('Filtering questions:', {
+            totalQuestions: questions.length,
+            filters: filters
+        });
+
+        // Apply filters
+        const filtered = questions.filter(question => {
+            const matchesDomain = !filters.domain || question.domain?.toLowerCase().includes(filters.domain.toLowerCase());
+            const matchesCategory = !filters.category || question.category?.toLowerCase().includes(filters.category.toLowerCase());
+            const matchesDifficulty = !filters.difficulty || question.difficulty === filters.difficulty;
+            const matchesSearch = !filters.searchText ||
+                question.question_text?.toLowerCase().includes(filters.searchText.toLowerCase()) ||
+                question.category?.toLowerCase().includes(filters.searchText.toLowerCase()) ||
+                question.domain?.toLowerCase().includes(filters.searchText.toLowerCase());
+
+            return matchesDomain && matchesCategory && matchesDifficulty && matchesSearch;
+        });
+
+        console.log('Setting filtered results:', filtered.length, 'questions');
+        setFilteredQuestions(filtered);
+    }, [filters, comptiaQuestions, awsQuestions]);
 
     return {
         filters,
         setFilter,
         clearFilters,
-        filteredQuestions: getFilteredQuestions()
+        filteredQuestions
     };
 };
 

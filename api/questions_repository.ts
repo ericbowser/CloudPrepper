@@ -18,9 +18,7 @@ const addQuestion = async (question: Question | null): Promise<Question | null> 
         const response = await axios.post<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_ADD_QUESTION}`, {question});
 
         if (response.status === 201) {
-            const newQuestion = response.question;
-            console.log(`Question added ${newQuestion.question_id}`);
-            return newQuestion;
+            return response.data;
         }
 
         return null;
@@ -34,8 +32,8 @@ const updateQuestion = async (question_id: number, question: Question | null): P
     try {
         console.log('Sending post request');
         const response = await axios.put<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_UPDATE_QUESTION}/${question_id}`, {question});
-        if (response.status === 200) {
-            return response.question;
+        if (response.status === 201) {
+            return response.data;
         }
 
         return null;

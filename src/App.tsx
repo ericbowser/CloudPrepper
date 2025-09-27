@@ -4,7 +4,8 @@ import {
     AnswerMode,
     AnswerRecord,
     CertificationData,
-    Question, QuestionOptionData,
+    Question,
+    QuestionOptionData,
     QuizConfig,
     SectionType,
 } from "./types/preptypes";
@@ -18,7 +19,7 @@ import {Header} from "./components/Header";
 import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
 import {PracticeSetup} from "./components/PracticeSetup";
 import OcrProcessor from "./components/OcrProcessor";
-import QuestionManagement from "./components/QuestionPost";
+import QuestionManagement from "./components/QuestionManagement";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 

@@ -1,9 +1,11 @@
 // src/components/QuestionManagement.tsx - Complete CRUD workflow
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useQuestionFilters, useQuestions} from '../contexts/QuestionContext';
 import {Question} from '../types/preptypes';
 import AddQuestionForm from './AddQuestionForm';
 import EditQuestionForm from './EditQuestionForm';
+import QuestionCard from './QuestionCard';
+
 
 type ViewMode = 'list' | 'add' | 'edit';
 
@@ -12,6 +14,7 @@ const QuestionManagement: React.FC = () => {
         addNewQuestion,
         updateExistingQuestion,
         deleteQuestion,
+        refreshQuestions,
         isSubmitting,
         error,
         stats
@@ -24,15 +27,35 @@ const QuestionManagement: React.FC = () => {
         filteredQuestions
     } = useQuestionFilters();
 
+    // Debug logging
+    console.log('QuestionManagement render:', {
+        filtersCount: Object.keys(filters).length,
+        filteredQuestionsCount: filteredQuestions.length,
+        searchText: filters.searchText,
+        filteredQuestions: filteredQuestions.map(q => ({id: q.question_id, text: q.question_text?.substring(0, 100)}))
+    });
+
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
     const [successMessage, setSuccessMessage] = useState<string>('');
 
+    // Refresh questions when component mounts or when filters change significantly
+    useEffect(() => {
+        // Only refresh if we're switching between certifications or clearing all filters
+        if (filters.certification === 'all' &&
+            !filters.domain &&
+            !filters.category &&
+            !filters.difficulty &&
+            !filters.searchText) {
+            refreshQuestions().then(r => true);
+        }
+    }, [filters.certification, filters.domain, filters.category, filters.difficulty, filters.searchText]);
+
     // Handle adding new question
-    const handleAddQuestion = async (questionData: Partial<Question>) => {
+    const handleAddQuestion = async (questionData: Question): Promise<void> => {
         try {
             const certification = questionData.domain?.toLowerCase().includes('aws') ? 'aws' : 'comptia';
-            await addQuestion(questionData, certification);
+            await addNewQuestion(questionData, certification);
             setViewMode('list');
             setSuccessMessage('Question added successfully!');
             setTimeout(() => setSuccessMessage(''), 3000);
@@ -115,13 +138,23 @@ const QuestionManagement: React.FC = () => {
                         Manage your certification questions and content
                     </p>
                 </div>
-                <button
-                    onClick={() => setViewMode('add')}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center space-x-2"
-                >
-                    <span>+</span>
-                    <span>Add New Question</span>
-                </button>
+                <div className="flex space-x-3">
+                    <button
+                        onClick={refreshQuestions}
+                        disabled={isSubmitting}
+                        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 flex items-center space-x-2"
+                    >
+                        <span>↻</span>
+                        <span>Refresh</span>
+                    </button>
+                    <button
+                        onClick={() => setViewMode('add')}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center space-x-2"
+                    >
+                        <span>+</span>
+                        <span>Add New Question</span>
+                    </button>
+                </div>
             </div>
 
             {/* Success/Error Messages */}
@@ -205,22 +238,42 @@ const QuestionManagement: React.FC = () => {
                         type="text"
                         placeholder="Search questions..."
                         value={filters.searchText}
-                        onChange={(e) => setFilter('searchText', e.target.value)}
+                        onChange={(e) => {
+                            console.log('Search input onChange:', e.target.value);
+                            setFilter('searchText', e.target.value);
+                        }}
                         className="p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-800 text-gray-900 dark:text-white"
                     />
                 </div>
 
                 <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {filteredQuestions.length} questions found
-                    </span>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {filteredQuestions.length} questions found
+                        </span>
+                        {(filters.domain || filters.category || filters.difficulty || filters.searchText || filters.certification !== 'all') && (
+                            <span
+                                className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                Filters active
+                            </span>
+                        )}
+                    </div>
 
-                    <button
-                        onClick={clearFilters}
-                        className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
-                    >
-                        Clear Filters
-                    </button>
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={refreshQuestions}
+                            disabled={isSubmitting}
+                            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                        >
+                            ↻ Refresh
+                        </button>
+                        <button
+                            onClick={clearFilters}
+                            className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                        >
+                            Clear Filters
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -241,7 +294,7 @@ const QuestionManagement: React.FC = () => {
                 ) : (
                     filteredQuestions.map((question) => (
                         <QuestionCard
-                            key={question.question_id}
+                            key={`${question.question_id}${question.question_text}`}
                             question={question}
                             onEdit={() => startEdit(question)}
                             onDelete={() => handleDeleteQuestion(question)}
@@ -251,125 +304,6 @@ const QuestionManagement: React.FC = () => {
             </div>
         </div>
     );
-};
-
-// Individual Question Card Component
-interface QuestionCardProps {
-    question: Question;
-    onEdit: () => void;
-    onDelete: () => void;
 }
-
-const QuestionCard: React.FC<QuestionCardProps> = ({question, onEdit, onDelete}) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    // Parse options if they're JSON string
-    let options = question.options;
-    if (typeof options === 'string') {
-        try {
-            options = JSON.parse(options);
-        } catch (error) {
-            options = [];
-        }
-    }
-
-    const correctAnswers = Array.isArray(options)
-        ? options.filter(opt => opt.isCorrect).map(opt => opt.text)
-        : [];
-
-    return (
-        <div className="bg-white dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-lg p-6 shadow-sm">
-            {/* Header */}
-            <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                        <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                            #{question.question_id}
-                        </span>
-                        <span
-                            className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded">
-                            {question.difficulty}
-                        </span>
-                        <span
-                            className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
-                            {question.multiple_answers ? 'Multi-Select' : 'Single-Select'}
-                        </span>
-                    </div>
-                    <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                        {question.domain} • {question.category}
-                    </h3>
-                </div>
-
-                <div className="flex space-x-2">
-                    <button
-                        onClick={onEdit}
-                        className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        Edit
-                    </button>
-                    <button
-                        onClick={onDelete}
-                        className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                    >
-                        Delete
-                    </button>
-                    <button
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-                    >
-                        {isExpanded ? 'Collapse' : 'Expand'}
-                    </button>
-                </div>
-            </div>
-
-            {/* Question Text */}
-            <div className="mb-4">
-                <p className="text-gray-900 dark:text-white font-medium">
-                    {question.question_text}
-                </p>
-            </div>
-
-            {/* Expanded Content */}
-            {isExpanded && (
-                <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                    {/* Options */}
-                    <div>
-                        <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Answer Options:</h4>
-                        <div className="space-y-1">
-                            {Array.isArray(options) && options.map((option, index) => (
-                                <div
-                                    key={index}
-                                    className={`p-2 rounded text-sm ${
-                                        option.isCorrect
-                                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                                            : 'bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
-                                    }`}
-                                >
-                                    {option.isCorrect && '✓ '}{option.text}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Explanation */}
-                    <div>
-                        <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Explanation:</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {question.explanation}
-                        </p>
-                    </div>
-
-                    {/* Correct Answer Summary */}
-                    <div>
-                        <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Correct Answer(s):</h4>
-                        <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                            {correctAnswers.join(', ')}
-                        </p>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
 
 export default QuestionManagement;
