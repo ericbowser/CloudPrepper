@@ -2,7 +2,7 @@
 import React, {createContext, useCallback, useContext, useEffect, useReducer} from 'react';
 import {CertificationData, Question} from '../types/preptypes';
 import {CERTIFICATIONS} from '../config/domainConfig';
-import {addQuestion, getQuestions} from '../../api/questions_repository';
+import {addQuestion, getQuestions, updateQuestion} from '../../api/questions_repository';
 
 // Types for the context
 interface QuestionState {
@@ -40,8 +40,8 @@ interface QuestionState {
 
 interface QuestionContextType extends QuestionState {
     // Question CRUD operations
-    addQuestion: (question: Partial<Question>, certification: 'comptia' | 'aws') => Promise<Question>;
-    updateQuestion: (questionId: number, updates: Partial<Question>, certification: 'comptia' | 'aws') => Promise<Question>;
+    addNewQuestion: (question: Question, certification: 'comptia' | 'aws') => Promise<Question>;
+    updateExistingQuestion: (questionId: number, updates: Question, certification: 'comptia' | 'aws') => Promise<Question>;
     deleteQuestion: (questionId: number, certification: 'comptia' | 'aws') => Promise<void>;
 
     // Data fetching
@@ -238,11 +238,10 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         try {
             const response = await addQuestion(questionData);
 
-            if (!response) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (response === null || response === undefined) {
+                throw new Error('HTTP error adding a new question.');
             }
 
-            const result = await response.json();
             const newQuestion = result.question;
 
             dispatch({
@@ -261,23 +260,23 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         }
     }, []);
 
-    const updateQuestion = useCallback(async (questionId: number, updates: Partial<Question>, certification: 'comptia' | 'aws'): Promise<Question> => {
+    const updateExistingQuestion = useCallback(async (questionId: number, updates: Question, certification: 'comptia' | 'aws'): Promise<Question> => {
         dispatch({type: 'SET_SUBMITTING', payload: true});
         dispatch({type: 'SET_ERROR', payload: null});
 
         try {
-            const response = await fetch(`/api/questions/${questionId}`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({...updates, certification})
-            });
+            const updateData = {
+                ...updates,
+                certification: certification
+            }
+            const response = await updateQuestion(questionId, updateData);
+            console.log(response);
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error('HTTP error! status');
             }
 
-            const result = await response.json();
-            const updatedQuestion = result.question;
+            const updatedQuestion = response.question;
 
             dispatch({
                 type: 'UPDATE_QUESTION',
@@ -348,7 +347,9 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         }
 
         // Apply filters
+
         return questions.filter(question => {
+
             const matchesDomain = !state.filters.domain || question.domain.toLowerCase().includes(state.filters.domain.toLowerCase());
             const matchesCategory = !state.filters.category || question.category.toLowerCase().includes(state.filters.category.toLowerCase());
             const matchesDifficulty = !state.filters.difficulty || question.difficulty === state.filters.difficulty;
@@ -415,8 +416,8 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         ...state,
 
         // CRUD operations
-        addQuestion,
-        updateQuestion,
+        addNewQuestion,
+        updateExistingQuestion,
         deleteQuestion,
 
         // Data fetching

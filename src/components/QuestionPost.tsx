@@ -1,7 +1,7 @@
 // src/components/QuestionManagement.tsx - Complete CRUD workflow
-import React, { useState } from 'react';
-import { useQuestions, useQuestionFilters } from '../contexts/QuestionContext';
-import { Question } from '../types/preptypes';
+import React, {useState} from 'react';
+import {useQuestionFilters, useQuestions} from '../contexts/QuestionContext';
+import {Question} from '../types/preptypes';
 import AddQuestionForm from './AddQuestionForm';
 import EditQuestionForm from './EditQuestionForm';
 
@@ -9,8 +9,8 @@ type ViewMode = 'list' | 'add' | 'edit';
 
 const QuestionManagement: React.FC = () => {
     const {
-        addQuestion,
-        updateQuestion,
+        addNewQuestion,
+        updateExistingQuestion,
         deleteQuestion,
         isSubmitting,
         error,
@@ -42,9 +42,9 @@ const QuestionManagement: React.FC = () => {
     };
 
     // Handle editing question
-    const handleEditQuestion = async (questionId: number, updates: Partial<Question>, certification: 'comptia' | 'aws') => {
+    const handleEditQuestion = async (questionId: number, updates: Question, certification: 'comptia' | 'aws') => {
         try {
-            await updateQuestion(questionId, updates, certification);
+            await updateExistingQuestion(questionId, updates, certification);
             setViewMode('list');
             setSelectedQuestion(null);
             setSuccessMessage('Question updated successfully!');
@@ -260,7 +260,7 @@ interface QuestionCardProps {
     onDelete: () => void;
 }
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit, onDelete }) => {
+const QuestionCard: React.FC<QuestionCardProps> = ({question, onEdit, onDelete}) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     // Parse options if they're JSON string
@@ -286,10 +286,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit, onDelete 
                         <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
                             #{question.question_id}
                         </span>
-                        <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded">
+                        <span
+                            className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded">
                             {question.difficulty}
                         </span>
-                        <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
+                        <span
+                            className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
                             {question.multiple_answers ? 'Multi-Select' : 'Single-Select'}
                         </span>
                     </div>

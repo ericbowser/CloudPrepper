@@ -18,7 +18,7 @@ const addQuestion = async (question: Question | null): Promise<Question | null> 
         const response = await axios.post<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_ADD_QUESTION}`, {question});
 
         if (response.status === 201) {
-            const newQuestion = response.data;
+            const newQuestion = response.question;
             console.log(`Question added ${newQuestion.question_id}`);
             return newQuestion;
         }
@@ -30,15 +30,15 @@ const addQuestion = async (question: Question | null): Promise<Question | null> 
     }
 };
 
-const updateQuestion = async (question: Question): Promise<boolean> => {
+const updateQuestion = async (question_id: number, question: Question | null): Promise<Question | null> => {
     try {
         console.log('Sending post request');
-        const response = await axios.put<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_UPDATE_QUESTION}`, {question});
+        const response = await axios.put<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_UPDATE_QUESTION}/${question_id}`, {question});
         if (response.status === 200) {
-            return true;
+            return response.question;
         }
 
-        return false;
+        return null;
     } catch (err) {
         console.error("Failed to fetch questions from API:", err);
         throw err;
@@ -68,4 +68,4 @@ const getQuestions = async (): Promise<AllQuestionsResponse> => {
     }
 };
 
-export {getQuestions, addQuestion};
+export {getQuestions, addQuestion, updateQuestion};

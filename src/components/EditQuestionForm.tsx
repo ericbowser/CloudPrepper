@@ -1,11 +1,22 @@
 // src/components/EditQuestionForm.tsx
-import React, { useState, useEffect } from 'react';
-import { Question, QuestionOptionData, CertificationData } from '../types/preptypes';
-import { CERTIFICATIONS } from '../config/domainConfig';
+import React, {useEffect, useState} from 'react';
+import {CertificationData, Question, QuestionOptionData} from '../types/preptypes';
+import {CERTIFICATIONS} from '../config/domainConfig';
 
 interface EditQuestionFormProps {
     question: Question;
-    onSubmit: (questionId: number, updates: Partial<Question>, certification: 'comptia' | 'aws') => Promise<void>;
+    onSubmit: (questionId: number, updateData: {
+        category: string;
+        difficulty: string;
+        domain: any;
+        question_text: string;
+        options: QuestionOptionData[];
+        correct_answer: string;
+        multiple_answers: boolean;
+        correct_answers: string[];
+        explanation: string;
+        explanation_details: { summary: string; breakdown: string[]; otherOptions: string }
+    }, certification: "comptia" | "aws") => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
 }
@@ -50,10 +61,10 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
         difficulty: 'Knowledge',
         question_text: '',
         options: [
-            { text: '', isCorrect: false },
-            { text: '', isCorrect: false },
-            { text: '', isCorrect: false },
-            { text: '', isCorrect: false }
+            {text: '', isCorrect: false},
+            {text: '', isCorrect: false},
+            {text: '', isCorrect: false},
+            {text: '', isCorrect: false}
         ],
         multiple_answers: false,
         explanation: '',
@@ -115,10 +126,10 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                 options: Array.isArray(parsedOptions) && parsedOptions.length > 0
                     ? parsedOptions
                     : [
-                        { text: '', isCorrect: false },
-                        { text: '', isCorrect: false },
-                        { text: '', isCorrect: false },
-                        { text: '', isCorrect: false }
+                        {text: '', isCorrect: false},
+                        {text: '', isCorrect: false},
+                        {text: '', isCorrect: false},
+                        {text: '', isCorrect: false}
                     ],
                 multiple_answers: question.multiple_answers || false,
                 explanation: question.explanation || '',
@@ -138,18 +149,18 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
     }, [formData.certification]);
 
     const handleInputChange = (field: keyof FormData, value: any) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData(prev => ({...prev, [field]: value}));
         setHasChanges(true);
 
         // Clear error when user starts typing
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors(prev => ({...prev, [field]: ''}));
         }
     };
 
     const handleOptionChange = (index: number, field: keyof QuestionOptionData, value: any) => {
         const newOptions = [...formData.options];
-        newOptions[index] = { ...newOptions[index], [field]: value };
+        newOptions[index] = {...newOptions[index], [field]: value};
 
         // Handle single-select logic
         if (field === 'isCorrect' && value && !formData.multiple_answers) {
@@ -159,7 +170,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
             });
         }
 
-        setFormData(prev => ({ ...prev, options: newOptions }));
+        setFormData(prev => ({...prev, options: newOptions}));
         setHasChanges(true);
     };
 
@@ -167,7 +178,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
         if (formData.options.length < 8) {
             setFormData(prev => ({
                 ...prev,
-                options: [...prev.options, { text: '', isCorrect: false }]
+                options: [...prev.options, {text: '', isCorrect: false}]
             }));
             setHasChanges(true);
         }
@@ -176,7 +187,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
     const removeOption = (index: number) => {
         if (formData.options.length > 2) {
             const newOptions = formData.options.filter((_, i) => i !== index);
-            setFormData(prev => ({ ...prev, options: newOptions }));
+            setFormData(prev => ({...prev, options: newOptions}));
             setHasChanges(true);
         }
     };
@@ -260,20 +271,20 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
             .filter(opt => opt.isCorrect)
             .map(opt => opt.text);
 
-        const updateData: Partial<Question> = {
-            category: formData.category.trim(),
-            difficulty: formData.difficulty,
-            domain: selectedCertification?.domains.find(d => d.id === formData.domain)?.name || formData.domain,
-            question_text: formData.question_text.trim(),
-            options: validOptions,
-            correct_answer: correctAnswers.join(', '),
-            multiple_answers: formData.multiple_answers,
-            correct_answers: formData.multiple_answers ? correctAnswers : [],
-            explanation: formData.explanation.trim(),
-            explanation_details: {
-                summary: formData.explanation_details.summary.trim() || formData.explanation.trim(),
-                breakdown: formData.explanation_details.breakdown.filter(point => point.trim()),
-                otherOptions: formData.explanation_details.otherOptions.trim()
+        const updateData = {
+            "category": formData.category.trim(),
+            "difficulty": formData.difficulty,
+            "domain": selectedCertification?.domains.find(d => d.id === formData.domain)?.name || formData.domain,
+            "question_text": formData.question_text.trim(),
+            "options": validOptions,
+            "correct_answer": correctAnswers.join(', '),
+            "multiple_answers": formData.multiple_answers,
+            "correct_answers": formData.multiple_answers ? correctAnswers : [],
+            "explanation": formData.explanation.trim(),
+            "explanation_details": {
+                "summary": formData.explanation_details.summary.trim() || formData.explanation.trim(),
+                "breakdown": formData.explanation_details.breakdown.filter(point => point.trim()),
+                "otherOptions": formData.explanation_details.otherOptions.trim()
             }
         };
 
@@ -504,7 +515,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                             value={formData.explanation_details.summary}
                             onChange={(e) => setFormData(prev => ({
                                 ...prev,
-                                explanation_details: { ...prev.explanation_details, summary: e.target.value }
+                                explanation_details: {...prev.explanation_details, summary: e.target.value}
                             }))}
                             placeholder="Brief summary for detailed explanation..."
                             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
@@ -560,7 +571,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                             value={formData.explanation_details.otherOptions}
                             onChange={(e) => setFormData(prev => ({
                                 ...prev,
-                                explanation_details: { ...prev.explanation_details, otherOptions: e.target.value }
+                                explanation_details: {...prev.explanation_details, otherOptions: e.target.value}
                             }))}
                             placeholder="Explain why the other options are incorrect..."
                             rows={3}
@@ -586,7 +597,8 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                         className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center space-x-2"
                     >
                         {isLoading && (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <div
+                                className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         )}
                         <span>{isLoading ? 'Updating...' : hasChanges ? 'Save Changes' : 'No Changes'}</span>
                     </button>
