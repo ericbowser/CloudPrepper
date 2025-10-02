@@ -245,7 +245,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
                 throw new Error('HTTP error adding a new question.');
             }
 
-            const newQuestion = response.question;
+            const newQuestion = response.data.question;
 
             dispatch({
                 type: 'ADD_QUESTION',
@@ -273,20 +273,17 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
                 certification: certification
             }
             const response = await updateQuestion(questionId, updateData);
-            console.log(response);
 
-            if (!response.ok) {
+            if (response.ok) {
+                const updatedQuestion = response.question;
+                dispatch({
+                    type: 'UPDATE_QUESTION',
+                    payload: {question: updatedQuestion, certification}
+                });
+                return updatedQuestion;
+            } else {
                 throw new Error('HTTP error! status');
             }
-
-            const updatedQuestion = response.question;
-
-            dispatch({
-                type: 'UPDATE_QUESTION',
-                payload: {question: updatedQuestion, certification}
-            });
-
-            return updatedQuestion;
         } catch (error) {
             console.error('Error updating question:', error);
             dispatch({
@@ -414,7 +411,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
     // Load questions on mount
     useEffect(() => {
         fetchQuestions();
-    }, [fetchQuestions]);
+    }, []);
 
     const contextValue: QuestionContextType = {
         ...state,
