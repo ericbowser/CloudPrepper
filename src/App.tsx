@@ -19,6 +19,7 @@ import {Header} from "./components/Header";
 import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
 import {PracticeSetup} from "./components/PracticeSetup";
 import OcrProcessor from "./components/OcrProcessor";
+import QuestionManagement from "./components/QuestionManagement";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 
@@ -443,9 +444,7 @@ const CloudPrepApp: React.FC = () => {
                 </button>
             </Header>
             {showQuestionForm ?
-                <QuestionManager>
-
-                </QuestionManager>
+                <QuestionManagement/>
                 : null}
             {activeSection === 'dashboard' &&
               <Dashboard userAnswers={userAnswers} length={totalQuestions}></Dashboard>
