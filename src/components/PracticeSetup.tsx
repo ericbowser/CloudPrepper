@@ -19,6 +19,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [questionCount, setQuestionCount] = useState<number>(10);
+    const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
+    const [timerMinutes, setTimerMinutes] = useState<number>(10);
 
     // Show loading state if certification is not loaded yet
     if (!certification) {
@@ -121,7 +123,9 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
             difficulty: selectedDifficulty,
             selectedCategories: [selectedCategory],
             questionCount: getQuestionCountForTestType(),
-            certification: certification.id
+            certification: certification.id,
+            timerEnabled,
+            timerDuration: timerEnabled ? timerMinutes * 60 : 0
         };
 
         onStartQuiz(config);
@@ -322,6 +326,44 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
                             />
                             <p className="text-sm text-gray-500 mt-1">
                                 Max: {availableQuestions} available
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Timer Configuration */}
+                <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Set a time limit for your quiz (recommended for exam simulation)
+                            </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={timerEnabled}
+                                onChange={(e) => setTimerEnabled(e.target.checked)}
+                                className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+
+                    {timerEnabled && (
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="180"
+                                value={timerMinutes}
+                                onChange={(e) => setTimerMinutes(Number(e.target.value))}
+                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">
+                                💡 Exam time limit: {certification.examInfo.timeLimit} minutes
                             </p>
                         </div>
                     )}

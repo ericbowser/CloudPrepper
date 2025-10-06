@@ -19,6 +19,8 @@ import {Header} from "./components/Header";
 import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
 import {PracticeSetup} from "./components/PracticeSetup";
 import OcrProcessor from "./components/OcrProcessor";
+import {QuizTimer} from "./components/QuizTimer";
+import Modal from "./components/Modal";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 
@@ -44,11 +46,35 @@ const CloudPrepApp: React.FC = () => {
     const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
     const [answerMode, setAnswerMode] = useState<AnswerMode>(AnswerMode.inline);
     const [showExplanation, setShowExplanation] = useState<boolean>(false);
+    const [showExplanationModal, setShowExplanationModal] = useState<boolean>(false);
 
     // Current quiz questions and index
     const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [currentQuizConfig, setCurrentQuizConfig] = useState<QuizConfig | null>(null);
+
+    // Timer state
+    const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
+    const [timerDuration, setTimerDuration] = useState<number>(0);
+    const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
+
+    // Timer countdown effect
+    useEffect(() => {
+        if (!timerEnabled || isTimerPaused || timerDuration <= 0 || activeSection !== 'quiz') return;
+
+        const interval = setInterval(() => {
+            setTimerDuration(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    handleTimeUp();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [timerEnabled, isTimerPaused, timerDuration, activeSection]);
 
     // Effect to load cached state on mount
     useEffect(() => {
@@ -67,6 +93,9 @@ const CloudPrepApp: React.FC = () => {
                     setSelectedAnswers(parsedState.selectedAnswers);
                     setIsAnswered(parsedState.isAnswered);
                     setShowExplanation(parsedState.showExplanation);
+                    setTimerEnabled(parsedState.timerEnabled || false);
+                    setTimerDuration(parsedState.timerDuration || 0);
+                    setIsTimerPaused(parsedState.isTimerPaused || false);
                 }
             } catch (e) {
                 console.error("Failed to parse cached state:", e);
@@ -90,6 +119,9 @@ const CloudPrepApp: React.FC = () => {
                 selectedAnswers,
                 isAnswered,
                 showExplanation,
+                timerEnabled,
+                timerDuration,
+                isTimerPaused,
             };
             localStorage.setItem(CACHE_KEY, JSON.stringify(stateToCache));
         }
@@ -104,7 +136,10 @@ const CloudPrepApp: React.FC = () => {
         selectedAnswers,
         isAnswered,
         showExplanation,
-        isLoading
+        isLoading,
+        timerEnabled,
+        timerDuration,
+        isTimerPaused
     ]);
 
 
@@ -196,6 +231,11 @@ const CloudPrepApp: React.FC = () => {
             setIsAnswered(null);
             setShowExplanation(false);
 
+            // Set timer configuration
+            setTimerEnabled(config.timerEnabled || false);
+            setTimerDuration(config.timerDuration || 0);
+            setIsTimerPaused(false);
+
         } catch (err) {
             console.error('Error starting quiz:', err);
             setError(`Failed to start quiz: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -241,6 +281,7 @@ const CloudPrepApp: React.FC = () => {
 
         if (answerMode === AnswerMode.inline) {
             setShowExplanation(true);
+            setShowExplanationModal(true);
         }
     };
 
@@ -262,6 +303,7 @@ const CloudPrepApp: React.FC = () => {
 
     // Navigate to next question
     const nextQuestion = () => {
+        setShowExplanationModal(false);
         if (currentQuestionIndex < totalQuestions - 1) {
             const nextIndex = currentQuestionIndex + 1;
             const nextQuestionData = currentQuizQuestions[nextIndex];
@@ -304,6 +346,26 @@ const CloudPrepApp: React.FC = () => {
         }
     };
 
+    // Handle timer expiration
+    const handleTimeUp = () => {
+        setIsTimerPaused(true);
+        // Auto-submit current answer if any
+        if (selectedAnswers.length > 0 && isAnswered === null) {
+            handleAnswerSubmission();
+        }
+        // Navigate to results
+        setActiveSection('results');
+    };
+
+    // Submit quiz early
+    const handleSubmitQuiz = () => {
+        // Auto-submit current answer if any
+        if (selectedAnswers.length > 0 && isAnswered === null) {
+            handleAnswerSubmission();
+        }
+        setActiveSection('results');
+    };
+
     // Reset quiz
     const resetQuiz = () => {
         localStorage.removeItem(CACHE_KEY);
@@ -315,6 +377,9 @@ const CloudPrepApp: React.FC = () => {
         setIsAnswered(null);
         setShowExplanation(false);
         setCurrentQuizConfig(null);
+        setTimerEnabled(false);
+        setTimerDuration(0);
+        setIsTimerPaused(false);
         setActiveSection('practice'); // Go back to practice setup
     };
 
@@ -422,17 +487,44 @@ const CloudPrepApp: React.FC = () => {
     return (
         <div className="dark:bg-dark-700 dark:text-white bg-gray-50 text-black font-burtons">
             <Header title={`${getCurrentCertification()?.name} Prepper`}>
+                {activeSection === 'quiz' && currentQuizQuestions.length > 0 && (
+                    <>
+                        {/* Timer in Navbar */}
+                        {timerEnabled && timerDuration > 0 && (
+                            <div className="flex items-center space-x-2 bg-white dark:bg-dark-700 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 mr-4">
+                                <svg className={`w-5 h-5 ${isTimerPaused ? 'text-gray-400' : 'text-blue-600 dark:text-blue-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="text-sm font-mono font-semibold text-gray-800 dark:text-gray-200">
+                                    {Math.floor(timerDuration / 60)}:{(timerDuration % 60).toString().padStart(2, '0')}
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Question Stats */}
+                        <div className="flex items-center space-x-4 bg-white dark:bg-dark-700 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 mr-4">
+                            <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Question:</span>
+                                <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                                    {currentQuestionIndex + 1}/{totalQuestions}
+                                </span>
+                            </div>
+                            <div className="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+                            <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Answered:</span>
+                                <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                                    {userAnswers?.length || 0}
+                                </span>
+                            </div>
+                        </div>
+                    </>
+                )}
+
                 <button
                     onClick={() => setShowOcr(true)}
                     className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium mr-4"
                 >
                     OCR Tool
-                </button>
-                <button
-                    onClick={() => setShowQuestionForm(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium mr-4"
-                >
-                    Add New Question
                 </button>
 
                 <button
@@ -535,7 +627,7 @@ const CloudPrepApp: React.FC = () => {
 
                                     {/* Question Text */}
                                     <div className="mb-8">
-                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white leading-relaxed mb-4">
+                                        <h3 className="text-2xl text-gray-900 dark:text-white leading-relaxed mb-4">
                                             {currentQuestion.question_text}
                                         </h3>
                                         {currentQuestion.multiple_answers && (
@@ -602,9 +694,48 @@ const CloudPrepApp: React.FC = () => {
 
                             </div>
 
-                            {/* Explanation Card */}
-                            {showExplanation && isAnswered !== null && (
+                            {/* Explanation Card - Only show if NOT inline mode or modal is closed */}
+                            {showExplanation && isAnswered !== null && answerMode !== AnswerMode.inline && (
                                 <ExplanationCard question={currentQuestion} />
+                            )}
+
+                            {/* Explanation Modal - Only for inline mode */}
+                            {answerMode === AnswerMode.inline && showExplanationModal && isAnswered !== null && (
+                                <Modal
+                                    isOpen={showExplanationModal}
+                                    onClose={() => setShowExplanationModal(false)}
+                                    title={isAnswered ? "✓ Correct Answer!" : "✗ Incorrect Answer"}
+                                >
+                                    <div className="space-y-4">
+                                        <ExplanationCard question={currentQuestion} showInModal={false} />
+
+                                        <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-600">
+                                            <button
+                                                onClick={() => {
+                                                    setShowExplanationModal(false);
+                                                    nextQuestion();
+                                                }}
+                                                className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium shadow-sm hover:shadow-md"
+                                            >
+                                                {currentQuestionIndex === totalQuestions - 1 ? (
+                                                    <>
+                                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                                                        </svg>
+                                                        Finish Quiz
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Continue
+                                                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Modal>
                             )}
 
                             {/* Enhanced Navigation */}
@@ -622,7 +753,7 @@ const CloudPrepApp: React.FC = () => {
                                     Previous
                                 </button>
 
-                                <div className="text-center">
+                                <div className="text-center flex flex-col items-center space-y-2">
                                     <p className="text-sm text-gray-600 dark:text-gray-400">
                                         {selectedAnswers.length > 0 && isAnswered === null
                                             ? `${selectedAnswers.length} answer${selectedAnswers.length > 1 ? 's' : ''} selected`
@@ -631,6 +762,15 @@ const CloudPrepApp: React.FC = () => {
                                                 : 'Select your answer'
                                         }
                                     </p>
+                                    <button
+                                        onClick={handleSubmitQuiz}
+                                        className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors text-sm font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Submit Quiz
+                                    </button>
                                 </div>
 
                                 {isAnswered === null ? (

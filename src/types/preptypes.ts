@@ -31,6 +31,8 @@ export interface QuizConfig {
     difficulty: string;
     questionCount: number;
     certification: 'comptia' | 'aws';
+    timerEnabled?: boolean;
+    timerDuration?: number; // in seconds
 }
 
 // Certification data structure

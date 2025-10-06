@@ -4,16 +4,17 @@ import Modal from "./Modal";
 
 interface ExplanationCardProps {
     question: Question;
+    onProceed?: () => void;
+    showInModal?: boolean;
 }
 
-export const ExplanationCard: React.FC<ExplanationCardProps> = ({question}: ExplanationCardProps)
+export const ExplanationCard: React.FC<ExplanationCardProps> = ({question, onProceed, showInModal = false}: ExplanationCardProps)
     : React.ReactElement<any, string | React.JSXElementConstructor<any>> => {
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isOtherOptionsModalOpen, setIsOtherOptionsModalOpen] = useState(false);
 
-    return (
-        <div
-            className="dark:bg-dark-800 decoration-amber-200 dark:text-white  mt-6 bg-white/10 border dark:border-white rounded-lg p-6 animate-fade-in">
+    const explanationContent = (
+        <>
             <h4 className="font-semibold text-blue-900 dark:text-blue-400 mb-3 flex items-center text-lg">
                 💡 Explanation
             </h4>
@@ -33,7 +34,7 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({question}: Expl
                     {question.explanation_details.otherOptions && (
                         <div className="mt-4">
                             <button
-                                onClick={() => setIsModalOpen(true)}
+                                onClick={() => setIsOtherOptionsModalOpen(true)}
                                 className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm hover:shadow-md"
                             >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,8 +44,8 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({question}: Expl
                             </button>
 
                             <Modal
-                                isOpen={isModalOpen}
-                                onClose={() => setIsModalOpen(false)}
+                                isOpen={isOtherOptionsModalOpen}
+                                onClose={() => setIsOtherOptionsModalOpen(false)}
                                 title="Why other options are incorrect"
                             >
                                 <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
@@ -55,7 +56,19 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({question}: Expl
                     )}
                 </>
             )}
-        </div>)
+        </>
+    );
+
+    if (!showInModal) {
+        return (
+            <div
+                className="dark:bg-dark-800 decoration-amber-200 dark:text-white  mt-6 bg-white/10 border dark:border-white rounded-lg p-6 animate-fade-in">
+                {explanationContent}
+            </div>
+        );
+    }
+
+    return null;
 };
 
 export default ExplanationCard;
