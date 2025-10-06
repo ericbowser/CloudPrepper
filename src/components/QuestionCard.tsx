@@ -1,5 +1,5 @@
 import {Question} from "./types/preptypes";
-import {useState} from "react";
+import React, {useState} from "react";
 
 interface QuestionCardProps {
     question: Question;

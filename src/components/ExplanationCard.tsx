@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Question} from "../types/preptypes";
+import Modal from "./Modal";
 
 interface ExplanationCardProps {
     question: Question;
@@ -8,28 +9,50 @@ interface ExplanationCardProps {
 export const ExplanationCard: React.FC<ExplanationCardProps> = ({question}: ExplanationCardProps)
     : React.ReactElement<any, string | React.JSXElementConstructor<any>> => {
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
-        <div className="dark:bg-dark-900 dark:text-white dark:boldest mt-6 bg-white/10 border dark:border-blue-200 rounded-lg p-6 animate-fade-in">
-            <h4 className="font-semibold text-blue-800 mb-3 flex items-center text-lg">
+        <div
+            className="dark:bg-dark-800 decoration-amber-200 dark:text-white  mt-6 bg-white/10 border dark:border-white rounded-lg p-6 animate-fade-in">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-400 mb-3 flex items-center text-lg">
                 💡 Explanation
             </h4>
             <p className="dark:text-white dark:bolder text-gray-700 mb-4">{question.explanation}</p>
 
             {question.explanation_details && (
                 <>
-                    <div className="mt-6 bg-white/10 border border-gray-200 rounded-lg p-6 animate-fade-inmb-4">
-                        <h5 className="dark:text-white dark:bolder font-medium text-blue-700 mb-2">{question.explanation_details.summary}</h5>
+                    <div className="mt-6 bg-white/10 border border-gray-200 dark:border-gray-600 rounded-lg p-6 animate-fade-in mb-4">
+                        <h5 className="dark:text-white dark:bolder font-medium text-blue-700 dark:text-blue-400 mb-2">{question.explanation_details.summary}</h5>
                         <ul className="dark:text-white dark:bolder list-disc pl-5 text-gray-700 space-y-1">
                             {question.explanation_details.breakdown.map((item, i) => (
                                 <li key={i}>{item}</li>
                             ))}
-                            </ul>
+                        </ul>
                     </div>
 
-                    <div className="dark:bg-dark-800 dark:text-white mt-6 bg-gray-100 border border-gray-200 rounded-lg p-6 animate-fade-in text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                        <strong>Why other options are incorrect:</strong>
-                        <div className="mt-1 whitespace-pre-line">{question.explanation_details.otherOptions}</div>
-                    </div>
+                    {question.explanation_details.otherOptions && (
+                        <div className="mt-4">
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm hover:shadow-md"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Why other options are incorrect
+                            </button>
+
+                            <Modal
+                                isOpen={isModalOpen}
+                                onClose={() => setIsModalOpen(false)}
+                                title="Why other options are incorrect"
+                            >
+                                <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
+                                    {question.explanation_details.otherOptions}
+                                </div>
+                            </Modal>
+                        </div>
+                    )}
                 </>
             )}
         </div>)

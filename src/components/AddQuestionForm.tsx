@@ -1,10 +1,21 @@
 // src/components/AddQuestionForm.tsx
-import React, {useState, useEffect} from 'react';
-import {Question, QuestionOptionData, CertificationData} from '../types/preptypes';
+import React, {useEffect, useState} from 'react';
+import {CertificationData, QuestionOptionData} from '../types/preptypes';
 import {CERTIFICATIONS} from '../config/domainConfig';
 
 interface AddQuestionFormProps {
-    onSubmit: (question: Question) => Promise<boolean>;
+    onSubmit: (question: {
+        category: string;
+        difficulty: string;
+        domain: any;
+        question_text: string;
+        options: QuestionOptionData[];
+        correct_answer: string;
+        multiple_answers: boolean;
+        correct_answers: string[];
+        explanation: string;
+        explanation_details: { summary: string; breakdown: string[]; otherOptions: string }
+    }) => Promise<boolean>;
     onCancel: () => void;
     isLoading?: boolean;
 }
@@ -36,11 +47,11 @@ const DIFFICULTY_LEVELS = [
     'Expert'
 ];
 
-const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
-                                                             onSubmit,
-                                                             onCancel,
-                                                             isLoading = false
-                                                         }) => {
+const AddQuestionForm: React.FC<AddQuestionFormProps> = async ({
+                                                                   onSubmit,
+                                                                   onCancel,
+                                                                   isLoading = false
+                                                               }) => {
     const [formData, setFormData] = useState<FormData>({
         certification: 'comptia',
         domain: '',
@@ -190,7 +201,18 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
             .filter(opt => opt.isCorrect)
             .map(opt => opt.text);
 
-        const questionData: Question = {
+        const questionData: {
+            category: string;
+            difficulty: string;
+            domain: any;
+            question_text: string;
+            options: QuestionOptionData[];
+            correct_answer: string;
+            multiple_answers: boolean;
+            correct_answers: string[];
+            explanation: string;
+            explanation_details: { summary: string; breakdown: string[]; otherOptions: string }
+        } = {
             category: formData.category.trim(),
             difficulty: formData.difficulty,
             domain: selectedCertification?.domains.find(d => d.id === formData.domain)?.name || formData.domain,
@@ -213,6 +235,19 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
             console.error('Error submitting question:', error);
         }
     };
+
+    const handleOtherOptionsChange= async (event: any): Promise<void> => {
+        const newOtherOptions = event.target.value;
+        if (newOtherOptions.lenth > 0) {
+            setFormData(prev => ({
+                ...prev,
+                explanation_details: {
+                    ...prev.explanation_details,
+                    otherOptions: event.target.value
+                }
+            }));
+        }
+    }
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-dark-800 rounded-lg shadow-lg">
@@ -483,10 +518,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
                         </label>
                         <textarea
                             value={formData.explanation_details.otherOptions}
-                            onChange={(e) => setFormData(prev => ({
-                                ...prev,
-                                explanation_details: {...prev.explanation_details, otherOptions: e.target.value}
-                            }))}
+                            onChange={() => handleOtherOptionsChange}
                             placeholder="Explain why the other options are incorrect..."
                             rows={3}
                             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-700 text-gray-900 dark:text-white"

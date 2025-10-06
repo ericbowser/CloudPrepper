@@ -1,8 +1,8 @@
-// src/context/QuestionContext.tsx
+// src/context/QuestionContext.tsx - Enhanced with React Query
 import React, {createContext, useCallback, useContext, useEffect, useReducer} from 'react';
 import {CertificationData, Question} from '../types/preptypes';
 import {CERTIFICATIONS} from '../config/domainConfig';
-import {addQuestion, getQuestions, updateQuestion} from '../../api/questions_repository';
+import {useQuestionsQuery, useAddQuestionMutation, useUpdateQuestionMutation} from '../hooks/useQuestionsQuery';
 
 // Types for the context
 interface QuestionState {
@@ -211,20 +211,55 @@ const QuestionContext = createContext<QuestionContextType | null>(null);
 export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [state, dispatch] = useReducer(questionReducer, initialState);
 
-    // API call functions
+    // React Query hooks for enhanced caching
+    const { data: questionsData, isLoading: queryLoading, error: queryError, refetch } = useQuestionsQuery();
+    const addQuestionMutation = useAddQuestionMutation();
+    const updateQuestionMutation = useUpdateQuestionMutation();
+
+    // Sync React Query data with local state
+    useEffect(() => {
+        if (questionsData) {
+            dispatch({
+                type: 'SET_QUESTIONS',
+                payload: {
+                    comptiaQuestions: questionsData.comptiaQuestions || [],
+                    awsQuestions: questionsData.awsQuestions || []
+                }
+            });
+        }
+    }, [questionsData]);
+
+    // Sync loading state
+    useEffect(() => {
+        dispatch({type: 'SET_LOADING', payload: queryLoading});
+    }, [queryLoading]);
+
+    // Sync error state
+    useEffect(() => {
+        if (queryError) {
+            dispatch({
+                type: 'SET_ERROR',
+                payload: queryError instanceof Error ? queryError.message : 'Failed to fetch questions'
+            });
+        }
+    }, [queryError]);
+
+    // API call functions - now powered by React Query
     const fetchQuestions = useCallback(async () => {
         dispatch({type: 'SET_LOADING', payload: true});
         dispatch({type: 'SET_ERROR', payload: null});
 
         try {
-            const response = await getQuestions();
-            dispatch({
-                type: 'SET_QUESTIONS',
-                payload: {
-                    comptiaQuestions: response.comptiaQuestions || [],
-                    awsQuestions: response.awsQuestions || []
-                }
-            });
+            const result = await refetch();
+            if (result.data) {
+                dispatch({
+                    type: 'SET_QUESTIONS',
+                    payload: {
+                        comptiaQuestions: result.data.comptiaQuestions || [],
+                        awsQuestions: result.data.awsQuestions || []
+                    }
+                });
+            }
         } catch (error) {
             console.error('Error fetching questions:', error);
             dispatch({
@@ -232,20 +267,21 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
                 payload: error instanceof Error ? error.message : 'Failed to fetch questions'
             });
         }
-    }, []);
+    }, [refetch]);
 
     const addNewQuestion = useCallback(async (questionData: Question, certification: 'comptia' | 'aws'): Promise<Question> => {
         dispatch({type: 'SET_SUBMITTING', payload: true});
         dispatch({type: 'SET_ERROR', payload: null});
 
         try {
-            const response = await addQuestion(questionData);
+            // Use React Query mutation for better caching
+            const response = await addQuestionMutation.mutateAsync(questionData);
 
             if (response === null || response === undefined) {
                 throw new Error('HTTP error adding a new question.');
             }
 
-            const newQuestion = response.question;
+            const newQuestion = response.data?.question || response;
 
             dispatch({
                 type: 'ADD_QUESTION',
@@ -261,7 +297,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
             });
             throw error;
         }
-    }, []);
+    }, [addQuestionMutation]);
 
     const updateExistingQuestion = useCallback(async (questionId: number, updates: Question, certification: 'comptia' | 'aws'): Promise<Question> => {
         dispatch({type: 'SET_SUBMITTING', payload: true});
@@ -272,21 +308,23 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
                 ...updates,
                 certification: certification
             }
-            const response = await updateQuestion(questionId, updateData);
-            console.log(response);
 
-            if (!response.ok) {
-                throw new Error('HTTP error! status');
-            }
-
-            const updatedQuestion = response.question;
-
-            dispatch({
-                type: 'UPDATE_QUESTION',
-                payload: {question: updatedQuestion, certification}
+            // Use React Query mutation for better caching
+            const response = await updateQuestionMutation.mutateAsync({
+                question_id: questionId,
+                question: updateData
             });
 
-            return updatedQuestion;
+            if (response) {
+                const updatedQuestion = response.question || response;
+                dispatch({
+                    type: 'UPDATE_QUESTION',
+                    payload: {question: updatedQuestion, certification}
+                });
+                return updatedQuestion;
+            } else {
+                throw new Error('HTTP error! status');
+            }
         } catch (error) {
             console.error('Error updating question:', error);
             dispatch({
@@ -295,7 +333,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
             });
             throw error;
         }
-    }, []);
+    }, [updateQuestionMutation]);
 
     const deleteQuestion = useCallback(async (questionId: number, certification: 'comptia' | 'aws'): Promise<void> => {
         dispatch({type: 'SET_SUBMITTING', payload: true});
@@ -411,10 +449,7 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
     }, [state.comptiaQuestions, state.awsQuestions]);
 
 
-    // Load questions on mount
-    useEffect(() => {
-        fetchQuestions();
-    }, [fetchQuestions]);
+    // Questions are now automatically loaded by React Query - no manual fetch needed on mount
 
     const contextValue: QuestionContextType = {
         ...state,

@@ -10,9 +10,9 @@ interface PracticeSetupProps {
 }
 
 export const PracticeSetup: React.FC<PracticeSetupProps> = ({
-                                                                                    certification,
-                                                                                    onStartQuiz
-                                                                                }) => {
+                                                                certification,
+                                                                onStartQuiz
+                                                            }) => {
     // Selection state
     const [selectedTestType, setSelectedTestType] = useState<string>('practice');
     const [selectedDomains, setSelectedDomains] = useState<string[]>(['all']);
@@ -35,8 +35,9 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
     // Show message if no questions are loaded
     if (certification.totalQuestions === 0) {
         return (
-            <div className="max-w-4xl mx-auto p-6">
-                <div className="bg-yellow-50 border-yellow-400 border dark:bg-dark-700 dark:border-yellow-700 rounded-lg shadow p-8 text-center">
+            <div className="max-w-2xl mx-auto p-6">
+                <div
+                    className="bg-yellow-50 border-yellow-400 border dark:bg-dark-700 dark:border-yellow-700 rounded-lg shadow p-8 text-center">
                     <div className="text-yellow-600 mb-4">
                         <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

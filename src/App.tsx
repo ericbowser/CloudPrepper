@@ -19,7 +19,6 @@ import {Header} from "./components/Header";
 import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
 import {PracticeSetup} from "./components/PracticeSetup";
 import OcrProcessor from "./components/OcrProcessor";
-import QuestionManagement from "./components/QuestionManagement";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 
@@ -400,28 +399,28 @@ const CloudPrepApp: React.FC = () => {
     }
 
     const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
-        const baseClasses = "w-full text-left p-4 rounded-lg border transition-colors dark:text-gray-200";
+        const baseClasses = "w-full text-left p-5 rounded-xl border-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md";
 
         if (isAnswered !== null) {
             const isSelected = selectedAnswers.includes(option.text);
             if (option.isCorrect) {
-                return `${baseClasses} border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-700`;
+                return `${baseClasses} border-green-500 bg-green-50 dark:bg-green-900/30 dark:border-green-600 shadow-green-100 dark:shadow-green-900/50`;
             }
             if (isSelected && !option.isCorrect) {
-                return `${baseClasses} border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-700`;
+                return `${baseClasses} border-red-500 bg-red-50 dark:bg-red-900/30 dark:border-red-600 shadow-red-100 dark:shadow-red-900/50`;
             }
-            return `${baseClasses} border-gray-300 dark:border-gray-600`;
+            return `${baseClasses} border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-dark-800 opacity-75`;
         }
 
         if (selectedAnswers.includes(option.text)) {
-            return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-400`;
+            return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-blue-100 dark:shadow-blue-900/50`;
         }
 
-        return `${baseClasses} border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-dark-600`;
+        return `${baseClasses} border-gray-200 dark:border-gray-600 bg-white dark:bg-dark-800 hover:border-blue-300 hover:bg-blue-25 dark:hover:bg-dark-700 hover:ring-1 hover:ring-blue-200 dark:hover:ring-blue-800`;
     };
 
     return (
-        <div className="dark:bg-dark-800 dark:text-white bg-gray-50 text-black font-burtons">
+        <div className="dark:bg-dark-700 dark:text-white bg-gray-50 text-black font-burtons">
             <Header title={`${getCurrentCertification()?.name} Prepper`}>
                 <button
                     onClick={() => setShowOcr(true)}
@@ -444,9 +443,9 @@ const CloudPrepApp: React.FC = () => {
                 </button>
             </Header>
             {showQuestionForm ?
-                <QuestionManagement>
+                <QuestionManager>
 
-                </QuestionManagement>
+                </QuestionManager>
                 : null}
             {activeSection === 'dashboard' &&
               <Dashboard userAnswers={userAnswers} length={totalQuestions}></Dashboard>
@@ -460,88 +459,217 @@ const CloudPrepApp: React.FC = () => {
                         />
                     )}
                     {activeSection === 'quiz' && currentQuestion && (
-                        <div className="space-y-6">
-                            <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-lg font-medium">
-                                        Question {currentQuestionIndex + 1} of {totalQuestions}
-                                    </h2>
-                                    <div className="flex items-center space-x-2 text-white">
+                        <div className="space-y-8 animate-fade-in">
+                            {/* Enhanced Header Card */}
+                            <div
+                                className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-dark-800 dark:to-dark-700 rounded-2xl shadow-lg border border-blue-100 dark:border-dark-600 p-8">
+                                <div className="flex justify-between items-center mb-6">
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            Question {currentQuestionIndex + 1}
+                                        </h2>
+                                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                                            {totalQuestions} questions total
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center space-x-3">
+                                        <div className="text-right">
+                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Answer
+                                                Mode
+                                            </div>
+                                        </div>
                                         <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
                                     </div>
                                 </div>
 
-                                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                                    <div
-                                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                        style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
-                                    ></div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
-                                <div className="mb-4">
-                                    <span
-                                        className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-2">
-                                      {currentQuestion.category}
-                                    </span>
-                                    <span
-                                        className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mr-2">
-                                        {currentQuestion.difficulty}
-                                    </span>
-                                    <span
-                                        className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full dark:bg-green-900 dark:text-green-200">
-                                        {currentQuestion.domain}
-                                    </span>
-                                </div>
-
-                                <h3 className="text-lg font-medium mb-2">{currentQuestion.question_text}</h3>
-                                {currentQuestion.multiple_answers && (
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                                        (Select all that apply)
-                                    </p>
-                                )}
-
+                                {/* Enhanced Progress Bar */}
                                 <div className="space-y-3">
-                                    {currentQuestion.options.map((option, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleOptionSelection(option.text)}
-                                            className={getOptionClassName(option)}
-                                        >
-                                            {option.text}
-                                        </button>
-                                    ))}
+                                    <div
+                                        className="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <span>Progress</span>
+                                        <span>{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3 shadow-inner">
+                                        <div
+                                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+                                            style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
+                                        ></div>
+                                    </div>
                                 </div>
                             </div>
 
-                            {showExplanation && currentQuestion && (
-                                <ExplanationCard question={currentQuestion}/>
+                            {/* Enhanced Question Card */}
+                            <div
+                                className="bg-white dark:bg-dark-700 rounded-2xl shadow-xl border border-gray-100 dark:border-dark-600 overflow-hidden">
+                                <div className="p-8">
+                                    {/* Question Tags */}
+                                    <div className="flex flex-wrap gap-2 mb-6">
+                                        <span
+                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
+                                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd"
+                                                      d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z"
+                                                      clipRule="evenodd"/>
+                                            </svg>
+                                            {currentQuestion.category}
+                                        </span>
+                                        <span
+                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200 border border-purple-200 dark:border-purple-700">
+                                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd"
+                                                      d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                                      clipRule="evenodd"/>
+                                            </svg>
+                                            {currentQuestion.difficulty}
+                                        </span>
+                                        <span
+                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200 border border-green-200 dark:border-green-700">
+                                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd"
+                                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                      clipRule="evenodd"/>
+                                            </svg>
+                                            {currentQuestion.domain}
+                                        </span>
+                                    </div>
+
+                                    {/* Question Text */}
+                                    <div className="mb-8">
+                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white leading-relaxed mb-4">
+                                            {currentQuestion.question_text}
+                                        </h3>
+                                        {currentQuestion.multiple_answers && (
+                                            <div
+                                                className="flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+                                                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400"
+                                                     fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd"
+                                                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                          clipRule="evenodd"/>
+                                                </svg>
+                                                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                                                    Select all correct answers
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className={" m-8"}>
+
+                                        {/* Answer Options */}
+                                        <div className="space-y-4">
+                                            {currentQuestion.options.map((option, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleOptionSelection(option.text)}
+                                                    className={getOptionClassName(option)}
+                                                >
+                                                    <div className="flex items-start space-x-3">
+                                                        <div className="flex-shrink-0 mt-1">
+                                                            <div
+                                                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                                                    selectedAnswers.includes(option.text)
+                                                                        ? 'border-blue-500 bg-blue-500'
+                                                                        : 'border-gray-300 dark:border-gray-600'
+                                                                }`}>
+                                                                {selectedAnswers.includes(option.text) && (
+                                                                    <svg className="w-3 h-3 text-white"
+                                                                         fill="currentColor"
+                                                                         viewBox="0 0 20 20">
+                                                                        <path fillRule="evenodd"
+                                                                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                              clipRule="evenodd"/>
+                                                                    </svg>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-1 text-left">
+                                                        <span
+                                                            className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                            Option {String.fromCharCode(65 + index)}
+                                                        </span>
+                                                            <p className="mt-1 text-gray-900 dark:text-white">
+                                                                {option.text}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                            {/* Explanation Card */}
+                            {showExplanation && isAnswered !== null && (
+                                <ExplanationCard question={currentQuestion} />
                             )}
 
-                            <div className="flex justify-between">
+                            {/* Enhanced Navigation */}
+                            <div
+                                className="flex justify-between items-center bg-gray-50 dark:bg-dark-800 rounded-2xl p-6 border border-gray-200 dark:border-dark-600">
                                 <button
                                     onClick={previousQuestion}
                                     disabled={currentQuestionIndex === 0}
-                                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="inline-flex items-center px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
                                 >
+                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                              d="M15 19l-7-7 7-7"/>
+                                    </svg>
                                     Previous
                                 </button>
+
+                                <div className="text-center">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        {selectedAnswers.length > 0 && isAnswered === null
+                                            ? `${selectedAnswers.length} answer${selectedAnswers.length > 1 ? 's' : ''} selected`
+                                            : isAnswered !== null
+                                                ? (isAnswered ? '✓ Correct' : '✗ Incorrect')
+                                                : 'Select your answer'
+                                        }
+                                    </p>
+                                </div>
 
                                 {isAnswered === null ? (
                                     <button
                                         onClick={handleAnswerSubmission}
                                         disabled={selectedAnswers.length === 0}
-                                        className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:shadow-none font-medium"
                                     >
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                             viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                  d="M9 12l2 2 4-4"/>
+                                        </svg>
                                         Submit Answer
                                     </button>
                                 ) : (
                                     <button
                                         onClick={nextQuestion}
-                                        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                        className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-medium"
                                     >
-                                        {currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
+                                        {currentQuestionIndex === totalQuestions - 1 ? (
+                                            <>
+                                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                                     viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                          d="M9 12l2 2 4-4"/>
+                                                </svg>
+                                                Finish Quiz
+                                            </>
+                                        ) : (
+                                            <>
+                                                Next Question
+                                                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor"
+                                                     viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                          d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                            </>
+                                        )}
                                     </button>
                                 )}
                             </div>
