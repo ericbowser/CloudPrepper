@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS prepper.aws_certified_architect_associate_questions
     question_id integer NOT NULL,
     question_number integer NOT NULL,
     category text COLLATE pg_catalog."default",
-    difficulty text COLLATE pg_catalog."default",
     domain text COLLATE pg_catalog."default",
     question_text text COLLATE pg_catalog."default" NOT NULL,
     options jsonb NOT NULL,

@@ -1,0 +1,12 @@
+-- SCHEMA: prepper
+
+-- DROP SCHEMA IF EXISTS prepper ;
+
+CREATE SCHEMA IF NOT EXISTS prepper
+    AUTHORIZATION postgres;
+
+GRANT ALL ON SCHEMA prepper TO ericbo WITH GRANT OPTION;
+
+GRANT ALL ON SCHEMA prepper TO ericbowser WITH GRANT OPTION;
+
+GRANT ALL ON SCHEMA prepper TO postgres WITH GRANT OPTION;

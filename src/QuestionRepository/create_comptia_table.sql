@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS prepper.comptia_cloud_plus_questions
 (
     question_number integer NOT NULL DEFAULT nextval('prepper.comptia_question_number_seq'::regclass),
     category text COLLATE pg_catalog."default",
-    difficulty text COLLATE pg_catalog."default",
     domain text COLLATE pg_catalog."default",
     question_text text COLLATE pg_catalog."default" NOT NULL,
     options jsonb NOT NULL,
