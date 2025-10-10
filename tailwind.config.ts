@@ -25,6 +25,30 @@ const config: Config = {
                     700: '#343a40',
                     800: '#212529',
                     900: '#121417',
+                },
+                // Pastel theme colors
+                pastel: {
+                    // Primary mint & blue tones
+                    mint: '#B4E7CE',
+                    blue: '#A8D8EA',
+                    babyblue: '#C6E2FF',
+                    cyan: '#D4F1F4',
+
+                    // Light backgrounds
+                    mintlight: '#E8F5E9',
+                    bluelight: '#F0F8FF',
+                    aqua: '#B8E6E0',
+                    mintdark: '#7DD3C0',
+
+                    // Complementary accents
+                    pink: '#FFE5E5',
+                    cream: '#FFF4E6',
+                    lavender: '#E8D5F2',
+
+                    // Text colors
+                    text: '#4A5568',
+                    textlight: '#718096',
+                    border: '#E2E8F0',
                 }
             }
         },

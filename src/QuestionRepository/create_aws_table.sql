@@ -25,4 +25,4 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS prepper.aws_certified_architect_associate_questions
     OWNER to ericbo;
 
-GRANT ALL ON TABLE prepper.aws_certified_architect_associate_questions TO ericbo;
+GRANT ALL ON TABLE prepper.aws_certified_architect_associate_questions TO ericbo WITH GRANT OPTION;

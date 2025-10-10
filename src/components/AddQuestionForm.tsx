@@ -327,21 +327,6 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = async ({
                         {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Difficulty
-                        </label>
-                        <select
-                            value={formData.difficulty}
-                            onChange={(e) => handleInputChange('difficulty', e.target.value)}
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
-                            disabled={isLoading}
-                        >
-                            {DIFFICULTY_LEVELS.map(level => (
-                                <option key={level} value={level}>{level}</option>
-                            ))}
-                        </select>
-                    </div>
                 </div>
 
                 {/* Question Text */}

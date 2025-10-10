@@ -1,5 +1,5 @@
 // src/App.tsx - Updated for caching and state persistence
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
     AnswerMode,
     AnswerRecord,
@@ -17,10 +17,11 @@ import QuizResults from "./components/QuizResults";
 import {Dashboard} from "./components/Dashboard";
 import {Header} from "./components/Header";
 import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
-import {PracticeSetup} from "./components/PracticeSetup";
+import {BeginQuiz} from "./components/BeginQuiz";
 import OcrProcessor from "./components/OcrProcessor";
 import {QuizTimer} from "./components/QuizTimer";
 import Modal from "./components/Modal";
+import QuestionManagement from "./components/QuestionManagement";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 
@@ -102,7 +103,10 @@ const CloudPrepApp: React.FC = () => {
                 localStorage.removeItem(CACHE_KEY);
             }
         }
-        loadQuestionsFromApi();
+
+        loadQuestionsFromApi()
+            .then(() => console.log('questions loaded'))
+            .catch(err => console.log(err));
     }, []);
 
     // Effect to save state to localStorage whenever it changes
@@ -539,18 +543,18 @@ const CloudPrepApp: React.FC = () => {
                     Change Certification
                 </button>
             </Header>
-            {showQuestionForm ?
-                <QuestionManager>
+            {/*     {showQuestionForm ?
+                <QuestionManagement>
 
-                </QuestionManager>
-                : null}
+                </QuestionManagement>
+                : null}*/}
             {activeSection === 'dashboard' &&
               <Dashboard userAnswers={userAnswers} length={totalQuestions}></Dashboard>
             }
             <div className="min-h-screen bg-gray-100 dark:bg-dark-800">
                 <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                     {activeSection === 'practice' && (
-                        <PracticeSetup
+                        <BeginQuiz
                             certification={getCurrentCertification()}
                             onStartQuiz={handleStartQuiz}
                         />
@@ -570,11 +574,6 @@ const CloudPrepApp: React.FC = () => {
                                         </p>
                                     </div>
                                     <div className="flex items-center space-x-3">
-                                        <div className="text-right">
-                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Answer
-                                                Mode
-                                            </div>
-                                        </div>
                                         <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
                                     </div>
                                 </div>
@@ -597,7 +596,7 @@ const CloudPrepApp: React.FC = () => {
 
                             {/* Enhanced Question Card */}
                             <div
-                                className="bg-white dark:bg-dark-700 rounded-2xl shadow-xl border border-gray-100 dark:border-dark-600 overflow-hidden">
+                                className="bg-pastel-mintlight dark:bg-dark-900 rounded-2xl shadow-xl border border-red-50 dark:border-r-amber-600 overflow-hidden">
                                 <div className="p-8">
                                     {/* Question Tags */}
                                     <div className="flex flex-wrap gap-2 mb-6">

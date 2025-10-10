@@ -18,7 +18,6 @@ export const AnswerModeToggle: React.FC<AnswerModeToggleProps> = ({
 
     return (
         <div className="dark:bg-dark-700 dark:text-white flex items-center justify-center gap-3 mb-8">
-            <span className="text-sm font-medium text-white">Answer Mode:</span>
             <div className="flex bg-white/20 backdrop-blur-sm rounded-lg p-1">
                 <button
                     onClick={handleModeToggle}
@@ -28,7 +27,7 @@ export const AnswerModeToggle: React.FC<AnswerModeToggleProps> = ({
                             : 'text-white/80 hover:text-white'
                     }`}
                 >
-                    {answerMode === AnswerMode.inline ? `📝 Study Mode` : `🎯 Quiz Mode`}
+                    {answerMode === AnswerMode.inline ? `📝 Show Explanation` : `🎯 Keep Explanation Hidden`}
                 </button>
             </div>
         </div>

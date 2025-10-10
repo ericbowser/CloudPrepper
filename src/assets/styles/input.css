@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+    .btn-pastel {
+        @apply bg-pastel-mint text-pastel-text hover:bg-pastel-cyan;
+    }
+}
+
 /* Custom animations for quiz interface */
 @keyframes fade-in {
     from {

@@ -1,5 +1,5 @@
 // components/PracticeSetup.tsx - Updated for PostgreSQL integration
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {CertificationData, Question} from '../types/preptypes';
 import {QuizConfig} from "../types/preptypes";
 
@@ -9,7 +9,7 @@ interface PracticeSetupProps {
     onStartQuiz: (config: QuizConfig) => void;
 }
 
-export const PracticeSetup: React.FC<PracticeSetupProps> = ({
+export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                                                 certification,
                                                                 onStartQuiz
                                                             }) => {
@@ -22,11 +22,15 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
     const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
     const [timerMinutes, setTimerMinutes] = useState<number>(10);
 
+    useEffect(() => {
+        
+    }, [selectedTestType, timerMinutes, timerEnabled]);
+    
     // Show loading state if certification is not loaded yet
     if (!certification) {
         return (
             <div className="max-w-4xl mx-auto p-6">
-                <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-8 text-center">
+                <div className="bg-white dark:bg-dark-900 rounded-lg shadow p-8 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading certification data...</p>
                 </div>
@@ -39,7 +43,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
         return (
             <div className="max-w-2xl mx-auto p-6">
                 <div
-                    className="bg-yellow-50 border-yellow-400 border dark:bg-dark-700 dark:border-yellow-700 rounded-lg shadow p-8 text-center">
+                    className="bg-yellow-50 border-yellow-400 border dark:bg-dark-900 dark:border-yellow-700 rounded-lg shadow p-8 text-center">
                     <div className="text-yellow-600 mb-4">
                         <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -187,6 +191,12 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
             questions: certification.examInfo.questionCount
         }
     ];
+    
+    const handleQuestionTypeSelection = (optionValue: string) => {
+        setSelectedTestType(optionValue);
+        const timerMinutes = getQuestionCountForTestType();
+        setTimerMinutes(timerMinutes);
+    }
 
     const availableQuestions = getFilteredQuestionCount();
     const canStartQuiz = availableQuestions > 0;
@@ -204,9 +214,83 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
                         across {certification.domains.length} domains
                     </p>
                 </div>
+                {/* Filters */}
+                <div className="bg-pastel-mintlight text-black dark:bg-dark-900 dark:text-white grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Category Filter */}
+                    <div className="bg-white dark:bg-dark-900 rounded-lg shadow p-6">
+                        <h3 className="text-lg font-semibold mb-3">Category Focus</h3>
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="all">All Categories</option>
+                            {getAllCategories().map(category => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}\
+                        </select>
+                    </div>
+
+                    {/* Custom Question Count (for domain-focused) */}
+                    {selectedTestType === 'domain-focused' && (
+                        <div className="bg-white dark:bg-dark-900 rounded-lg shadow p-6">
+                            <h3 className="text-lg font-semibold mb-3">Question Count</h3>
+                            <input
+                                type="number"
+                                min="1"
+                                max={availableQuestions}
+                                value={questionCount}
+                                onChange={(e) => setQuestionCount(Number(e.target.value))}
+                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <p className="text-sm text-gray-500 mt-1">
+                                Max: {availableQuestions} available
+                            </p>
+                        </div>
+                    )}
+                    {/* Timer Configuration */}
+                    <div className=" rounded-lg shadow p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    Set a time limit for your quiz (recommended for exam simulation)
+                                </p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={timerEnabled}
+                                    onChange={(e) => setTimerEnabled(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+
+                        {timerEnabled && (
+                            <div className="mt-4">
+                                <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="180"
+                                    value={timerMinutes}
+                                    onChange={(e) => setTimerMinutes(Number(e.target.value))}
+                                    className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <p className="text-xs text-gray-500 mt-2">
+                                    💡 Exam time limit: {certification.examInfo.timeLimit} minutes
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 {/* Test Type Selection */}
-                <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
+                <div className="bg-white dark:bg-dark-900 rounded-lg shadow p-6">
                     <h2 className="text-xl font-semibold mb-4">Choose Test Type</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {testTypeOptions.map(option => (
@@ -217,7 +301,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
                                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                         : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500'
                                 }`}
-                                onClick={() => setSelectedTestType(option.value)}
+                                onClick={() => handleQuestionTypeSelection(option.value)}
                             >
                                 <div className="flex items-center mb-2">
                                     <span className="text-2xl mr-2">{option.icon}</span>
@@ -230,7 +314,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
                 </div>
 
                 {/* Domain Selection */}
-                <div className="bg-white dark:bg-dark-700 dark:text-white rounded-lg shadow p-6">
+                <div className="bg-white dark:bg-dark-900 dark:text-white rounded-lg shadow p-6">
                     <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {/* All Domains Option */}
@@ -276,101 +360,10 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
                     </div>
                 </div>
 
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Difficulty Filter */}
-                    <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
-                        <h3 className="text-lg font-semibold mb-3">Difficulty Level</h3>
-                        <select
-                            value={selectedDifficulty}
-                            onChange={(e) => setSelectedDifficulty(e.target.value)}
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option value="all">All Difficulties</option>
-                            {getAllDifficulties().map(difficulty => (
-                                <option key={difficulty} value={difficulty}>
-                                    {difficulty}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
 
-                    {/* Category Filter */}
-                    <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
-                        <h3 className="text-lg font-semibold mb-3">Category Focus</h3>
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option value="all">All Categories</option>
-                            {getAllCategories().map(category => (
-                                <option key={category} value={category}>
-                                    {category}
-                                </option>
-                            ))}\
-                        </select>
-                    </div>
-
-                    {/* Custom Question Count (for domain-focused) */}
-                    {selectedTestType === 'domain-focused' && (
-                        <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
-                            <h3 className="text-lg font-semibold mb-3">Question Count</h3>
-                            <input
-                                type="number"
-                                min="1"
-                                max={availableQuestions}
-                                value={questionCount}
-                                onChange={(e) => setQuestionCount(Number(e.target.value))}
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                            <p className="text-sm text-gray-500 mt-1">
-                                Max: {availableQuestions} available
-                            </p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Timer Configuration */}
-                <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Set a time limit for your quiz (recommended for exam simulation)
-                            </p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={timerEnabled}
-                                onChange={(e) => setTimerEnabled(e.target.checked)}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-
-                    {timerEnabled && (
-                        <div className="mt-4">
-                            <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
-                            <input
-                                type="number"
-                                min="1"
-                                max="180"
-                                value={timerMinutes}
-                                onChange={(e) => setTimerMinutes(Number(e.target.value))}
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                            <p className="text-xs text-gray-500 mt-2">
-                                💡 Exam time limit: {certification.examInfo.timeLimit} minutes
-                            </p>
-                        </div>
-                    )}
-                </div>
 
                 {/* Start Quiz Section */}
-                <div className="bg-white dark:bg-dark-700 rounded-lg shadow p-6">
+                <div className="bg-white dark:bg-dark-900 rounded-lg shadow p-6">
                     <div className="flex justify-between items-center">
                         <div>
                             <h3 className="text-lg font-semibold">Ready to Start?</h3>
@@ -400,7 +393,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
                 </div>
 
                 {/* Exam Information */}
-                <div className="bg-gray-50 dark:bg-dark-700 rounded-lg p-6">
+                <div className="bg-gray-50 dark:bg-dark-900 rounded-lg p-6">
                     <h3 className="text-lg font-semibold mb-3">Exam Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <div>
@@ -427,3 +420,5 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({
         </div>
     );
 };
+
+export default BeginQuiz;
