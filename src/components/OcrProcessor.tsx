@@ -37,7 +37,7 @@ const OcrProcessor: React.FC = () => {
     };
 
     return (
-        <div className="container p-6 max-w-2xl mx-auto bg-white dark:bg-dark-700 rounded-lg shadow-md">
+        <div className="container p-6 max-w-2xl mx-auto bg-pastel-mintlight dark:bg-dark-700 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4">OCR Processor</h2>
             <div className="mb-4">
                 <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -71,7 +71,7 @@ const OcrProcessor: React.FC = () => {
                         cols={20}
                         readOnly
                         value={text}
-                        className="w-full h-64 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-dark-800"
+                        className="w-full h-64 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-pastel-bluelight dark:bg-dark-800"
                     />
                 </div>
             )}

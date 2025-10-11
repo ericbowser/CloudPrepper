@@ -19,7 +19,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
             ></div>
 
             {/* Modal Content */}
-            <div className="relative bg-white dark:bg-dark-800 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden border border-gray-200 dark:border-gray-600 animate-fade-in">
+            <div className="relative bg-pastel-mintlight dark:bg-dark-800 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden border border-gray-200 dark:border-gray-600 animate-fade-in">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600">
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white">

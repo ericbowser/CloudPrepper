@@ -307,7 +307,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-dark-800 rounded-lg shadow-lg">
+        <div className="max-w-4xl mx-auto p-6 bg-pastel-mintlight dark:bg-dark-800 rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -343,7 +343,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                         <select
                             value={formData.domain}
                             onChange={(e) => handleInputChange('domain', e.target.value)}
-                            className={`w-full p-3 border rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white ${
+                            className={`w-full p-3 border rounded-md bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white ${
                                 errors.domain ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                             }`}
                             disabled={isLoading}
@@ -367,7 +367,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                             value={formData.category}
                             onChange={(e) => handleInputChange('category', e.target.value)}
                             placeholder="e.g., Cloud Architecture - Service Models"
-                            className={`w-full p-3 border rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white ${
+                            className={`w-full p-3 border rounded-md bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white ${
                                 errors.category ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                             }`}
                             disabled={isLoading}
@@ -385,7 +385,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                         <select
                             value={formData.difficulty}
                             onChange={(e) => handleInputChange('difficulty', e.target.value)}
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white"
                             disabled={isLoading}
                         >
                             {DIFFICULTY_LEVELS.map(level => (
@@ -405,7 +405,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                         onChange={(e) => handleInputChange('question_text', e.target.value)}
                         placeholder="Enter the question text here..."
                         rows={4}
-                        className={`w-full p-3 border rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white ${
+                        className={`w-full p-3 border rounded-md bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white ${
                             errors.question_text ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                         disabled={isLoading}
@@ -461,7 +461,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                                         value={option.text}
                                         onChange={(e) => handleOptionChange(index, 'text', e.target.value)}
                                         placeholder={`Option ${String.fromCharCode(65 + index)}`}
-                                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white"
                                         disabled={isLoading}
                                     />
                                 </div>
@@ -492,7 +492,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                         onChange={(e) => handleInputChange('explanation', e.target.value)}
                         placeholder="Explain why the correct answer(s) are correct..."
                         rows={3}
-                        className={`w-full p-3 border rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white ${
+                        className={`w-full p-3 border rounded-md bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white ${
                             errors.explanation ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                         }`}
                         disabled={isLoading}
@@ -518,7 +518,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                                 explanation_details: {...prev.explanation_details, summary: e.target.value}
                             }))}
                             placeholder="Brief summary for detailed explanation..."
-                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white"
                             disabled={isLoading}
                         />
                     </div>
@@ -545,7 +545,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                                         value={point}
                                         onChange={(e) => updateBreakdownPoint(index, e.target.value)}
                                         placeholder={`Breakdown point ${index + 1}...`}
-                                        className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                                        className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white"
                                         disabled={isLoading}
                                     />
                                     {formData.explanation_details.breakdown.length > 1 && (
@@ -575,7 +575,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                             }))}
                             placeholder="Explain why the other options are incorrect..."
                             rows={3}
-                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white"
                             disabled={isLoading}
                         />
                     </div>

@@ -64,7 +64,7 @@ export const QuizTimer: React.FC<QuizTimerProps> = ({ duration, onTimeUp, isPaus
     };
 
     return (
-        <div className="bg-white dark:bg-dark-700 rounded-xl shadow-lg border border-gray-200 dark:border-dark-600 p-6">
+        <div className="bg-pastel-mintlight dark:bg-dark-700 rounded-xl shadow-lg border border-gray-200 dark:border-dark-600 p-6">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                     <svg className={`w-6 h-6 ${getTimerColor()}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

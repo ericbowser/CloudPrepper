@@ -24,7 +24,7 @@ export const CertificationSelectionPage: React.FC<CertificationSelectionPageProp
                     <div
                         key={cert.id}
                         onClick={() => onSelectCertification(cert.id)}
-                        className="bg-white dark:bg-dark-700 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                        className="bg-pastel-mintlight dark:bg-dark-700 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
                     >
                         <div className="p-6 sm:p-8">
                             <div className="flex items-center">

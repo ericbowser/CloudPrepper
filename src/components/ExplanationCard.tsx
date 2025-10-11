@@ -22,7 +22,7 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({question, onPro
 
             {question.explanation_details && (
                 <>
-                    <div className="mt-6 bg-white/10 border border-gray-200 dark:border-gray-600 rounded-lg p-6 animate-fade-in mb-4">
+                    <div className="mt-6 bg-pastel-bluelight dark:bg-white/10 border border-gray-200 dark:border-gray-600 rounded-lg p-6 animate-fade-in mb-4">
                         <h5 className="dark:text-white dark:bolder font-medium text-blue-700 dark:text-blue-400 mb-2">{question.explanation_details.summary}</h5>
                         <ul className="dark:text-white dark:bolder list-disc pl-5 text-gray-700 space-y-1">
                             {question.explanation_details.breakdown.map((item, i) => (
@@ -62,7 +62,7 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({question, onPro
     if (!showInModal) {
         return (
             <div
-                className="dark:bg-dark-800 decoration-amber-200 dark:text-white  mt-6 bg-white/10 border dark:border-white rounded-lg p-6 animate-fade-in">
+                className="dark:bg-dark-800 decoration-amber-200 dark:text-white  mt-6 bg-pastel-mintlight dark:bg-white/10 border dark:border-white rounded-lg p-6 animate-fade-in">
                 {explanationContent}
             </div>
         );

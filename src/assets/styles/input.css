@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Add to src/assets/styles/input.css */
+@layer base {
+    .light {
+        /* Set pastel backgrounds as defaults */
+        --color-bg-primary: theme('colors.pastel.bluelight');
+        --color-bg-secondary: theme('colors.pastel.mintlight');
+        --color-bg-card: theme('colors.white');
+        --color-text-primary: theme('colors.pastel.text');
+        --color-text-secondary: theme('colors.pastel.textlight');
+        --color-border: theme('colors.pastel.border');
+    }
+}
+
 @layer components {
     .btn-pastel {
         @apply bg-pastel-mint text-pastel-text hover:bg-pastel-cyan;
