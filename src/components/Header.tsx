@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import {ThemeToggle} from "../contexts/ThemeContext";
+import {ThemeToggle} from "../Theme/ThemeContext";
 
 interface HeaderProps {
     title: string;

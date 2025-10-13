@@ -11,17 +11,18 @@ import {
 } from "./types/preptypes";
 import {updateCertificationWithQuestions} from "./config/domainConfig";
 import ExplanationCard from "./components/ExplanationCard";
-import {AnswerModeToggle} from "./components/AnswerModeToggle";
+import {AnswerModeToggle} from "./components/Answer/AnswerModeToggle";
 import {getQuestions} from '../api/questions_repository';
-import QuizResults from "./components/QuizResults";
+import QuizResults from "./components/Quiz/QuizResults";
 import {Dashboard} from "./components/Dashboard";
 import {Header} from "./components/Header";
-import {CertificationSelectionPage} from "./components/CertificationSelectionPage";
-import {BeginQuiz} from "./components/BeginQuiz";
+import {CertificationSelection, CertificationSelectionPage} from "./components/CertificationSelectionPage";
+import {BeginQuiz} from "./components/Quiz/BeginQuiz";
 import OcrProcessor from "./components/OcrProcessor";
-import {QuizTimer} from "./components/QuizTimer";
 import Modal from "./components/Modal";
-import QuestionManagement from "./components/QuestionManagement";
+//TODO
+import {QuizTimer} from "./components/Quiz/QuizTimer";
+import QuestionManagement from "./components/Question/QuestionManagement";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 
@@ -455,7 +456,7 @@ const CloudPrepApp: React.FC = () => {
                         OCR Tool
                     </button>
                 </Header>
-                <CertificationSelectionPage
+                <CertificationSelection
                     certifications={loadedCertifications}
                     onSelectCertification={(certId) => {
                         setCurrentCertification(certId);
@@ -468,12 +469,12 @@ const CloudPrepApp: React.FC = () => {
     }
 
     const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
-        const baseClasses = "w-full text-left p-5 rounded-xl border-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md ";
+        const baseClasses = "bg-pastel-lightGreen w-full text-left p-5 rounded-xl border-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md ";
 
         if (isAnswered !== null) {
             const isSelected = selectedAnswers.includes(option.text);
             if (option.isCorrect) {
-                return `${baseClasses} border-green-500 bg-green-50 dark:bg-green-900/30 dark:border-green-600 shadow-green-100 dark:shadow-green-900/50`;
+                return `${baseClasses} border-green-500 bg-pastel-green dark:bg-green-900/30 dark:border-green-600 shadow-green-100 dark:shadow-green-900/50`;
             }
             if (isSelected && !option.isCorrect) {
                 return `${baseClasses} border-red-500 bg-red-50 dark:bg-red-900/30 dark:border-red-600 shadow-red-100 dark:shadow-red-900/50`;
@@ -485,7 +486,7 @@ const CloudPrepApp: React.FC = () => {
             return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-blue-100 dark:shadow-blue-900/50`;
         }
 
-        return `${baseClasses} border-gray-200 dark:border-gray-600 bg-pastel-mint dark:bg-dark-900 hover:border-blue-300 hover:bg-blue-25 dark:hover:bg-dark-700 hover:ring-1 hover:ring-blue-200 dark:hover:ring-blue-800`;
+        return `${baseClasses} border-blue-400 dark:border-gray-600  dark:bg-dark-900 hover:border-blue-300 hover:bg-blue-25 dark:hover:bg-dark-700 hover:ring-1 hover:ring-blue-200 dark:hover:ring-blue-800`;
     };
 
     return (
@@ -663,10 +664,10 @@ const CloudPrepApp: React.FC = () => {
                                                     <div className="flex items-start space-x-3">
                                                         <div className="flex-shrink-0 mt-1">
                                                             <div
-                                                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                                                className={`font-NewTimesRoman size-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                                                     selectedAnswers.includes(option.text)
-                                                                        ? 'border-blue-500 bg-blue-500'
-                                                                        : 'border-gray-300 dark:border-gray-600'
+                                                                        ? 'border-blue-600  bg-blue-500'
+                                                                        : ' border-amber-900 dark:border-blue-100  dark:border-gray-600'
                                                                 }`}>
                                                                 {selectedAnswers.includes(option.text) && (
                                                                     <svg className="w-3 h-3 text-white"
@@ -679,8 +680,8 @@ const CloudPrepApp: React.FC = () => {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="flex-1 text-left">
-                                                            <p className="mt-1 text-gray-900 dark:text-white">
+                                                        <div className="flex-1 text-left ">
+                                                            <p className="mt-1 text-gray-900 dark:text-white bold font-NewTimesRoman cursor-pointer">
                                                                 {option.text}
                                                             </p>
                                                         </div>

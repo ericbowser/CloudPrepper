@@ -10,7 +10,8 @@ const config: Config = {
     theme: {
         extend: {
             fontFamily: {
-                burtons: ['Burtons']
+                NewTimesRoman: ['NewTimesRoman'],
+                Burtons: ['burtons']
             },
             colors: {
                 // Custom dark mode colors
@@ -45,10 +46,13 @@ const config: Config = {
                     cream: '#FFF4E6',
                     lavender: '#E8D5F2',
 
+                    lightRed: '#f5a4b9',
+                    lightGreen: 'rgba(175,245,176,0.57)',
+                    
                     // Text colors
                     text: '#4A5568',
                     textlight: '#718096',
-                    border: '#E2E8F0',
+                    border: '#E2E8F0'
                 }
             }
         },

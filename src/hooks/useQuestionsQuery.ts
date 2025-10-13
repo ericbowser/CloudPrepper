@@ -15,6 +15,12 @@ export const questionKeys = {
   aws: () => [...questionKeys.all, 'aws'] as const,
 };
 
+export async function clearCache() {
+    const client = useQueryClient();
+    await client.clear();
+    console.debug();
+}
+
 // Main hook to fetch all questions with React Query caching
 export const useQuestionsQuery = () => {
   return useQuery<AllQuestionsResponse>({
@@ -29,7 +35,7 @@ export const useQuestionsQuery = () => {
 };
 
 // Mutation for adding a new question
-export const useAddQuestionMutation = () => {
+export const useAddQuestionMutation = async ()  => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -43,9 +49,9 @@ export const useAddQuestionMutation = () => {
 
       return { previousQuestions };
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // Invalidate and refetch questions
-      queryClient.invalidateQueries({ queryKey: questionKeys.all });
+      await queryClient.invalidateQueries({ queryKey: questionKeys.all });
 
       // Clear localStorage cache to stay in sync
       localStorage.removeItem('allQuestions');

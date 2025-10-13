@@ -1,7 +1,7 @@
 // components/PracticeSetup.tsx - Updated for PostgreSQL integration
 import React, {useEffect, useRef, useState} from 'react';
-import type {CertificationData, Question} from '../types/preptypes';
-import {QuizConfig} from "../types/preptypes";
+import type {CertificationData, Question} from '../../types/preptypes';
+import {QuizConfig} from "../../types/preptypes";
 
 
 interface PracticeSetupProps {
@@ -32,7 +32,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
     if (!certification) {
         return (
             <div className="max-w-4xl mx-auto p-6">
-                <div className="bg-pastel-mintlight dark:bg-dark-900 rounded-lg shadow p-8 text-center">
+                <div className="bg-pastel-aqua dark:bg-dark-900 rounded-lg shadow shadow-xl p-8 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading certification data...</p>
                 </div>
@@ -216,7 +216,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                 </div>
 
                 {/* Test Type Selection */}
-                <div className="bg-pastel-aqua dark:bg-dark-900 rounded-lg shadow p-6 dark:border-green-900">
+                <div className="font-Burtons bg-pastel-mint dark:bg-dark-900 rounded-lg shadow p-6 dark:border-green-900">
                     <h2 className="text-xl font-semibold mb-4">Choose Test Type</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {testTypeOptions.map(option => (
@@ -285,10 +285,10 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
 
 
                     </div>
-                    <div className="bg-pastel-pink flex items-center rounded-lg shadow p-4 m-2">
+                    <div className="font-Burtons bg-pastel-aqua text-black bolder flex items-center rounded-lg shadow p-4 m-8">
                         <div>
                             <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-sm text-gray-600 dark:text-gray-900">
                                 Set a time limit for your quiz (recommended for exam simulation)
                             </p>
                         </div>
@@ -303,7 +303,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                 className="sr-only peer"
                             />
                             <div
-                                className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-pastel-mintlight after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-pastel-mint after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
 
@@ -325,7 +325,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                     )}
                 </div>
                 {/* Domain Selection */}
-                <div className="bg-pastel-mint dark:bg-dark-900 dark:text-white rounded-lg shadow p-6">
+                <div className="font-Burtons bg-pastel-mint dark:bg-dark-900 dark:text-white rounded-lg shadow p-6">
                     <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
                     <div
                         className="bg-pastel-mint dark:bg-dark-900 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -351,7 +351,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                         {certification.domains.map(domain => (
                             <div
                                 key={domain.id}
-                                className={`dark:bg-dark-900 bg-pastel-pink p-4 rounded-lg border-2 cursor-pointer transition-all shadow shadow-2xl ${
+                                className={`font-Burtons dark:bg-dark-900 bg-pastel-pink p-4 rounded-lg border-2 cursor-pointer transition-all shadow shadow-2xl ${
                                     selectedDomains.includes(domain.id)
                                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                         : 'border-gray-200 dark:border-gray-600 hover:border-blue-300'
@@ -373,7 +373,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                 </div>
 
                 {/* Start Quiz Section */}
-                <div className="bg-pastel-mintlight dark:bg-dark-900 rounded-lg shadow p-6">
+                <div className="font-Burtons bg-pastel-mintlight dark:bg-dark-900 rounded-lg shadow p-6">
                     <div className="flex justify-between items-center">
                         <div>
                             <h3 className="text-lg font-semibold">Ready to Start?</h3>
@@ -403,7 +403,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                 </div>
 
                 {/* Exam Information */}
-                <div className="bg-pastel-cream dark:bg-dark-900 rounded-lg p-6">
+                <div className="font-Burtons bg-pastel-cream dark:bg-dark-900 rounded-lg p-6">
                     <h3 className="text-lg font-semibold mb-3">Exam Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <div>

@@ -6,7 +6,7 @@ interface CertificationSelectionPageProps {
     onSelectCertification: (certId: 'comptia' | 'aws') => void;
 }
 
-export const CertificationSelectionPage: React.FC<CertificationSelectionPageProps> = ({certifications, onSelectCertification}) => {
+export const CertificationSelection: React.FC<CertificationSelectionPageProps> = ({certifications, onSelectCertification}) => {
 
     return (
         <main className="max-w-4xl mx-auto py-12 sm:px-6 lg:px-8">
