@@ -47,7 +47,7 @@ const DIFFICULTY_LEVELS = [
     'Expert'
 ];
 
-const AddQuestionForm: React.FC<AddQuestionFormProps> = async ({
+const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
                                                                    onSubmit,
                                                                    onCancel,
                                                                    isLoading = false

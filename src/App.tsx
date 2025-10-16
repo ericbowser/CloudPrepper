@@ -48,12 +48,14 @@ const CloudPrepApp: React.FC = () => {
     const [isAnswered, setIsAnswered] = useState<boolean | null>(null);
     const [answerMode, setAnswerMode] = useState<AnswerMode>(AnswerMode.inline);
     const [showExplanation, setShowExplanation] = useState<boolean>(false);
-    const [showExplanationModal, setShowExplanationModal] = useState<boolean>(false);
 
     // Current quiz questions and index
     const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [currentQuizConfig, setCurrentQuizConfig] = useState<QuizConfig | null>(null);
+
+    // Ref for explanation element
+    const explanationRef = React.useRef<HTMLDivElement>(null);
 
     // Timer state
     const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
@@ -286,7 +288,13 @@ const CloudPrepApp: React.FC = () => {
 
         if (answerMode === AnswerMode.inline) {
             setShowExplanation(true);
-            setShowExplanationModal(true);
+            // Scroll to explanation after a brief delay to allow render
+            setTimeout(() => {
+                explanationRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+            }, 100);
         }
     };
 
@@ -308,7 +316,6 @@ const CloudPrepApp: React.FC = () => {
 
     // Navigate to next question
     const nextQuestion = () => {
-        setShowExplanationModal(false);
         if (currentQuestionIndex < totalQuestions - 1) {
             const nextIndex = currentQuestionIndex + 1;
             const nextQuestionData = currentQuizQuestions[nextIndex];
@@ -695,53 +702,11 @@ const CloudPrepApp: React.FC = () => {
 
                             </div>
 
-                            {/* Explanation Card - Only show if NOT inline mode or modal is closed */}
-                            {showExplanation && isAnswered !== null && answerMode !== AnswerMode.inline && (
-                                <ExplanationCard question={currentQuestion}/>
-                            )}
-
-                            {/* Explanation Modal - Only for inline mode */}
-                            {answerMode === AnswerMode.inline && showExplanationModal && isAnswered !== null && (
-                                <Modal
-                                    isOpen={showExplanationModal}
-                                    onClose={() => setShowExplanationModal(false)}
-                                    title={isAnswered ? "✓ Correct Answer!" : "✗ Incorrect Answer"}
-                                >
-                                    <div className="space-y-4">
-                                        <ExplanationCard question={currentQuestion} showInModal={false}/>
-
-                                        <div
-                                            className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-600">
-                                            <button
-                                                onClick={() => {
-                                                    setShowExplanationModal(false);
-                                                    nextQuestion();
-                                                }}
-                                                className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium shadow-sm hover:shadow-md"
-                                            >
-                                                {currentQuestionIndex === totalQuestions - 1 ? (
-                                                    <>
-                                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor"
-                                                             viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round"
-                                                                  strokeWidth={2} d="M9 12l2 2 4-4"/>
-                                                        </svg>
-                                                        Finish Quiz
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        Continue
-                                                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor"
-                                                             viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round"
-                                                                  strokeWidth={2} d="M9 5l7 7-7 7"/>
-                                                        </svg>
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </Modal>
+                            {/* Explanation Card - Show inline when answer is submitted */}
+                            {showExplanation && isAnswered !== null && (
+                                <div ref={explanationRef} className="scroll-mt-4">
+                                    <ExplanationCard question={currentQuestion}/>
+                                </div>
                             )}
 
                             {/* Enhanced Navigation */}

@@ -15,12 +15,6 @@ export const questionKeys = {
   aws: () => [...questionKeys.all, 'aws'] as const,
 };
 
-export async function clearCache() {
-    const client = useQueryClient();
-    await client.clear();
-    console.debug();
-}
-
 // Main hook to fetch all questions with React Query caching
 export const useQuestionsQuery = () => {
   return useQuery<AllQuestionsResponse>({

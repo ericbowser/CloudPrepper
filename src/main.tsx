@@ -18,7 +18,7 @@ root.render(
             <ThemeProvider>
                 <QuestionProvider>
                     <BrowserRouter>
-                        <div className={'font-thin font-serif font-light'}>
+                        <div className={'font-thin font-light'}>
                             {/* Navigation */}
                             <nav className="bg-gradient-to-r from-slate-900 to-purple-900 border-b border-white/10">
                                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
