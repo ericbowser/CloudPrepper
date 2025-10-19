@@ -1,5 +1,5 @@
 // components/PracticeSetup.tsx - Updated for PostgreSQL integration
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {CertificationData, Question} from '../../types/preptypes';
 import {QuizConfig} from "../../types/preptypes";
 
@@ -216,13 +216,14 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                 </div>
 
                 {/* Test Type Selection */}
-                <div className="font-Burtons bg-pastel-mint dark:bg-dark-900 rounded-lg shadow p-6 dark:border-green-900">
+                <div
+                    className="font-Burtons bg-pastel-mint dark:bg-dark-900 rounded-lg shadow p-6 dark:border-green-900">
                     <h2 className="text-xl font-semibold mb-4">Choose Test Type</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {testTypeOptions.map(option => (
-                            <div 
+                            <div
                                 key={option.value}
-                                className={`bg-pastel-pink dark:bg-dark-900 shadow shadow-2xl p-4 rounded-lg border-2 cursor-pointer transition-all dark:shadow dark:shadow-blue-900/50 ${
+                                className={`text-xl bg-pastel-pink dark:bg-dark-900 shadow shadow-2xl p-4 rounded-lg border-2 cursor-pointer transition-all dark:shadow dark:shadow-blue-900/50 ${
                                     selectedTestType === option.value
                                         ? 'border-blue-500 bg-blue-50 dark:bg-dark-900 '
                                         : 'border-gray-200 dark:border-pastel-cream hover:border-blue-300 dark:hover:border-blue-500'
@@ -285,7 +286,8 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
 
 
                     </div>
-                    <div className="font-Burtons bg-pastel-aqua text-black bolder flex items-center rounded-lg shadow p-4 m-8">
+                    <div
+                        className="font-Burtons bg-pastel-aqua text-black bolder flex items-center rounded-lg shadow p-4 m-8">
                         <div>
                             <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-900">

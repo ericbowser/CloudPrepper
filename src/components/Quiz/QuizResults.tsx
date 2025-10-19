@@ -5,7 +5,8 @@ const QuizResults: React.FC<{
     userAnswers: AnswerRecord[] | null;
     questions: Question[];
     onRestart: () => void;
-}> = ({userAnswers, questions, onRestart}) => {
+    onBackToSelection?: () => void;
+}> = ({userAnswers, questions, onRestart, onBackToSelection}) => {
     const totalQuestions = questions.length;
     if (!userAnswers || userAnswers.length === 0) return null;
 
@@ -87,6 +88,14 @@ const QuizResults: React.FC<{
                     >
                         Retake Quiz
                     </button>
+                    {onBackToSelection && (
+                        <button
+                            onClick={onBackToSelection}
+                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors"
+                        >
+                            Back to Quiz Selection
+                        </button>
+                    )}
                     <button
                         onClick={() => window.print()}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"

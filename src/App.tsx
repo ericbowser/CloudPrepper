@@ -1,5 +1,5 @@
 // src/App.tsx - Updated for caching and state persistence
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     AnswerMode,
     AnswerRecord,
@@ -16,13 +16,10 @@ import {getQuestions} from '../api/questions_repository';
 import QuizResults from "./components/Quiz/QuizResults";
 import {Dashboard} from "./components/Dashboard";
 import {Header} from "./components/Header";
-import {CertificationSelection, CertificationSelectionPage} from "./components/CertificationSelectionPage";
+import {CertificationSelection} from "./components/CertificationSelectionPage";
 import {BeginQuiz} from "./components/Quiz/BeginQuiz";
-import OcrProcessor from "./components/OcrProcessor";
-import Modal from "./components/Modal";
+import ExtractImageText from "./components/Admin/ExtractImageText";
 //TODO
-import {QuizTimer} from "./components/Quiz/QuizTimer";
-import QuestionManagement from "./components/Question/QuestionManagement";
 
 const CACHE_KEY = 'cloudPrepQuizState';
 
@@ -405,7 +402,7 @@ const CloudPrepApp: React.FC = () => {
     const ocrModal = showOcr && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
             <div className="relative bg-pastel-mintlight dark:bg-dark-900 p-4 rounded-lg shadow-lg max-w-3xl w-full">
-                <OcrProcessor/>
+                <ExtractImageText/>
                 <button
                     onClick={() => setShowOcr(false)}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
@@ -568,7 +565,7 @@ const CloudPrepApp: React.FC = () => {
                         />
                     )}
                     {activeSection === 'quiz' && currentQuestion && (
-                        <div className="space-y-8 animate-fade-in">
+                        <div className="space-y-8 animate-fade-in max-w-5xl mx-auto">
                             {/* Enhanced Header Card */}
                             <div
                                 className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-dark-800 dark:to-dark-700 rounded-2xl shadow-lg border border-blue-100 dark:border-dark-600 p-8">
@@ -604,7 +601,7 @@ const CloudPrepApp: React.FC = () => {
 
                             {/* Enhanced Question Card */}
                             <div
-                                className="bg-pastel-mintlight dark:bg-dark-900 rounded-2xl shadow-xl border border-red-50 dark:border-r-amber-600 overflow-hidden">
+                                className="text-xl bg-pastel-mintlight dark:bg-dark-900 rounded-2xl shadow-xl border border-red-50 dark:border-r-amber-600 overflow-hidden">
                                 <div className="p-8">
                                     {/* Question Tags */}
                                     <div className="flex flex-wrap gap-2 mb-6">
@@ -794,6 +791,7 @@ const CloudPrepApp: React.FC = () => {
                             userAnswers={userAnswers}
                             questions={currentQuizQuestions}
                             onRestart={handleRestartQuiz}
+                            onBackToSelection={resetQuiz}
                         />
                     )}
                 </main>

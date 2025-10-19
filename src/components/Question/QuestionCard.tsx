@@ -25,7 +25,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({question, onEdit, onDelete})
         : [];
 
     return (
-        <div className="bg-pastel-mintlight dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-lg p-6 shadow-sm">
+        <div
+            className="text-2xl bg-pastel-mintlight dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-lg p-6 shadow-sm">
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
