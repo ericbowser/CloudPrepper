@@ -330,17 +330,17 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                 <div className="font-Burtons bg-pastel-mint dark:bg-dark-900 dark:text-white rounded-lg shadow p-6">
                     <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
                     <div
-                        className="bg-pastel-mint dark:bg-dark-900 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        className="dark:bg-dark-900 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {/* All Domains Option */}
                         <div
-                            className={`bg-pastel-pink dark:bg-dark-900 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                            className={`bg-pastel-mint dark:bg-dark-900 p-4 rounded-lg border-2 cursor-pointer transition-all ${
                                 selectedDomains.includes('all')
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                    : 'border-gray-200 dark:border-gray-600 hover:border-blue-300'
+                                    ? 'border-pastel-border bg-blue-50 dark:bg-blue-900/20'
+                                    : 'border-pastel-border dark:border-gray-600 hover:border-blue-300'
                             }`}
                             onClick={() => handleDomainToggle('all')}
                         >
-                            <div className=" flex items-center justify-between mb-2">
+                            <div className="flex items-center justify-between mb-2">
                                 <span className="font-medium">All Domains</span>
                                 <span className="text-2xl">🌐</span>
                             </div>

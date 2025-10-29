@@ -17,5 +17,7 @@ src/assets/styles/output.css
 /src/assets/styles/
 dist/
 
-env.json
 ssl/*
+
+!/env.json
+/src/QuestionRepository/
