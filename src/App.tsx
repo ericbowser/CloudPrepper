@@ -1,4 +1,4 @@
-// src/App.tsx - Updated for caching and state persistence
+// src/App.tsx - Updated for caching, state persistence, and Full Exam Simulation
 import React, {useEffect, useState} from 'react';
 import {
     AnswerMode,
@@ -58,6 +58,9 @@ const CloudPrepApp: React.FC = () => {
     const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
     const [timerDuration, setTimerDuration] = useState<number>(0);
     const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
+
+    // Check if current quiz is full-exam mode
+    const isFullExamMode = currentQuizConfig?.testType === 'full-exam';
 
     // Timer countdown effect
     useEffect(() => {
@@ -194,6 +197,44 @@ const CloudPrepApp: React.FC = () => {
         }
     };
 
+    // Helper function to select questions based on domain weights for full-exam mode
+    const selectQuestionsForFullExam = (currentCert: CertificationData, totalQuestions: number): Question[] => {
+        const selectedQuestions: Question[] = [];
+        
+        console.log('🏆 Full Exam Mode: Selecting questions by domain weights');
+        
+        currentCert.domains.forEach(domain => {
+            const targetCount = Math.round((domain.weight / 100) * totalQuestions);
+            const availableQuestions = domain.questions.slice(); // Copy array
+            
+            // Shuffle domain questions
+            const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+            
+            // Take the target count from this domain
+            const domainQuestions = shuffled.slice(0, Math.min(targetCount, shuffled.length));
+            selectedQuestions.push(...domainQuestions);
+            
+            console.log(`  📚 ${domain.name}: Selected ${domainQuestions.length}/${targetCount} questions (${domain.weight}% weight)`);
+        });
+        
+        // If we're short on questions, fill in randomly from all domains
+        if (selectedQuestions.length < totalQuestions) {
+            const remainingNeeded = totalQuestions - selectedQuestions.length;
+            const allQuestions = currentCert.domains.flatMap(d => d.questions);
+            const unusedQuestions = allQuestions.filter(q => 
+                !selectedQuestions.some(sq => sq.question_id === q.question_id)
+            );
+            
+            const shuffledUnused = unusedQuestions.sort(() => 0.5 - Math.random());
+            selectedQuestions.push(...shuffledUnused.slice(0, remainingNeeded));
+            
+            console.log(`  ➕ Added ${remainingNeeded} additional questions to reach target`);
+        }
+        
+        // Final shuffle of all selected questions
+        return selectedQuestions.sort(() => 0.5 - Math.random());
+    };
+
     // Start a new quiz with questions from PostgreSQL
     const startQuiz = (config: QuizConfig, currentCert: CertificationData) => {
         try {
@@ -202,21 +243,34 @@ const CloudPrepApp: React.FC = () => {
 
             let questions: Question[] = [];
 
-            // 1. Get base set of questions from selected domains
-            if (config.selectedDomains.includes('all')) {
-                questions = currentCert.domains.flatMap(domain => domain.questions);
+            // Special handling for full-exam mode
+            if (config.testType === 'full-exam') {
+                console.log('🏆 Starting Full Exam Simulation Mode');
+                questions = selectQuestionsForFullExam(currentCert, config.questionCount);
+                
+                // Force answer mode to end-only for full exam
+                setAnswerMode(AnswerMode.endOnly);
+                console.log('  ✓ Answer mode set to: Show all explanations at end');
+                console.log('  ✓ Timer enabled: ' + config.timerEnabled);
+                console.log('  ✓ Timer duration: ' + (config.timerDuration / 60) + ' minutes');
             } else {
-                questions = currentCert.domains
-                    .filter(domain => config.selectedDomains.includes(domain.id))
-                    .flatMap(domain => domain.questions);
-            }
+                // Regular quiz mode - existing logic
+                // 1. Get base set of questions from selected domains
+                if (config.selectedDomains.includes('all')) {
+                    questions = currentCert.domains.flatMap(domain => domain.questions);
+                } else {
+                    questions = currentCert.domains
+                        .filter(domain => config.selectedDomains.includes(domain.id))
+                        .flatMap(domain => domain.questions);
+                }
 
-            // Shuffle questions
-            questions = questions.sort(() => 0.5 - Math.random());
+                // Shuffle questions
+                questions = questions.sort(() => 0.5 - Math.random());
 
-            // Limit to requested count
-            if (config.questionCount && questions.length > config.questionCount) {
-                questions = questions.slice(0, config.questionCount);
+                // Limit to requested count
+                if (config.questionCount && questions.length > config.questionCount) {
+                    questions = questions.slice(0, config.questionCount);
+                }
             }
 
             if (questions.length === 0) {
@@ -283,7 +337,8 @@ const CloudPrepApp: React.FC = () => {
         setUserAnswers(prev => [...(prev || []), answerRecord]);
         setIsAnswered(isCorrect);
 
-        if (answerMode === AnswerMode.inline) {
+        // In full-exam mode, never show explanations inline
+        if (answerMode === AnswerMode.inline && !isFullExamMode) {
             setShowExplanation(true);
             // Scroll to explanation after a brief delay to allow render
             setTimeout(() => {
@@ -323,7 +378,8 @@ const CloudPrepApp: React.FC = () => {
             if (answerData) {
                 setSelectedAnswers(answerData.selectedAnswers);
                 setIsAnswered(answerData.isCorrect);
-                setShowExplanation(true);
+                // Don't show explanation in full-exam mode
+                setShowExplanation(!isFullExamMode);
             } else {
                 setSelectedAnswers([]);
                 setIsAnswered(null);
@@ -346,7 +402,8 @@ const CloudPrepApp: React.FC = () => {
             if (answerData) {
                 setSelectedAnswers(answerData.selectedAnswers);
                 setIsAnswered(answerData.isCorrect);
-                setShowExplanation(true);
+                // Don't show explanation in full-exam mode
+                setShowExplanation(!isFullExamMode);
             } else {
                 setSelectedAnswers([]);
                 setIsAnswered(null);
@@ -475,7 +532,8 @@ const CloudPrepApp: React.FC = () => {
     const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
         const baseClasses = "bg-pastel-lightGreen w-full text-left p-5 rounded-xl border-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md ";
 
-        if (isAnswered !== null) {
+        // In full-exam mode, don't show correct/incorrect indicators until end
+        if (isAnswered !== null && !isFullExamMode) {
             const isSelected = selectedAnswers.includes(option.text);
             if (option.isCorrect) {
                 return `${baseClasses} border-green-500 bg-pastel-green dark:bg-green-900/30 dark:border-green-600 shadow-green-100 dark:shadow-green-900/50`;
@@ -498,6 +556,18 @@ const CloudPrepApp: React.FC = () => {
             <Header title={`${getCurrentCertification()?.name} Prepper`}>
                 {activeSection === 'quiz' && currentQuizQuestions.length > 0 && (
                     <>
+                        {/* Full Exam Mode Indicator */}
+                        {isFullExamMode && (
+                            <div className="flex items-center gap-2 px-3 py-2 bg-orange-100 dark:bg-orange-900/30 border border-orange-300 dark:border-orange-700 rounded-lg mr-4">
+                                <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"/>
+                                </svg>
+                                <span className="text-xs font-semibold text-orange-800 dark:text-orange-200">
+                                    Exam Mode
+                                </span>
+                            </div>
+                        )}
+                        
                         {/* Timer in Navbar */}
                         {timerEnabled && timerDuration > 0 && (
                             <div
@@ -579,7 +649,11 @@ const CloudPrepApp: React.FC = () => {
                                         </p>
                                     </div>
                                     <div className="flex items-center space-x-3">
-                                        <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
+                                        <AnswerModeToggle 
+                                            answerMode={answerMode} 
+                                            setAnswerMode={setAnswerMode}
+                                            isFullExamMode={isFullExamMode}
+                                        />
                                     </div>
                                 </div>
 
@@ -663,6 +737,7 @@ const CloudPrepApp: React.FC = () => {
                                                 <button
                                                     key={index}
                                                     onClick={() => handleOptionSelection(option.text)}
+                                                    disabled={isAnswered !== null && isFullExamMode}
                                                     className={getOptionClassName(option)}
                                                 >
                                                     <div className="flex items-start space-x-3">
@@ -699,8 +774,8 @@ const CloudPrepApp: React.FC = () => {
 
                             </div>
 
-                            {/* Explanation Card - Show inline when answer is submitted */}
-                            {showExplanation && isAnswered !== null && (
+                            {/* Explanation Card - Show inline when answer is submitted (NOT in full-exam mode) */}
+                            {showExplanation && isAnswered !== null && !isFullExamMode && (
                                 <div ref={explanationRef} className="scroll-mt-4">
                                     <ExplanationCard question={currentQuestion}/>
                                 </div>
@@ -725,9 +800,11 @@ const CloudPrepApp: React.FC = () => {
                                     <p className="text-sm text-gray-600 dark:text-gray-400">
                                         {selectedAnswers.length > 0 && isAnswered === null
                                             ? `${selectedAnswers.length} answer${selectedAnswers.length > 1 ? 's' : ''} selected`
-                                            : isAnswered !== null
+                                            : isAnswered !== null && !isFullExamMode
                                                 ? (isAnswered ? '✓ Correct' : '✗ Incorrect')
-                                                : 'Select your answer'
+                                                : isAnswered !== null && isFullExamMode
+                                                    ? '✓ Answer Recorded'
+                                                    : 'Select your answer'
                                         }
                                     </p>
                                     <button

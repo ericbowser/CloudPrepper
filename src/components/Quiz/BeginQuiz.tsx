@@ -1,4 +1,4 @@
-// components/PracticeSetup.tsx - Updated for PostgreSQL integration
+// components/PracticeSetup.tsx - Updated for PostgreSQL integration and Full Exam Simulation
 import React, {useEffect, useState} from 'react';
 import type {CertificationData, Question} from '../../types/preptypes';
 import {QuizConfig} from "../../types/preptypes";
@@ -22,8 +22,21 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
     const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
     const [timerMinutes, setTimerMinutes] = useState<number>(10);
 
+    // Auto-configure full-exam mode
     useEffect(() => {
-        if (selectedTestType && timerEnabled) {
+        if (selectedTestType === 'full-exam' && certification) {
+            // Auto-enable timer with exam duration
+            setTimerEnabled(true);
+            setTimerMinutes(certification.examInfo.timeLimit);
+            // Auto-select all domains
+            setSelectedDomains(['all']);
+            // Reset category to all
+            setSelectedCategory('all');
+        }
+    }, [selectedTestType, certification]);
+
+    useEffect(() => {
+        if (selectedTestType && timerEnabled && selectedTestType !== 'full-exam') {
             setTimerMinutes(getQuestionCountForTestType());
         }
     }, [timerEnabled, selectedTestType]);
@@ -103,8 +116,10 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         return questions.length;
     };
 
-    // Handle domain selection
+    // Handle domain selection (disabled for full-exam mode)
     const handleDomainToggle = (domainId: string) => {
+        if (selectedTestType === 'full-exam') return; // Disabled for full-exam
+        
         if (domainId === 'all') {
             setSelectedDomains(['all']);
         } else {
@@ -188,7 +203,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         {
             value: 'full-exam',
             label: 'Full Exam Simulation',
-            description: `${certification.examInfo.questionCount} questions - Complete exam experience`,
+            description: `${certification.examInfo.questionCount} questions - Real exam experience with timer`,
             icon: '🏆',
             questions: certification.examInfo.questionCount
         }
@@ -200,6 +215,9 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
 
     const availableQuestions = getFilteredQuestionCount();
     const canStartQuiz = availableQuestions > 0;
+
+    // Check if full-exam mode is selected
+    const isFullExamMode = selectedTestType === 'full-exam';
 
     return (
         <div className={'dark:bg-dark-600 dark:text-white bg-pastel-babyblue'}>
@@ -225,7 +243,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                 key={option.value}
                                 className={`text-xl bg-pastel-pink dark:bg-dark-900 shadow shadow-2xl p-4 rounded-lg border-2 cursor-pointer transition-all dark:shadow dark:shadow-blue-900/50 ${
                                     selectedTestType === option.value
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-dark-900 '
+                                        ? 'border-blue-500 bg-blue-50 dark:bg-dark-900 ring-2 ring-blue-300'
                                         : 'border-gray-200 dark:border-pastel-cream hover:border-blue-300 dark:hover:border-blue-500'
                                 }`}
                                 onClick={() => handleQuestionTypeSelection(option.value)}
@@ -255,9 +273,34 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                             </p>
                         </div>
                     )}
+
+                    {/* Full Exam Mode Notice */}
+                    {isFullExamMode && (
+                        <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-300 dark:border-orange-700 rounded-lg">
+                            <div className="flex items-start gap-3">
+                                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h4 className="font-semibold text-orange-800 dark:text-orange-200 mb-1">
+                                        🏆 Full Exam Simulation Mode Active
+                                    </h4>
+                                    <ul className="text-sm text-orange-700 dark:text-orange-300 space-y-1">
+                                        <li>✓ Questions weighted by exam domains ({certification.examInfo.questionCount} total)</li>
+                                        <li>✓ Timer automatically set to {certification.examInfo.timeLimit} minutes</li>
+                                        <li>✓ No answer feedback during exam</li>
+                                        <li>✓ All explanations shown at the end</li>
+                                        <li>✓ Domain selection auto-configured</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
-                {/* Timer Configuration */}
-                <div className="
+                
+                {/* Timer Configuration - Hidden for full-exam mode */}
+                {!isFullExamMode && (
+                    <div className="
                         text-black 
                         dark:bg-dark-900 
                         dark:text-white 
@@ -266,71 +309,78 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                         md:grid-cols-2 
                         lg:grid-cols-3 
                         gap-6 my-4">
-                    <div className=" dark:bg-dark-900 rounded-lg shadow p-6 m-4">
-                        <div className="bg-pastel-mintlight dark:bg-dark-900 rounded-lg shadow">
-                            <h3 className="dark:border-red-50 text-lg font-semibold mb-3 text-center">Category
-                                Focus</h3>
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                                <option value="all">All Categories</option>
-                                {getAllCategories().map(category => (
-                                    <option key={category} value={category}>
-                                        {category}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className=" dark:bg-dark-900 rounded-lg shadow p-6 m-4">
+                            <div className="bg-pastel-mintlight dark:bg-dark-900 rounded-lg shadow">
+                                <h3 className="dark:border-red-50 text-lg font-semibold mb-3 text-center">Category
+                                    Focus</h3>
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="all">All Categories</option>
+                                    {getAllCategories().map(category => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div
+                            className="font-Burtons bg-pastel-aqua text-black bolder flex items-center rounded-lg shadow p-4 m-8">
+                            <div>
+                                <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-900">
+                                    Set a time limit for your quiz (recommended for exam simulation)
+                                </p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={timerEnabled}
+                                    onChange={(e) => {
+                                        setTimerEnabled(e.target.checked);
+                                        setTimerMinutes(getQuestionCountForTestType());
+                                    }}
+                                    className="sr-only peer"
+                                />
+                                <div
+                                    className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-pastel-mint after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
                         </div>
 
-
+                        {timerEnabled && (
+                            <div className="mt-4">
+                                <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="180"
+                                    value={timerMinutes}
+                                    onChange={(e) => setTimerMinutes(Number(e.target.value))}
+                                    className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <p className="text-xs text-gray-500 mt-2">
+                                    💡 Exam time limit: {certification.examInfo.timeLimit} minutes
+                                </p>
+                            </div>
+                        )}
                     </div>
-                    <div
-                        className="font-Burtons bg-pastel-aqua text-black bolder flex items-center rounded-lg shadow p-4 m-8">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-900">
-                                Set a time limit for your quiz (recommended for exam simulation)
-                            </p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={timerEnabled}
-                                onChange={(e) => {
-                                    setTimerEnabled(e.target.checked);
-                                    setTimerMinutes(getQuestionCountForTestType());
-                                }}
-                                className="sr-only peer"
-                            />
-                            <div
-                                className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-pastel-mint after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-
-                    {timerEnabled && (
-                        <div className="mt-4">
-                            <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
-                            <input
-                                type="number"
-                                min="1"
-                                max="180"
-                                value={timerMinutes}
-                                onChange={(e) => setTimerMinutes(Number(e.target.value))}
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                            <p className="text-xs text-gray-500 mt-2">
-                                💡 Exam time limit: {certification.examInfo.timeLimit} minutes
-                            </p>
-                        </div>
-                    )}
-                </div>
-                {/* Domain Selection */}
+                )}
+                
+                {/* Domain Selection - Disabled for full-exam mode */}
                 <div className="font-Burtons bg-pastel-mint dark:bg-dark-900 dark:text-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
+                    <h2 className="text-xl font-semibold mb-4">
+                        Select Domains
+                        {isFullExamMode && (
+                            <span className="ml-2 text-sm font-normal text-orange-600 dark:text-orange-400">
+                                (Auto-configured for exam)
+                            </span>
+                        )}
+                    </h2>
                     <div
-                        className="dark:bg-dark-900 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        className={`dark:bg-dark-900 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${isFullExamMode ? 'opacity-60 pointer-events-none' : ''}`}>
                         {/* All Domains Option */}
                         <div
                             className={`bg-pastel-mint dark:bg-dark-900 p-4 rounded-lg border-2 cursor-pointer transition-all ${
@@ -384,6 +434,11 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                     <>
                                         {getQuestionCountForTestType()} questions selected
                                         from {availableQuestions} available
+                                        {isFullExamMode && (
+                                            <span className="block text-sm text-orange-600 dark:text-orange-400 mt-1">
+                                                Questions weighted by exam domains • {certification.examInfo.timeLimit} minute timer
+                                            </span>
+                                        )}
                                     </>
                                 ) : (
                                     'No questions match your current filters'
@@ -395,11 +450,13 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                             disabled={!canStartQuiz}
                             className={`px-8 py-3 rounded-lg font-semibold transition-colors ${
                                 canStartQuiz
-                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? isFullExamMode
+                                        ? 'bg-orange-600 text-white hover:bg-orange-700'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }`}
                         >
-                            Start Quiz
+                            {isFullExamMode ? '🏆 Start Exam' : 'Start Quiz'}
                         </button>
                     </div>
                 </div>
