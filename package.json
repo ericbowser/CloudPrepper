@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "name": "comptia",
   "version": "1.0.0",
@@ -65,3 +66,71 @@
     "vite-plugin-node-polyfills": "^0.24.0"
   }
 }
+=======
+{
+  "name": "comptia",
+  "version": "1.0.0",
+  "description": "",
+  "type": "commonjs",
+  "homepage": "https://github.com/ericbowser/CompTIAPrepper#readme",
+  "bugs": {
+    "url": "https://github.com/ericbowser/CompTIAPrepper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericbowser/CompTIAPrepper.git"
+  },
+  "license": "ISC",
+  "author": "E.R.B.",
+  "main": "index.js",
+  "scripts": {
+    "tail:watch": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css --watch",
+    "tail": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css",
+    "dev": "vite serve --mode development",
+    "build": "npm run tail && vite build --mode production",
+    "build:vite": "NODE_ENV=production vite build",
+    "build:esbuild": "esbuild src/index.tsx --bundle --outdir=dist --format=esm --platform=browser --target=es2020 --jsx=automatic --loader:.css=css --minify --sourcemap",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
+    "clean": "rm node_modules -r && rm package-lock.json && npm install"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "axios": "^1.11.0",
+    "lodash": "^4.17.21",
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.9.3",
+    "tesseract.js": "^6.0.1",
+    "vite": "^7.1.11"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.1.0",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.1",
+    "autoprefixer": "^10.4.21",
+    "caniuse-lite": "^1.0.30001735",
+    "esbuild": "^0.21.5",
+    "fs": "^0.0.1-security",
+    "lucide-react": "^0.546.0",
+    "node": "^20.19.5",
+    "postcss": "^8.5.6",
+    "rollup-plugin-polyfill-node": "^0.13.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.11",
+    "vite-plugin-node-polyfills": "^0.24.0"
+  }
+}
+>>>>>>> 11e58dae4b6e46189f2796875f2d96d4215d203e
