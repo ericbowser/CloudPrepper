@@ -18,6 +18,7 @@
     "tail:watch": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css --watch",
     "tail": "npx tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css",
     "dev": "vite serve --mode development",
+    "debug": "vite serve --mode development --debug",
     "build": "npm run tail && vite build --mode production",
     "build:vite": "NODE_ENV=production vite build",
     "build:esbuild": "esbuild src/index.tsx --bundle --outdir=dist --format=esm --platform=browser --target=es2020 --jsx=automatic --loader:.css=css --minify --sourcemap",

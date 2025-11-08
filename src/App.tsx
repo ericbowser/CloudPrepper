@@ -280,18 +280,37 @@ const CloudPrepApp: React.FC = () => {
             timestamp: endTime
         };
 
-        setUserAnswers(prev => [...(prev || []), answerRecord]);
-        setIsAnswered(isCorrect);
-
-        if (answerMode === AnswerMode.inline) {
-            setShowExplanation(true);
-            // Scroll to explanation after a brief delay to allow render
-            setTimeout(() => {
-                explanationRef.current?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
-            }, 100);
+        // Check if answer already exists for this question (avoid duplicates)
+        const existingAnswerIndex = userAnswers?.findIndex(a => a.questionId === currentQuestion.question_id) ?? -1;
+        if (existingAnswerIndex >= 0 && userAnswers) {
+            // Update existing answer
+            const updatedAnswers = [...userAnswers];
+            updatedAnswers[existingAnswerIndex] = answerRecord;
+            setUserAnswers(updatedAnswers);
+        } else {
+            // Add new answer
+            setUserAnswers(prev => [...(prev || []), answerRecord]);
+        }
+        
+        // In exam simulation mode, don't show feedback but mark as answered
+        const isExamSimulation = currentQuizConfig?.examSimulationMode ?? false;
+        if (!isExamSimulation) {
+            setIsAnswered(isCorrect);
+            
+            if (answerMode === AnswerMode.inline) {
+                setShowExplanation(true);
+                // Scroll to explanation after a brief delay to allow render
+                setTimeout(() => {
+                    explanationRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }, 100);
+            }
+        } else {
+            // In exam simulation, mark as answered (use a special value to indicate submitted but no feedback)
+            // We'll use true as a sentinel value, but won't show UI feedback
+            setIsAnswered(true);
         }
     };
 
@@ -313,17 +332,59 @@ const CloudPrepApp: React.FC = () => {
 
     // Navigate to next question
     const nextQuestion = () => {
+        const isExamSimulation = currentQuizConfig?.examSimulationMode ?? false;
+        
+        // If in exam simulation mode and current question hasn't been answered, submit it first
+        if (isExamSimulation && selectedAnswers.length > 0) {
+            const currentAnswerExists = userAnswers?.some(a => a.questionId === currentQuestion.question_id);
+            if (!currentAnswerExists) {
+                // Submit the answer first, then proceed
+                const endTime = new Date();
+                const timeSpent = endTime.getTime() - questionStartTime.getTime();
+                const isCorrect = checkAnswer();
+
+                const answerRecord: AnswerRecord = {
+                    questionId: currentQuestion.question_id,
+                    selectedAnswers: selectedAnswers,
+                    isCorrect: isCorrect,
+                    timeSpent,
+                    timestamp: endTime
+                };
+
+                // Add/update answer
+                const existingAnswerIndex = userAnswers?.findIndex(a => a.questionId === currentQuestion.question_id) ?? -1;
+                if (existingAnswerIndex >= 0 && userAnswers) {
+                    const updatedAnswers = [...userAnswers];
+                    updatedAnswers[existingAnswerIndex] = answerRecord;
+                    setUserAnswers(updatedAnswers);
+                } else {
+                    setUserAnswers(prev => [...(prev || []), answerRecord]);
+                }
+            }
+        }
+        
+        proceedToNextQuestion();
+    };
+    
+    const proceedToNextQuestion = () => {
         if (currentQuestionIndex < totalQuestions - 1) {
             const nextIndex = currentQuestionIndex + 1;
             const nextQuestionData = currentQuizQuestions[nextIndex];
             const answerData = userAnswers?.find(a => a.questionId === nextQuestionData.question_id);
+            const isExamSimulation = currentQuizConfig?.examSimulationMode ?? false;
 
             setCurrentQuestionIndex(nextIndex);
             setQuestionStartTime(new Date());
             if (answerData) {
                 setSelectedAnswers(answerData.selectedAnswers);
-                setIsAnswered(answerData.isCorrect);
-                setShowExplanation(true);
+                // In exam simulation, don't show if answer was correct/incorrect
+                if (isExamSimulation) {
+                    setIsAnswered(true); // Mark as answered but don't show feedback
+                    setShowExplanation(false);
+                } else {
+                    setIsAnswered(answerData.isCorrect);
+                    setShowExplanation(true);
+                }
             } else {
                 setSelectedAnswers([]);
                 setIsAnswered(null);
@@ -473,8 +534,18 @@ const CloudPrepApp: React.FC = () => {
     }
 
     const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
-        const baseClasses = "bg-pastel-lightGreen w-full text-left p-5 rounded-xl border-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md ";
+        const baseClasses = "bg-pastel-lightGreen w-full text-left p-2.5 rounded-lg border-2 transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.99] shadow-sm hover:shadow-md ";
+        const isExamSimulation = currentQuizConfig?.examSimulationMode ?? false;
 
+        // In exam simulation mode, never show correct/incorrect borders - only show selection
+        if (isExamSimulation) {
+            if (selectedAnswers.includes(option.text)) {
+                return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-blue-100 dark:shadow-blue-900/50`;
+            }
+            return `${baseClasses} border-blue-400 dark:border-gray-600  dark:bg-dark-900 hover:border-blue-300 hover:bg-blue-25 dark:hover:bg-dark-700 hover:ring-1 hover:ring-blue-200 dark:hover:ring-blue-800`;
+        }
+
+        // Normal mode - show feedback
         if (isAnswered !== null) {
             const isSelected = selectedAnswers.includes(option.text);
             if (option.isCorrect) {
@@ -556,8 +627,8 @@ const CloudPrepApp: React.FC = () => {
             {activeSection === 'dashboard' &&
               <Dashboard userAnswers={userAnswers} length={totalQuestions}></Dashboard>
             }
-            <div className="min-h-screen bg-pastel-cyan dark:bg-dark-900">
-                <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-pastel-cyan dark:bg-dark-900 overflow-x-hidden">
+                <main className="max-w-7xl mx-auto py-3 px-2 sm:px-3 lg:px-4">
                     {activeSection === 'practice' && (
                         <BeginQuiz
                             certification={getCurrentCertification()}
@@ -565,46 +636,85 @@ const CloudPrepApp: React.FC = () => {
                         />
                     )}
                     {activeSection === 'quiz' && currentQuestion && (
-                        <div className="space-y-8 animate-fade-in max-w-5xl mx-auto">
+                        <div className="space-y-4 animate-fade-in w-full">
                             {/* Enhanced Header Card */}
                             <div
-                                className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-dark-800 dark:to-dark-700 rounded-2xl shadow-lg border border-blue-100 dark:border-dark-600 p-8">
-                                <div className="flex justify-between items-center mb-6">
+                                className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-dark-800 dark:to-dark-700 rounded-xl shadow-lg border border-blue-100 dark:border-dark-600 p-5">
+                                <div className="flex justify-between items-center mb-4">
                                     <div className="space-y-2">
-                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                             Question {currentQuestionIndex + 1}
                                         </h2>
-                                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                                        <p className="text-xs text-gray-600 dark:text-gray-300">
                                             {totalQuestions} questions total
                                         </p>
                                     </div>
                                     <div className="flex items-center space-x-3">
-                                        <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
+                                        {!currentQuizConfig?.examSimulationMode && (
+                                            <AnswerModeToggle answerMode={answerMode} setAnswerMode={setAnswerMode}/>
+                                        )}
+                                        {currentQuizConfig?.examSimulationMode && (
+                                            <div className="px-4 py-2 rounded-md text-sm font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 border border-orange-300 dark:border-orange-700">
+                                                🎯 Exam Simulation Mode - No Feedback
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Enhanced Progress Bar */}
-                                <div className="space-y-3">
+                                <div className="space-y-2">
                                     <div
                                         className="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
                                         <span>Progress</span>
                                         <span>{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%</span>
                                     </div>
-                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3 shadow-inner">
+                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 shadow-inner">
                                         <div
-                                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+                                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500 ease-out shadow-sm"
                                             style={{width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`}}
                                         ></div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Enhanced Question Card */}
-                            <div
-                                className="text-xl bg-pastel-mintlight dark:bg-dark-900 rounded-2xl shadow-xl border border-red-50 dark:border-r-amber-600 overflow-hidden">
-                                <div className="p-8">
+                            {/* Main content area with connector */}
+                            <div className="relative">
+                                <div className="flex flex-col lg:flex-row gap-3 items-start relative">
+                                    
+                                    {/* LEFT SIDE: Explanation Card (when visible) */}
+                                    {!currentQuizConfig?.examSimulationMode && showExplanation && isAnswered !== null && (
+                                        <div 
+                                            ref={explanationRef} 
+                                            className="w-full lg:w-[35%] flex-shrink-0 animate-fade-in"
+                                        >
+                                            <div className="sticky top-20 max-h-[calc(100vh-140px)] overflow-y-auto">
+                                                <ExplanationCard question={currentQuestion}/>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* RIGHT SIDE: Question Card */}
+                                    <div className={`w-full flex-grow transition-all duration-300 ${
+                                        showExplanation && isAnswered !== null ? 'lg:w-[65%]' : 'lg:w-full'
+                                    } relative`}>
+                                        {/* Enhanced connector indicator */}
+                                        {showExplanation && isAnswered !== null && (
+                                        <div className="hidden lg:flex absolute -left-8 top-[4.5rem] w-6 items-center z-10">
+                                        <div className="w-full flex items-center">
+                                        <div className="h-0.5 w-full bg-gradient-to-r from-green-400 via-green-400 to-green-500 dark:from-green-500 dark:via-green-500 dark:to-green-600 shadow-sm"></div>
+                                        <svg className="w-3 h-3 -ml-0.5 text-green-500 dark:text-green-400 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L10 4.414l6.293 6.293a1 1 0 001.414-1.414l-7-7z" transform="rotate(90 10 10)"/>
+                                        </svg>
+                                        </div>
+                                        </div>
+                                        )}
+                                        
+                                        {/* Enhanced Question Card */}
+                                        <div
+                                            className="bg-white dark:bg-dark-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                                <div className="p-4">
                                     {/* Question Tags */}
-                                    <div className="flex flex-wrap gap-2 mb-6">
+                                    <div className="flex flex-wrap gap-2 mb-3">
                                         <span
                                             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
                                             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -635,8 +745,8 @@ const CloudPrepApp: React.FC = () => {
                                     </div>
 
                                     {/* Question Text */}
-                                    <div className="mb-8">
-                                        <h3 className="text-2xl text-gray-900 dark:text-white leading-relaxed mb-4">
+                                    <div className="mb-3">
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white leading-relaxed mb-3">
                                             {currentQuestion.question_text}
                                         </h3>
                                         {currentQuestion.multiple_answers && (
@@ -655,18 +765,18 @@ const CloudPrepApp: React.FC = () => {
                                         )}
                                     </div>
 
-                                    <div className={" m-8"}>
+                                    <div>
 
                                         {/* Answer Options */}
-                                        <div className="space-y-4">
+                                        <div className="space-y-2">
                                             {currentQuestion.options.map((option, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => handleOptionSelection(option.text)}
                                                     className={getOptionClassName(option)}
                                                 >
-                                                    <div className="flex items-start space-x-3">
-                                                        <div className="flex-shrink-0 mt-1">
+                                                    <div className="flex items-center space-x-3">
+                                                        <div className="flex-shrink-0">
                                                             <div
                                                                 className={`font-NewTimesRoman size-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                                                     selectedAnswers.includes(option.text)
@@ -684,8 +794,8 @@ const CloudPrepApp: React.FC = () => {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="flex-1 text-left ">
-                                                            <p className="mt-1 text-gray-900 dark:text-white bold font-NewTimesRoman cursor-pointer">
+                                                        <div className="flex-1 text-left">
+                                                            <p className="text-base text-gray-900 dark:text-white font-medium cursor-pointer">
                                                                 {option.text}
                                                             </p>
                                                         </div>
@@ -695,24 +805,18 @@ const CloudPrepApp: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-
-
-                            </div>
-
-                            {/* Explanation Card - Show inline when answer is submitted */}
-                            {showExplanation && isAnswered !== null && (
-                                <div ref={explanationRef} className="scroll-mt-4">
-                                    <ExplanationCard question={currentQuestion}/>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
+                            </div>
 
                             {/* Enhanced Navigation */}
                             <div
-                                className="flex justify-between items-center bg-pastel-mintlight dark:bg-dark-900 rounded-2xl p-6 border border-gray-200 dark:border-dark-600">
+                                className="flex justify-between items-center bg-white dark:bg-dark-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                                 <button
                                     onClick={previousQuestion}
                                     disabled={currentQuestionIndex === 0}
-                                    className="inline-flex items-center px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 bg-pastel-mintlight dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                                    className="inline-flex items-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
                                 >
                                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -723,16 +827,21 @@ const CloudPrepApp: React.FC = () => {
 
                                 <div className="text-center flex flex-col items-center space-y-2">
                                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        {selectedAnswers.length > 0 && isAnswered === null
-                                            ? `${selectedAnswers.length} answer${selectedAnswers.length > 1 ? 's' : ''} selected`
-                                            : isAnswered !== null
-                                                ? (isAnswered ? '✓ Correct' : '✗ Incorrect')
+                                        {currentQuizConfig?.examSimulationMode ? (
+                                            selectedAnswers.length > 0
+                                                ? `${selectedAnswers.length} answer${selectedAnswers.length > 1 ? 's' : ''} selected`
                                                 : 'Select your answer'
-                                        }
+                                        ) : (
+                                            selectedAnswers.length > 0 && isAnswered === null
+                                                ? `${selectedAnswers.length} answer${selectedAnswers.length > 1 ? 's' : ''} selected`
+                                                : isAnswered !== null
+                                                    ? (isAnswered ? '✓ Correct' : '✗ Incorrect')
+                                                    : 'Select your answer'
+                                        )}
                                     </p>
                                     <button
                                         onClick={handleSubmitQuiz}
-                                        className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors text-sm font-medium shadow-sm hover:shadow-md"
+                                        className="inline-flex items-center px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors text-xs font-medium shadow-sm hover:shadow-md"
                                     >
                                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor"
                                              viewBox="0 0 24 24">
@@ -743,11 +852,60 @@ const CloudPrepApp: React.FC = () => {
                                     </button>
                                 </div>
 
-                                {isAnswered === null ? (
-                                    <button
+                                {(() => {
+                                    const isExamSim = currentQuizConfig?.examSimulationMode ?? false;
+                                    const hasAnswers = selectedAnswers.length > 0;
+                                    const questionAnswered = userAnswers?.some(a => a.questionId === currentQuestion.question_id) ?? false;
+                                    
+                                    // In exam simulation: show "Next Question" if answers selected (auto-submits)
+                                    // In normal mode: show "Submit Answer" first
+                                    const shouldShowNextButton = isExamSim && hasAnswers && !questionAnswered;
+                                    
+                                    if (shouldShowNextButton || isAnswered !== null) {
+                                        return (
+                                            <button
+                                                onClick={nextQuestion}
+                                                className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
+                                            >
+                                                {currentQuestionIndex === totalQuestions - 1 ? (
+                                                    <>
+                                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                                             viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                                  d="M9 12l2 2 4-4"/>
+                                                        </svg>
+                                                        Finish Quiz
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Next Question
+                                                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor"
+                                                             viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                                  d="M9 5l7 7-7 7"/>
+                                                        </svg>
+                                                    </>
+                                                )}
+                                            </button>
+                                        );
+                                    }
+                                    
+                                    return null;
+                                })()}
+                                {(() => {
+                                    const isExamSim = currentQuizConfig?.examSimulationMode ?? false;
+                                    const hasAnswers = selectedAnswers.length > 0;
+                                    const questionAnswered = userAnswers?.some(a => a.questionId === currentQuestion.question_id) ?? false;
+                                    
+                                    // Show submit button only if not in exam sim with answers (exam sim shows Next instead)
+                                    const shouldShowSubmit = !isExamSim || !hasAnswers || questionAnswered;
+                                    
+                                    if (shouldShowSubmit && isAnswered === null) {
+                                        return (
+                                            <button
                                         onClick={handleAnswerSubmission}
                                         disabled={selectedAnswers.length === 0}
-                                        className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl disabled:shadow-none font-medium"
+                                        className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm rounded-lg disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none font-medium"
                                     >
                                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor"
                                              viewBox="0 0 24 24">
@@ -755,33 +913,12 @@ const CloudPrepApp: React.FC = () => {
                                                   d="M9 12l2 2 4-4"/>
                                         </svg>
                                         Submit Answer
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={nextQuestion}
-                                        className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-medium"
-                                    >
-                                        {currentQuestionIndex === totalQuestions - 1 ? (
-                                            <>
-                                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor"
-                                                     viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                          d="M9 12l2 2 4-4"/>
-                                                </svg>
-                                                Finish Quiz
-                                            </>
-                                        ) : (
-                                            <>
-                                                Next Question
-                                                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor"
-                                                     viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                          d="M9 5l7 7-7 7"/>
-                                                </svg>
-                                            </>
-                                        )}
-                                    </button>
-                                )}
+                                            </button>
+                                        );
+                                    }
+                                    
+                                    return null;
+                                })()}
                             </div>
                         </div>
                     )}

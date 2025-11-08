@@ -1,4 +1,4 @@
-
+.vscode/
 node_modules/
 node_modules
 .idea
@@ -9,15 +9,11 @@ dist
 Folder.DotSettings.user
 src/assets/styles/output.css
 
-.env*
-.flaskenv*
-!.env.project
-!.env.vault
-/network
-/src/assets/styles/
+network/
 dist/
 
 ssl/*
+assistLog.js
 
-!/env.json
 /src/QuestionRepository/
+env.json

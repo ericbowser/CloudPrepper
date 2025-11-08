@@ -270,7 +270,7 @@ export const CERTIFICATIONS: CertificationData[] = [
 		id: 'comptia',
 		name: 'CompTIA Cloud+',
 		fullName: 'CompTIA Cloud+ Certification',
-		code: 'CV0-003',
+		code: 'CV0-004',
 		icon: '☁️',
 		domains: COMPTIA_DOMAINS,
 		examInfo: {

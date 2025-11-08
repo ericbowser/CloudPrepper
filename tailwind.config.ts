@@ -1,3 +1,4 @@
+// tailwind.config.ts - Updated with Classic theme support
 import type {Config} from 'tailwindcss'
 
 const config: Config = {
@@ -27,6 +28,29 @@ const config: Config = {
                     800: '#212529',
                     900: '#121417',
                 },
+                // Classic theme colors (Professional white/black)
+                classic: {
+                    // Backgrounds
+                    bg: '#FFFFFF',
+                    bgSecondary: '#F9FAFB',
+                    bgCard: '#FFFFFF',
+                    
+                    // Text
+                    text: '#111827',
+                    textSecondary: '#4B5563',
+                    textMuted: '#6B7280',
+                    
+                    // Borders
+                    border: '#E5E7EB',
+                    borderDark: '#D1D5DB',
+                    
+                    // Accents
+                    accent: '#3B82F6',
+                    accentHover: '#2563EB',
+                    success: '#10B981',
+                    error: '#EF4444',
+                    warning: '#F59E0B',
+                },
                 // Pastel theme colors
                 pastel: {
                     // Primary mint & blue tones
@@ -54,7 +78,24 @@ const config: Config = {
                     textlight: '#718096',
                     border: '#E2E8F0'
                 }
-            }
+            },
+            // Add custom animations for theme transitions
+            animation: {
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'fade-in': 'fadeIn 0.5s ease-in-out',
+                'circuit-flow': 'circuitFlow 4s linear infinite',
+            },
+            keyframes: {
+                fadeIn: {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+                circuitFlow: {
+                    '0%': { transform: 'translateX(0%) scaleX(0)', opacity: '0' },
+                    '50%': { transform: 'translateX(50%) scaleX(1)', opacity: '1' },
+                    '100%': { transform: 'translateX(100%) scaleX(0)', opacity: '0' },
+                },
+            },
         },
     },
     plugins: [require('@tailwindcss/forms')],

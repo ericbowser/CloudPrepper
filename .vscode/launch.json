@@ -9,7 +9,7 @@
             "request": "launch",
             "runtimeArgs": [
                 "run-script",
-                "debug"
+                "dev"
             ],
             "runtimeExecutable": "npm",
             "skipFiles": [
@@ -18,12 +18,26 @@
             "type": "node"
         },
         {
+            "name": "Launch Chrome against localhost",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:55234",
+            "webRoot": "${workspaceFolder}/src",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*",
+                "webpack:///./*": "${webRoot}/*",
+                "webpack:///./~/*": "${webRoot}/node_modules/*",
+                "webpack:///*": "*"
+            }
+        },
+        {
             "name": "Attach to Chrome",
             "port": 9222,
             "request": "attach",
             "type": "chrome",
-            "webRoot": "${workspaceFolder}"
-        },
-
+            "webRoot": "${workspaceFolder}/src",
+            "sourceMaps": true
+        }
     ]
 }

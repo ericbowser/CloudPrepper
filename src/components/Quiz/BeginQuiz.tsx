@@ -23,10 +23,13 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
     const [timerMinutes, setTimerMinutes] = useState<number>(10);
 
     useEffect(() => {
-        if (selectedTestType && timerEnabled) {
+        if (selectedTestType === 'exam-simulation') {
+            setTimerEnabled(true);
+            setTimerMinutes(certification?.examInfo.timeLimit || 90);
+        } else if (selectedTestType && timerEnabled) {
             setTimerMinutes(getQuestionCountForTestType());
         }
-    }, [timerEnabled, selectedTestType]);
+    }, [selectedTestType, certification]);
 
     // Show loading state if certification is not loaded yet
     if (!certification) {
@@ -123,6 +126,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
     // Handle starting the quiz
     const handleStartQuiz = () => {
         if (!certification) return;
+        const isExamSimulation = selectedTestType === 'exam-simulation';
         const config: QuizConfig = {
             testType: selectedTestType,
             selectedDomains,
@@ -130,8 +134,9 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
             selectedCategories: [selectedCategory],
             questionCount: getQuestionCountForTestType(),
             certification: certification.id,
-            timerEnabled,
-            timerDuration: timerEnabled ? timerMinutes * 60 : 0
+            timerEnabled: isExamSimulation ? true : timerEnabled,
+            timerDuration: isExamSimulation ? certification.examInfo.timeLimit * 60 : (timerEnabled ? timerMinutes * 60 : 0),
+            examSimulationMode: isExamSimulation
         };
 
         onStartQuiz(config);
@@ -149,6 +154,8 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
             case 'domain-focused':
                 return questionCount;
             case 'full-exam':
+                return certification.examInfo.questionCount;
+            case 'exam-simulation':
                 return certification.examInfo.questionCount;
             default:
                 return 10;
@@ -187,9 +194,16 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         },
         {
             value: 'full-exam',
-            label: 'Full Exam Simulation',
-            description: `${certification.examInfo.questionCount} questions - Complete exam experience`,
+            label: 'Full Exam Practice',
+            description: `${certification.examInfo.questionCount} questions - Complete exam practice with feedback`,
             icon: '🏆',
+            questions: certification.examInfo.questionCount
+        },
+        {
+            value: 'exam-simulation',
+            label: 'Exam Simulation',
+            description: `${certification.examInfo.questionCount} questions, ${certification.examInfo.timeLimit} min - Real exam experience (no feedback)`,
+            icon: '🎯',
             questions: certification.examInfo.questionCount
         }
     ];
@@ -291,13 +305,16 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                         <div>
                             <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-900">
-                                Set a time limit for your quiz (recommended for exam simulation)
+                                {selectedTestType === 'exam-simulation' 
+                                    ? 'Timer automatically set to exam time limit'
+                                    : 'Set a time limit for your quiz (recommended for exam simulation)'}
                             </p>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className={`relative inline-flex items-center ${selectedTestType === 'exam-simulation' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                             <input
                                 type="checkbox"
                                 checked={timerEnabled}
+                                disabled={selectedTestType === 'exam-simulation'}
                                 onChange={(e) => {
                                     setTimerEnabled(e.target.checked);
                                     setTimerMinutes(getQuestionCountForTestType());
@@ -317,11 +334,14 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                 min="1"
                                 max="180"
                                 value={timerMinutes}
+                                disabled={selectedTestType === 'exam-simulation'}
                                 onChange={(e) => setTimerMinutes(Number(e.target.value))}
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className={`w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${selectedTestType === 'exam-simulation' ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
                             <p className="text-xs text-gray-500 mt-2">
-                                💡 Exam time limit: {certification.examInfo.timeLimit} minutes
+                                {selectedTestType === 'exam-simulation' 
+                                    ? `🎯 Exam simulation: Fixed at ${certification.examInfo.timeLimit} minutes`
+                                    : `💡 Exam time limit: ${certification.examInfo.timeLimit} minutes`}
                             </p>
                         </div>
                     )}

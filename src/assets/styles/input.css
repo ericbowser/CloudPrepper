@@ -1,11 +1,26 @@
+/* src/assets/styles/input.css - Updated for 3 themes */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Add to src/assets/styles/input.css */
+/* Theme-specific CSS variables */
 @layer base {
-    .light {
-        /* Set pastel backgrounds as defaults */
+    /* Classic Theme - Professional white background with black text */
+    .classic {
+        --color-bg-primary: #FFFFFF;
+        --color-bg-secondary: #F9FAFB;
+        --color-bg-card: #FFFFFF;
+        --color-text-primary: #111827;
+        --color-text-secondary: #4B5563;
+        --color-border: #E5E7EB;
+        
+        /* Override pastel backgrounds */
+        background-color: #FFFFFF;
+        color: #111827;
+    }
+    
+    /* Pastel Theme - Soft colors */
+    .pastel {
         --color-bg-primary: theme('colors.pastel.bluelight');
         --color-bg-secondary: theme('colors.pastel.mintlight');
         --color-bg-card: theme('colors.white');
@@ -13,11 +28,48 @@
         --color-text-secondary: theme('colors.pastel.textlight');
         --color-border: theme('colors.pastel.border');
     }
+    
+    /* Dark Theme - Dark backgrounds */
+    .dark {
+        --color-bg-primary: theme('colors.dark.900');
+        --color-bg-secondary: theme('colors.dark.800');
+        --color-bg-card: theme('colors.dark.800');
+        --color-text-primary: #FFFFFF;
+        --color-text-secondary: theme('colors.gray.300');
+        --color-border: theme('colors.gray.700');
+    }
 }
 
+/* Theme-specific component styles */
 @layer components {
-    .btn-pastel {
+    /* Classic theme button */
+    .classic .btn-primary {
+        @apply bg-blue-600 text-white hover:bg-blue-700 border border-blue-700;
+    }
+    
+    /* Pastel theme button */
+    .pastel .btn-primary {
         @apply bg-pastel-mint text-pastel-text hover:bg-pastel-cyan;
+    }
+    
+    /* Dark theme button */
+    .dark .btn-primary {
+        @apply bg-blue-500 text-white hover:bg-blue-600;
+    }
+    
+    /* Classic theme cards */
+    .classic .card {
+        @apply bg-white border border-gray-200 shadow-sm;
+    }
+    
+    /* Pastel theme cards */
+    .pastel .card {
+        @apply bg-pastel-mintlight border border-pastel-border;
+    }
+    
+    /* Dark theme cards */
+    .dark .card {
+        @apply bg-dark-800 border border-gray-700;
     }
 }
 
@@ -95,4 +147,45 @@
 
 .gradient-transition:hover {
     background-position: right center;
+}
+
+/* Classic theme specific overrides */
+.classic .bg-pastel-cyan {
+    background-color: #F9FAFB !important;
+}
+
+.classic .bg-pastel-mint {
+    background-color: #FFFFFF !important;
+}
+
+.classic .bg-pastel-mintlight {
+    background-color: #FFFFFF !important;
+    border: 1px solid #E5E7EB;
+}
+
+.classic .bg-pastel-bluelight {
+    background-color: #F9FAFB !important;
+}
+
+.classic .bg-pastel-cream {
+    background-color: #FEFCE8 !important;
+}
+
+/* Classic theme text color overrides */
+.classic .text-pastel-text {
+    color: #111827 !important;
+}
+
+.classic .text-pastel-textlight {
+    color: #4B5563 !important;
+}
+
+/* Smooth theme transition */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Prevent transition on page load */
+.preload * {
+    transition: none !important;
 }

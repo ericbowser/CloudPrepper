@@ -1,5 +1,6 @@
-﻿import React from 'react';
-import {ThemeToggle} from "../Theme/ThemeContext";
+// src/components/Header.tsx - Updated to use ThemeSelector
+import React from 'react';
+import { ThemeSelector } from "../Theme/ThemeContext";
 
 interface HeaderProps {
     title: string;
@@ -8,15 +9,15 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ title, children }) => {
     return (
-        <header className="bg-pastel-mint dark:bg-dark-900 shadow-sm border-b dark:border-gray-700 sticky top-0 z-10">
+        <header className="bg-white dark:bg-dark-900 classic:bg-white classic:border-b classic:border-gray-200 pastel:bg-pastel-mint shadow-sm border-b dark:border-gray-700 pastel:border-pastel-border sticky top-0 z-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
-                    <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h1 className="text-xl font-semibold text-gray-900 dark:text-white classic:text-gray-900 pastel:text-pastel-text">
                         {title}
                     </h1>
                     <div className="flex items-center space-x-4">
                         {children}
-                        <ThemeToggle />
+                        <ThemeSelector />
                     </div>
                 </div>
             </div>
