@@ -4,7 +4,7 @@ import { useQuestions } from '../Question/QuestionContext';
 import QuestionManagement from '../Question/QuestionManagement';
 import { useQueryClient } from '@tanstack/react-query';
 
-export const AdminPage: React.FC = () => {
+const AdminPage: React.FC = () => {
     const { stats, isLoading, error } = useQuestions();
     const [selectedCertification, setSelectedCertification] = useState<'comptia' | 'aws'>('comptia');
     const queryClient = useQueryClient();
@@ -14,7 +14,7 @@ export const AdminPage: React.FC = () => {
         setIsClearingCache(true);
         try {
             // Clear all React Query cache
-            await queryClient.clear();
+            queryClient.clear();
 
             // Also clear localStorage cache
             localStorage.removeItem('allQuestions');
@@ -128,3 +128,4 @@ export const AdminPage: React.FC = () => {
         </div>
     );
 };
+export default AdminPage
