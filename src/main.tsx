@@ -2,7 +2,7 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import './assets/styles/output.css';
 import {ThemeProvider} from "./Theme/ThemeContext";
-import CloudPrepApp from "./App";
+import CloudPrepApp from "../src/App";
 import {QuestionProvider} from "./components/Question/QuestionContext";
 import {QueryClientProvider} from '@tanstack/react-query';
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
@@ -10,9 +10,9 @@ import {queryClient} from './lib/queryClient';
 import {BrowserRouter, Link, Route, Routes} from 'react-router-dom';
 import AdminPage from './components/pages/AdminPage';
 import {AuthProvider, useAuth} from './contexts/AuthContext';
-import {ProtectedRoute} from './components/Auth/ProtectedRoute';
-import {Login} from './components/Auth/Login';
-import {Register} from './components/Auth/Register';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/LoginPage';
+import Register from './pages/RegisterPage';
 
 // Navigation component (needs to be inside AuthProvider to use useAuth)
 const Navigation = () => {

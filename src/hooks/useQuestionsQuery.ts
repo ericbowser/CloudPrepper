@@ -29,7 +29,7 @@ export const useQuestionsQuery = () => {
 };
 
 // Mutation for adding a new question
-export const useAddQuestionMutation = async ()  => {
+export const useAddQuestionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

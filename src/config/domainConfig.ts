@@ -3,8 +3,13 @@ import { Domain, Question, CertificationData } from '../types/preptypes';
 
 // Helper function to populate domains with questions based on domain matching
 const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]): Domain[] => {
+	// Deduplicate questions by question_id to prevent duplicates
+	const uniqueQuestions = Array.from(
+		new Map(questions.map(q => [q.question_id, q])).values()
+	);
+	
 	return domains.map(domain => {
-		const domainQuestions = questions.filter(question => {
+		const domainQuestions = uniqueQuestions.filter(question => {
 			const questionDomain = question.domain.toLowerCase();
             const category = question.category.toLowerCase();
 

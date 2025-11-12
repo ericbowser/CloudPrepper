@@ -231,11 +231,19 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
     // Sync React Query data with local state
     useEffect(() => {
         if (questionsData) {
+            // Deduplicate questions by question_id to prevent duplicates
+            const uniqueComptia = Array.from(
+                new Map((questionsData.comptiaQuestions || []).map(q => [q.question_id, q])).values()
+            );
+            const uniqueAws = Array.from(
+                new Map((questionsData.awsQuestions || []).map(q => [q.question_id, q])).values()
+            );
+
             dispatch({
                 type: 'SET_QUESTIONS',
                 payload: {
-                    comptiaQuestions: questionsData.comptiaQuestions || [],
-                    awsQuestions: questionsData.awsQuestions || []
+                    comptiaQuestions: uniqueComptia,
+                    awsQuestions: uniqueAws
                 }
             });
         }
@@ -273,11 +281,19 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         try {
             const result = await refetch();
             if (result.data) {
+                // Deduplicate questions by question_id to prevent duplicates
+                const uniqueComptia = Array.from(
+                    new Map((result.data.comptiaQuestions || []).map(q => [q.question_id, q])).values()
+                );
+                const uniqueAws = Array.from(
+                    new Map((result.data.awsQuestions || []).map(q => [q.question_id, q])).values()
+                );
+
                 dispatch({
                     type: 'SET_QUESTIONS',
                     payload: {
-                        comptiaQuestions: result.data.comptiaQuestions || [],
-                        awsQuestions: result.data.awsQuestions || []
+                        comptiaQuestions: uniqueComptia,
+                        awsQuestions: uniqueAws
                     }
                 });
             }
@@ -296,13 +312,11 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
 
         try {
             // Use React Query mutation for better caching
-            const response = await addQuestionMutation.mutateAsync(questionData);
+            const newQuestion = await addQuestionMutation.mutateAsync(questionData);
 
-            if (response === null || response === undefined) {
+            if (!newQuestion) {
                 throw new Error('HTTP error adding a new question.');
             }
-
-            const newQuestion = response.data?.question || response;
 
             dispatch({
                 type: 'ADD_QUESTION',
@@ -331,21 +345,20 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
             }
 
             // Use React Query mutation for better caching
-            const response = await updateQuestionMutation.mutateAsync({
+            const updatedQuestion = await updateQuestionMutation.mutateAsync({
                 question_id: questionId,
                 question: updateData
             });
 
-            if (response) {
-                const updatedQuestion = response.question || response;
-                dispatch({
-                    type: 'UPDATE_QUESTION',
-                    payload: {question: updatedQuestion, certification}
-                });
-                return updatedQuestion;
-            } else {
-                throw new Error('HTTP error! status');
+            if (!updatedQuestion) {
+                throw new Error('HTTP error updating question.');
             }
+
+            dispatch({
+                type: 'UPDATE_QUESTION',
+                payload: {question: updatedQuestion, certification}
+            });
+            return updatedQuestion;
         } catch (error) {
             console.error('Error updating question:', error);
             dispatch({

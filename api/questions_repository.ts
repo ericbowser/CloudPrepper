@@ -12,33 +12,38 @@ interface AllQuestionsResponse {
     awsQuestions: Question[];
 }
 
-const addQuestion = async (question: Question | null): Promise<Question | null> => {
+const addQuestion = async (question: Question): Promise<Question> => {
     try {
-        console.log('Sending post request');
+        console.log('Sending POST request to add question');
         const response = await axios.post<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_ADD_QUESTION}`, {question});
 
-        if (response.status === 201) {
+        if (response.status === 201 && response.data) {
+            // Clear localStorage cache to ensure fresh data on next fetch
+            localStorage.removeItem('allQuestions');
             return response.data;
         }
 
-        return null;
+        throw new Error(`Unexpected response status: ${response.status}`);
     } catch (err) {
-        console.error("Failed to fetch questions from API:", err);
+        console.error("Failed to add question:", err);
         throw err;
     }
 };
 
-const updateQuestion = async (question_id: number, question: Question | null): Promise<Question | null> => {
+const updateQuestion = async (question_id: number, question: Question): Promise<Question> => {
     try {
-        console.log('Sending post request');
+        console.log('Sending PUT request to update question');
         const response = await axios.put<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_UPDATE_QUESTION}/${question_id}`, {question});
-        if (response.status === 201) {
+        
+        if ((response.status === 200 || response.status === 201) && response.data) {
+            // Clear localStorage cache to ensure fresh data on next fetch
+            localStorage.removeItem('allQuestions');
             return response.data;
         }
 
-        return null;
+        throw new Error(`Unexpected response status: ${response.status}`);
     } catch (err) {
-        console.error("Failed to fetch questions from API:", err);
+        console.error("Failed to update question:", err);
         throw err;
     }
 };
@@ -46,8 +51,13 @@ const updateQuestion = async (question_id: number, question: Question | null): P
 const getQuestions = async (): Promise<AllQuestionsResponse> => {
     const cachedQuestions = localStorage.getItem('allQuestions');
     if (cachedQuestions) {
-        console.log('Loading questions from cache...');
-        return JSON.parse(cachedQuestions);
+        try {
+            console.log('Loading questions from cache...');
+            return JSON.parse(cachedQuestions);
+        } catch (parseError) {
+            console.warn('Failed to parse cached questions, fetching from API...', parseError);
+            localStorage.removeItem('allQuestions');
+        }
     }
 
     try {
