@@ -21,7 +21,10 @@ import {BeginQuiz} from "./components/Quiz/BeginQuiz";
 import ExtractImageText from "./components/Admin/ExtractImageText";
 //TODO
 
+// Use sessionStorage instead of localStorage to clear state when browser closes
+// Change back to localStorage if you want state to persist across browser sessions
 const CACHE_KEY = 'cloudPrepQuizState';
+const STORAGE = sessionStorage; // Use sessionStorage (clears on browser close) instead of localStorage (persists)
 
 const CloudPrepApp: React.FC = () => {
     // Certification management
@@ -82,7 +85,7 @@ const CloudPrepApp: React.FC = () => {
 
     // Effect to load cached state on mount
     useEffect(() => {
-        const cachedState = localStorage.getItem(CACHE_KEY);
+        const cachedState = STORAGE.getItem(CACHE_KEY);
         if (cachedState) {
             try {
                 const parsedState = JSON.parse(cachedState);
@@ -103,7 +106,7 @@ const CloudPrepApp: React.FC = () => {
                 }
             } catch (e) {
                 console.error("Failed to parse cached state:", e);
-                localStorage.removeItem(CACHE_KEY);
+                STORAGE.removeItem(CACHE_KEY);
             }
         }
 
@@ -130,7 +133,7 @@ const CloudPrepApp: React.FC = () => {
                 timerDuration,
                 isTimerPaused,
             };
-            localStorage.setItem(CACHE_KEY, JSON.stringify(stateToCache));
+            STORAGE.setItem(CACHE_KEY, JSON.stringify(stateToCache));
         }
     }, [
         currentCertification,
