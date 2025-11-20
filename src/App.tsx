@@ -269,13 +269,19 @@ const CloudPrepApp: React.FC = () => {
 
     // Handle answer submission
     const handleOptionSelection = (optionText: string) => {
+        // If question was already answered, reset state to allow re-answering
         if (isAnswered !== null) {
+            // Reset all answer-related state
             setIsAnswered(null);
             setShowExplanation(false);
             setUserAnswers(prev => (prev || []).filter(ans => ans.questionId !== currentQuestion.question_id));
+            // Start fresh with just the newly clicked option
+            setSelectedAnswers([optionText]);
+            return;
         }
 
-        if (currentQuestion.multiple_answers) {
+        // Normal selection/deselection for unanswered questions
+        if (currentQuestion.multiple_answers === true || currentQuestion.multiple_answers === 1 || currentQuestion.multiple_answers === '1') {
             setSelectedAnswers(prev =>
                 prev.includes(optionText)
                     ? prev.filter(ans => ans !== optionText)
@@ -780,7 +786,7 @@ const CloudPrepApp: React.FC = () => {
                                         <h3 className="text-lg font-medium text-gray-900 dark:text-white leading-relaxed mb-3">
                                             {currentQuestion.question_text}
                                         </h3>
-                                        {currentQuestion.multiple_answers && (
+                                        {(currentQuestion.multiple_answers === true || currentQuestion.multiple_answers === 1 || currentQuestion.multiple_answers === '1') && (
                                             <div
                                                 className="flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
                                                 <svg className="w-5 h-5 text-amber-600 dark:text-amber-400"

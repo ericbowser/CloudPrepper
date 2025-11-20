@@ -33,7 +33,6 @@ function ImageTextExtractor() {
         setError('');
 
         try {
-            // Import Tesseract dynamically
             const worker = await Tesseract.createWorker('eng', 1, {
                 logger: (m) => {
                     if (m.status === 'recognizing text') {
@@ -42,7 +41,14 @@ function ImageTextExtractor() {
                 },
             });
 
-            const {data: {text}} = await worker.recognize(image);
+            // Enhanced OCR parameters for better accuracy
+            await worker.setParameters({
+                tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,?!():-[]{}@ ',
+                tessedit_pageseg_mode: Tesseract.PSM.AUTO_OSD, // Better page segmentation
+                preserve_interword_spaces: '1',
+            });
+
+            const { data: { text } } = await worker.recognize(image);
             await worker.terminate();
 
             setExtractedText(text);

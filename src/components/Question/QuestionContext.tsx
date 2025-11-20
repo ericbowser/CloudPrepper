@@ -339,15 +339,10 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         dispatch({type: 'SET_ERROR', payload: null});
 
         try {
-            const updateData = {
-                ...updates,
-                certification: certification
-            }
-
             // Use React Query mutation for better caching
             const updatedQuestion = await updateQuestionMutation.mutateAsync({
                 question_id: questionId,
-                question: updateData
+                question: updates
             });
 
             if (!updatedQuestion) {

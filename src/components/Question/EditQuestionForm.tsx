@@ -5,18 +5,7 @@ import {CERTIFICATIONS} from '../../config/domainConfig';
 
 interface EditQuestionFormProps {
     question: Question;
-    onSubmit: (questionId: number, updateData: {
-        category: string;
-        difficulty: string;
-        domain: any;
-        question_text: string;
-        options: QuestionOptionData[];
-        correct_answer: string;
-        multiple_answers: boolean;
-        correct_answers: string[];
-        explanation: string;
-        explanation_details: { summary: string; breakdown: string[]; otherOptions: string }
-    }, certification: "comptia" | "aws") => Promise<void>;
+    onSubmit: (questionId: number, updateData: Question, certification: "comptia" | "aws") => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
 }
@@ -271,20 +260,23 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
             .filter(opt => opt.isCorrect)
             .map(opt => opt.text);
 
-        const updateData = {
-            "category": formData.category.trim(),
-            "difficulty": formData.difficulty,
-            "domain": selectedCertification?.domains.find(d => d.id === formData.domain)?.name || formData.domain,
-            "question_text": formData.question_text.trim(),
-            "options": validOptions,
-            "correct_answer": correctAnswers.join(', '),
-            "multiple_answers": formData.multiple_answers,
-            "correct_answers": formData.multiple_answers ? correctAnswers : [],
-            "explanation": formData.explanation.trim(),
-            "explanation_details": {
-                "summary": formData.explanation_details.summary.trim() || formData.explanation.trim(),
-                "breakdown": formData.explanation_details.breakdown.filter(point => point.trim()),
-                "otherOptions": formData.explanation_details.otherOptions.trim()
+        const updateData: Question = {
+            question_id: question.question_id,
+            question_number: question.question_number,
+            category: formData.category.trim(),
+            difficulty: formData.difficulty,
+            domainId: question.domainId,
+            domain: selectedCertification?.domains.find(d => d.id === formData.domain)?.name || formData.domain,
+            question_text: formData.question_text.trim(),
+            options: validOptions,
+            correct_answer: correctAnswers.join(', '),
+            multiple_answers: formData.multiple_answers,
+            correct_answers: formData.multiple_answers ? correctAnswers : [],
+            explanation: formData.explanation.trim(),
+            explanation_details: {
+                summary: formData.explanation_details.summary.trim() || formData.explanation.trim(),
+                breakdown: formData.explanation_details.breakdown.filter(point => point.trim()),
+                otherOptions: formData.explanation_details.otherOptions.trim()
             }
         };
 
