@@ -71,6 +71,10 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
     // Initialize form with existing question data
     useEffect(() => {
         if (question) {
+            // Reset hasChanges when question changes
+            setHasChanges(false);
+            setErrors({});
+            
             // Determine certification from domain
             const certification = question.domain?.toLowerCase().includes('aws') ? 'aws' : 'comptia';
 
@@ -106,6 +110,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                 d.name.toLowerCase() === question.domain?.toLowerCase()
             )?.id || '';
 
+            // Re-initialize formData from question prop
             setFormData({
                 certification,
                 domain: domainId,
@@ -113,7 +118,12 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                 difficulty: question.difficulty || 'Knowledge',
                 question_text: question.question_text || '',
                 options: Array.isArray(parsedOptions) && parsedOptions.length > 0
-                    ? parsedOptions
+                    ? parsedOptions.map(opt => ({
+                        text: typeof opt === 'string' ? opt : opt.text || '',
+                        isCorrect: question.correct_answers?.includes(
+                            typeof opt === 'string' ? opt : opt.text || ''
+                        ) || false
+                    }))
                     : [
                         {text: '', isCorrect: false},
                         {text: '', isCorrect: false},
@@ -123,9 +133,9 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                 multiple_answers: question.multiple_answers || false,
                 explanation: question.explanation || '',
                 explanation_details: parsedExplanationDetails || {
-                    summary: '',
-                    breakdown: [''],
-                    otherOptions: ''
+                    summary: question.explanation_details?.summary || question.explanation || '',
+                    breakdown: question.explanation_details?.breakdown || [],
+                    otherOptions: question.explanation_details?.otherOptions || ''
                 }
             });
         }

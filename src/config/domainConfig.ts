@@ -315,7 +315,11 @@ export const updateCertificationWithQuestions = (
 
 	// Populate domains with questions based on domain matching
 	const populatedDomains = populateDomainsWithQuestions(cert.domains, questions);
-	const totalQuestions = populatedDomains.reduce((sum, domain) => sum + domain.totalQuestions, 0);
+	
+	// Use the total number of questions passed in, not just the sum of domain questions
+	// This ensures all questions are counted, even if they don't match a domain filter
+	const totalQuestions = questions.length;
+	const questionsInDomains = populatedDomains.reduce((sum, domain) => sum + domain.totalQuestions, 0);
 
 	// Log domain distribution for debugging
 	console.log(`📈 ${cert.name} Domain Distribution:`);
@@ -323,10 +327,13 @@ export const updateCertificationWithQuestions = (
 		console.log(`  📚 ${domain.name}: ${domain.totalQuestions} questions (${domain.weight}% of exam)`);
 	});
 
-	// Validation - ensure questions are properly distributed
-	if (totalQuestions === 0) {
-		console.warn(`⚠️ No questions mapped for ${cert.name}. Check domain mapping logic.`);
+	// Warn if some questions don't match any domain (for debugging)
+	if (questionsInDomains < totalQuestions) {
+		const unmatched = totalQuestions - questionsInDomains;
+		console.warn(`⚠️ ${unmatched} question(s) in ${cert.name} don't match any domain filter. Total: ${totalQuestions}, Matched: ${questionsInDomains}`);
 	}
+
+	console.log(`✅ ${cert.name} totalQuestions set to: ${totalQuestions} (from ${questions.length} questions)`);
 
 	return {
 		...cert,

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { CLOUD_PREPPER_BASE_URL } from '../../env.json';
 
 interface User {
@@ -29,24 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Load token from localStorage on mount
-    useEffect(() => {
-        const storedToken = localStorage.getItem('auth_token');
-        const storedUser = localStorage.getItem('auth_user');
-
-        if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-            // Verify token is still valid
-            verifyToken(storedToken).catch(() => {
-                // Token invalid, clear auth
-                logout();
-            });
-        }
-        setLoading(false);
-    }, []);
-
-    const verifyToken = async (authToken: string): Promise<void> => {
+    // Verify token function - defined before useEffect to avoid dependency issues
+    const verifyToken = useCallback(async (authToken: string): Promise<void> => {
         try {
             const url = `${CLOUD_PREPPER_BASE_URL}/api/auth/verify`;
             const response = await fetch(url, {
@@ -77,7 +61,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Token verification error:', error);
             throw error;
         }
-    };
+    }, []);
+
+    // Load auth state from sessionStorage on mount (persists across page refreshes)
+    // Auth should only persist during active session (use sessionStorage)
+    useEffect(() => {
+        // Clean up old localStorage data (backward compatibility)
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        
+        // Load auth state from sessionStorage (persists during browser session)
+        const storedToken = sessionStorage.getItem('auth_token');
+        const storedUser = sessionStorage.getItem('auth_user');
+
+        if (storedToken && storedUser) {
+            try {
+                setToken(storedToken);
+                setUser(JSON.parse(storedUser));
+                // Verify token is still valid
+                verifyToken(storedToken).catch(() => {
+                    // Token invalid, clear auth state
+                    setUser(null);
+                    setToken(null);
+                    sessionStorage.removeItem('auth_token');
+                    sessionStorage.removeItem('auth_user');
+                });
+            } catch (error) {
+                console.error('Failed to restore auth state:', error);
+                // Clear invalid sessionStorage data
+                sessionStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_user');
+            }
+        }
+        
+        setLoading(false);
+    }, [verifyToken]);
+
+    // Clean up on page unload - graceful shutdown
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            // Clear all auth state on page close (sessionStorage clears automatically, but we do it explicitly)
+            sessionStorage.removeItem('auth_token');
+            sessionStorage.removeItem('auth_user');
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
 
     const login = async (email: string, password: string): Promise<void> => {
         try {
@@ -138,8 +171,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             setToken(authToken);
             setUser(userData);
-            localStorage.setItem('auth_token', authToken);
-            localStorage.setItem('auth_user', JSON.stringify(userData));
+            // Use sessionStorage instead of localStorage - clears on tab close
+            sessionStorage.setItem('auth_token', authToken);
+            sessionStorage.setItem('auth_user', JSON.stringify(userData));
 
             console.log('Login successful for user:', userData.email);
 
@@ -210,8 +244,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             setToken(authToken);
             setUser(userData);
-            localStorage.setItem('auth_token', authToken);
-            localStorage.setItem('auth_user', JSON.stringify(userData));
+            // Use sessionStorage instead of localStorage - clears on tab close
+            sessionStorage.setItem('auth_token', authToken);
+            sessionStorage.setItem('auth_user', JSON.stringify(userData));
 
             console.log('Registration successful for user:', userData.email);
 
@@ -227,6 +262,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = () => {
         setUser(null);
         setToken(null);
+        // Clear sessionStorage (active session state)
+        sessionStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_user');
+        // Clear localStorage (cleanup old data)
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
     };

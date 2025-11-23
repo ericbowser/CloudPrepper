@@ -34,6 +34,15 @@ const QuestionManagement: React.FC<QuestionManagementProps> = ({ certification }
         setFilter('certification', certification);
     }, [certification, setFilter]);
 
+    // Reset to list view when certification changes
+    useEffect(() => {
+        // Reset to list view when certification changes
+        setViewMode('list');
+        setSelectedQuestion(null);
+        setSuccessMessage('');
+        clearFilters();
+    }, [certification, clearFilters]);
+
     // Handle adding new question
     const handleAddQuestion = async (questionData: Question): Promise<void> => {
         try {
@@ -82,6 +91,9 @@ const QuestionManagement: React.FC<QuestionManagementProps> = ({ certification }
     const handleCancel = () => {
         setViewMode('list');
         setSelectedQuestion(null);
+        setSuccessMessage('');
+        // Force React Query to refetch
+        refreshQuestions();
     };
 
     // Render different views based on mode

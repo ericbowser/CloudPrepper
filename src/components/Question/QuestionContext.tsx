@@ -339,10 +339,13 @@ export const QuestionProvider: React.FC<{ children: React.ReactNode }> = ({child
         dispatch({type: 'SET_ERROR', payload: null});
 
         try {
+            // Add certification to updates for mutation
+            const updatesWithCert = { ...updates, certification } as Question & { certification: 'comptia' | 'aws' };
+            
             // Use React Query mutation for better caching
             const updatedQuestion = await updateQuestionMutation.mutateAsync({
-                question_id: questionId,
-                question: updates
+                questionId: questionId,
+                updates: updatesWithCert
             });
 
             if (!updatedQuestion) {

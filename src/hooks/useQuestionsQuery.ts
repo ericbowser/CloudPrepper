@@ -46,9 +46,7 @@ export const useAddQuestionMutation = () => {
     onSuccess: async () => {
       // Invalidate and refetch questions
       await queryClient.invalidateQueries({ queryKey: questionKeys.all });
-
-      // Clear localStorage cache to stay in sync
-      localStorage.removeItem('allQuestions');
+      // React Query cache is automatically persisted to sessionStorage
     },
     onError: (error, newQuestion, context) => {
       // Rollback on error
@@ -65,44 +63,49 @@ export const useUpdateQuestionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ question_id, question }: { question_id: number; question: Question }) =>
-      updateQuestion(question_id, question),
-    onMutate: async ({ question_id, question }) => {
+    mutationFn: ({ questionId, updates }: { questionId: number; updates: Question & { certification?: 'comptia' | 'aws' } }) => {
+      // Map questionId to question_id for consistency with underlying API
+      return updateQuestion(questionId, updates);
+    },
+    onMutate: async ({ questionId, updates }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: questionKeys.all });
 
-      // Snapshot previous value for rollback
+      // Snapshot previous value
       const previousQuestions = queryClient.getQueryData<AllQuestionsResponse>(questionKeys.all);
 
-      // Optimistically update the cache
-      queryClient.setQueryData<AllQuestionsResponse>(questionKeys.all, (old) => {
-        if (!old) return old;
+      // Optimistically update
+      if (previousQuestions) {
+        // Determine certification from updates.certification or infer from domain
+        const certification = (updates as any).certification || 
+          (updates.domain?.toLowerCase().includes('aws') ? 'aws' : 'comptia');
+        
+        const updateArray = (questions: Question[]) =>
+          questions.map(q => q.question_id === questionId ? { ...q, ...updates } : q);
 
-        const certification = question.category.toLowerCase().includes('comptia') ? 'comptiaQuestions' : 'awsQuestions';
-
-        return {
-          ...old,
-          [certification]: old[certification].map((q) =>
-            q.question_id === question_id ? { ...q, ...question } : q
-          ),
-        };
-      });
+        queryClient.setQueryData<AllQuestionsResponse>(questionKeys.all, {
+          comptiaQuestions: certification === 'comptia' 
+            ? updateArray(previousQuestions.comptiaQuestions)
+            : previousQuestions.comptiaQuestions,
+          awsQuestions: certification === 'aws'
+            ? updateArray(previousQuestions.awsQuestions)
+            : previousQuestions.awsQuestions,
+        });
+      }
 
       return { previousQuestions };
     },
-    onSuccess: () => {
-      // Invalidate and refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: questionKeys.all });
-
-      // Clear localStorage cache
-      localStorage.removeItem('allQuestions');
+    onSuccess: async () => {
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: questionKeys.all });
+      // React Query cache is automatically persisted to sessionStorage
     },
     onError: (error, variables, context) => {
       // Rollback on error
       if (context?.previousQuestions) {
         queryClient.setQueryData(questionKeys.all, context.previousQuestions);
       }
-      console.error('Failed to update question:', error);
+      console.error('Update failed:', error);
     },
   });
 };

@@ -20,9 +20,32 @@ import {CertificationSelection} from "./components/CertificationSelectionPage";
 import {BeginQuiz} from "./components/Quiz/BeginQuiz";
 import ExtractImageText from "./components/Admin/ExtractImageText";
 import {useAuth} from "./contexts/AuthContext";
+import {queryClient} from "./lib/queryClient";
 //TODO
 
+// Use sessionStorage instead of localStorage - clears on tab close
 const CACHE_KEY = 'cloudPrepQuizState';
+
+// Helper to normalize multiple_answers (handles boolean, number, or string from API)
+const isMultipleAnswers = (value: boolean | number | string | undefined): boolean => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value === 1;
+    if (typeof value === 'string') return value === '1' || value === 'true';
+    return false;
+};
+
+// Add function to clear all caches
+const clearAllCaches = () => {
+    // Clear sessionStorage (quiz state and React Query cache)
+    sessionStorage.removeItem('cloudPrepQuizState');
+    sessionStorage.removeItem('react-query-cache');
+    sessionStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_user');
+    // Clear any leftover localStorage items (cleanup only)
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    console.log('All caches cleared');
+};
 
 const CloudPrepApp: React.FC = () => {
     // Get auth state
@@ -82,39 +105,41 @@ const CloudPrepApp: React.FC = () => {
         return () => clearInterval(interval);
     }, [timerEnabled, isTimerPaused, timerDuration, activeSection]);
 
-    // Effect to load cached state on mount
+    // Clean up on mount - only clear old localStorage (not sessionStorage)
     useEffect(() => {
-        const cachedState = localStorage.getItem(CACHE_KEY);
-        if (cachedState) {
-            try {
-                const parsedState = JSON.parse(cachedState);
-                if (parsedState) {
-                    setCurrentCertification(parsedState.currentCertification);
-                    setActiveSection(parsedState.activeSection);
-                    setCurrentQuizConfig(parsedState.currentQuizConfig);
-                    setCurrentQuizQuestions(parsedState.currentQuizQuestions);
-                    setCurrentQuestionIndex(parsedState.currentQuestionIndex);
-                    setUserAnswers(parsedState.userAnswers);
-                    setQuizStartTime(new Date(parsedState.quizStartTime));
-                    setSelectedAnswers(parsedState.selectedAnswers);
-                    setIsAnswered(parsedState.isAnswered);
-                    setShowExplanation(parsedState.showExplanation);
-                    setTimerEnabled(parsedState.timerEnabled || false);
-                    setTimerDuration(parsedState.timerDuration || 0);
-                    setIsTimerPaused(parsedState.isTimerPaused || false);
-                }
-            } catch (e) {
-                console.error("Failed to parse cached state:", e);
-                localStorage.removeItem(CACHE_KEY);
-            }
-        }
-
+        // Only clear old localStorage data (backward compatibility cleanup)
+        // DO NOT clear sessionStorage - it should persist across page refreshes
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        
+        // Load questions from API
         loadQuestionsFromApi()
             .then(() => console.log('questions loaded'))
             .catch(err => console.log(err));
     }, []);
 
-    // Effect to save state to localStorage whenever it changes
+    // Clean up on page unload - graceful shutdown
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            // Clear all session and auth state on page close
+            clearAllCaches();
+        };
+
+        const handleUnload = () => {
+            // Final cleanup
+            clearAllCaches();
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('unload', handleUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('unload', handleUnload);
+        };
+    }, []);
+
+    // Effect to save state to sessionStorage whenever it changes (only during active session)
     useEffect(() => {
         if (!isLoading && currentCertification) {
             const stateToCache = {
@@ -132,7 +157,7 @@ const CloudPrepApp: React.FC = () => {
                 timerDuration,
                 isTimerPaused,
             };
-            localStorage.setItem(CACHE_KEY, JSON.stringify(stateToCache));
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(stateToCache));
         }
     }, [
         currentCertification,
@@ -170,9 +195,15 @@ const CloudPrepApp: React.FC = () => {
 
         try {
             console.log('Loading questions from API...');
+            
+            // Force fresh fetch by invalidating React Query cache first
+            await queryClient.invalidateQueries({ queryKey: ['questions'] });
+            await queryClient.refetchQueries({ queryKey: ['questions'] });
 
             // Load both certification question sets
             const {comptiaQuestions, awsQuestions} = await getQuestions();
+
+            console.log(`📥 Raw API response - CompTIA: ${comptiaQuestions.length}, AWS: ${awsQuestions.length}`);
 
             // Deduplicate questions by question_id
             const uniqueComptia = Array.from(
@@ -182,8 +213,17 @@ const CloudPrepApp: React.FC = () => {
                 new Map(awsQuestions.map(q => [q.question_id, q])).values()
             );
 
-            console.log(`Loaded ${uniqueComptia.length} unique CompTIA questions (${comptiaQuestions.length} total)`);
-            console.log(`Loaded ${uniqueAws.length} unique AWS questions (${awsQuestions.length} total)`);
+            const duplicateComptia = comptiaQuestions.length - uniqueComptia.length;
+            const duplicateAws = awsQuestions.length - uniqueAws.length;
+
+            if (duplicateComptia > 0) {
+                console.warn(`⚠️ Found ${duplicateComptia} duplicate CompTIA question(s) (removed)`);
+            }
+            if (duplicateAws > 0) {
+                console.warn(`⚠️ Found ${duplicateAws} duplicate AWS question(s) (removed)`);
+            }
+
+            console.log(`✅ After deduplication - CompTIA: ${uniqueComptia.length}, AWS: ${uniqueAws.length}`);
 
             // Update certifications with loaded questions (replace, don't append)
             const updatedCertifications = [
@@ -193,6 +233,7 @@ const CloudPrepApp: React.FC = () => {
 
             setLoadedCertifications(updatedCertifications);
             console.log('Questions loaded and certifications updated successfully');
+            console.log(`📊 Final counts - CompTIA: ${updatedCertifications[0].totalQuestions}, AWS: ${updatedCertifications[1].totalQuestions}`);
         } catch (err) {
             console.error('Error loading questions:', err);
             setError(`Failed to load questions. ${err instanceof Error ? err.message : 'Please check the API connection and try again.'}`);
@@ -218,7 +259,7 @@ const CloudPrepApp: React.FC = () => {
     // Start a new quiz with questions from PostgreSQL
     const startQuiz = (config: QuizConfig, currentCert: CertificationData) => {
         try {
-            localStorage.removeItem(CACHE_KEY); // Clear previous cache
+            sessionStorage.removeItem(CACHE_KEY); // Clear previous cache
             setCurrentQuizConfig(config);
 
             let questions: Question[] = [];
@@ -281,7 +322,7 @@ const CloudPrepApp: React.FC = () => {
         }
 
         // Normal selection/deselection for unanswered questions
-        if (currentQuestion.multiple_answers === true || currentQuestion.multiple_answers === 1 || currentQuestion.multiple_answers === '1') {
+        if (isMultipleAnswers(currentQuestion.multiple_answers)) {
             setSelectedAnswers(prev =>
                 prev.includes(optionText)
                     ? prev.filter(ans => ans !== optionText)
@@ -463,9 +504,21 @@ const CloudPrepApp: React.FC = () => {
         setActiveSection('results');
     };
 
+    // Add cache clearing when switching certifications
+    useEffect(() => {
+        if (currentCertification) {
+            // Clear quiz-specific state when switching certifications
+            setCurrentQuestionIndex(0);
+            setUserAnswers(null);
+            setSelectedAnswers([]);
+            setIsAnswered(null);
+            setShowExplanation(false);
+        }
+    }, [currentCertification]);
+
     // Reset quiz
     const resetQuiz = () => {
-        localStorage.removeItem(CACHE_KEY);
+        sessionStorage.removeItem(CACHE_KEY);
         setCurrentCertification(null);
         setCurrentQuizQuestions([]);
         setCurrentQuestionIndex(0);
@@ -786,7 +839,7 @@ const CloudPrepApp: React.FC = () => {
                                         <h3 className="text-lg font-medium text-gray-900 dark:text-white leading-relaxed mb-3">
                                             {currentQuestion.question_text}
                                         </h3>
-                                        {(currentQuestion.multiple_answers === true || currentQuestion.multiple_answers === 1 || currentQuestion.multiple_answers === '1') && (
+                                        {isMultipleAnswers(currentQuestion.multiple_answers) && (
                                             <div
                                                 className="flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
                                                 <svg className="w-5 h-5 text-amber-600 dark:text-amber-400"

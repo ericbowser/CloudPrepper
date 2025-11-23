@@ -7,6 +7,12 @@ interface CertificationSelectionPageProps {
 }
 
 export const CertificationSelection: React.FC<CertificationSelectionPageProps> = ({certifications, onSelectCertification}) => {
+    // Debug: Log certification counts
+    React.useEffect(() => {
+        certifications.forEach(cert => {
+            console.log(`🔍 CertificationSelection: ${cert.name} showing ${cert.totalQuestions} questions`);
+        });
+    }, [certifications]);
 
     return (
         <main className="max-w-4xl mx-auto py-12 sm:px-6 lg:px-8">

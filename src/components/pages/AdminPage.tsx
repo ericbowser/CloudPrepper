@@ -9,23 +9,36 @@ const AdminPage: React.FC = () => {
     const [selectedCertification, setSelectedCertification] = useState<'comptia' | 'aws'>('comptia');
     const queryClient = useQueryClient();
     const [isClearingCache, setIsClearingCache] = useState(false);
+    const [cacheCleared, setCacheCleared] = useState(false);
 
     const handleClearCache = async () => {
+        if (!window.confirm('Clear all caches? This will reset all stored data.')) {
+            return;
+        }
+        
         setIsClearingCache(true);
         try {
             // Clear all React Query cache
             queryClient.clear();
 
-            // Also clear localStorage cache
-            localStorage.removeItem('allQuestions');
-            localStorage.removeItem('cloudPrepQuizState');
+            // Clear ALL sessionStorage keys (active session state)
+            sessionStorage.removeItem('cloudPrepQuizState');
+            sessionStorage.removeItem('react-query-cache'); // Clear React Query cache
+            sessionStorage.removeItem('auth_token');
+            sessionStorage.removeItem('auth_user');
+            // Clear any leftover localStorage items (cleanup only)
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
 
             console.log('Cache cleared successfully');
+            setCacheCleared(true);
+            setTimeout(() => setCacheCleared(false), 3000);
 
-            // Optionally refetch questions immediately
+            // Force refetch
             await queryClient.invalidateQueries({ queryKey: ['questions'] });
         } catch (error) {
             console.error('Failed to clear cache:', error);
+            alert('Failed to clear cache. Check console for details.');
         } finally {
             setIsClearingCache(false);
         }
@@ -33,11 +46,27 @@ const AdminPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             <div className="container mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-white mb-2">Question Management</h1>
-                    <p className="text-gray-300">Add, edit, and manage your certification questions</p>
+                {/* Header with Cache Control */}
+                <div className="mb-8 flex justify-between items-center">
+                    <div>
+                        <h1 className="text-4xl font-bold text-white mb-2">Question Management</h1>
+                        <p className="text-gray-300">Add, edit, and manage your certification questions</p>
+                    </div>
+                    <button
+                        onClick={handleClearCache}
+                        disabled={isClearingCache}
+                        className="px-4 py-2 bg-red-600/20 border border-red-500 text-red-200 rounded-lg hover:bg-red-600/30 disabled:opacity-50 transition-colors"
+                    >
+                        {isClearingCache ? '⏳ Clearing...' : '🗑️ Clear All Caches'}
+                    </button>
                 </div>
+
+                {/* Success message */}
+                {cacheCleared && (
+                    <div className="mb-4 p-4 bg-green-500/20 border border-green-500 rounded-lg">
+                        <p className="text-green-200">✓ All caches cleared successfully!</p>
+                    </div>
+                )}
 
                 {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -80,30 +109,6 @@ const AdminPage: React.FC = () => {
                                 AWS Solutions Architect
                             </button>
                         </div>
-
-                        {/* Cache Control Button */}
-                        <button
-                            onClick={handleClearCache}
-                            disabled={isClearingCache}
-                            className="inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:opacity-50 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
-                        >
-                            {isClearingCache ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Clearing Cache...
-                                </>
-                            ) : (
-                                <>
-                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    Clear Cache
-                                </>
-                            )}
-                        </button>
                     </div>
                 </div>
 

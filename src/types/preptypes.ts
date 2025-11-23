@@ -33,6 +33,7 @@ export interface QuizConfig {
     certification: 'comptia' | 'aws';
     timerEnabled?: boolean;
     timerDuration?: number; // in seconds
+    examSimulationMode?: boolean; // If true, hide feedback during quiz
 }
 
 // Certification data structure

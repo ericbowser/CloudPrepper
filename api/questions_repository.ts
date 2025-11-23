@@ -18,8 +18,6 @@ const addQuestion = async (question: Question): Promise<Question> => {
         const response = await axios.post<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_ADD_QUESTION}`, {question});
 
         if (response.status === 201 && response.data) {
-            // Clear localStorage cache to ensure fresh data on next fetch
-            localStorage.removeItem('allQuestions');
             return response.data;
         }
 
@@ -36,8 +34,6 @@ const updateQuestion = async (question_id: number, question: Question): Promise<
         const response = await axios.put<Question>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_UPDATE_QUESTION}/${question_id}`, {question});
         
         if ((response.status === 200 || response.status === 201) && response.data) {
-            // Clear localStorage cache to ensure fresh data on next fetch
-            localStorage.removeItem('allQuestions');
             return response.data;
         }
 
@@ -48,18 +44,8 @@ const updateQuestion = async (question_id: number, question: Question): Promise<
     }
 };
 
+// Let React Query handle ALL caching
 const getQuestions = async (): Promise<AllQuestionsResponse> => {
-    const cachedQuestions = localStorage.getItem('allQuestions');
-    if (cachedQuestions) {
-        try {
-            console.log('Loading questions from cache...');
-            return JSON.parse(cachedQuestions);
-        } catch (parseError) {
-            console.warn('Failed to parse cached questions, fetching from API...', parseError);
-            localStorage.removeItem('allQuestions');
-        }
-    }
-
     try {
         console.log('Fetching questions from API...');
         const response = await axios.get<AllQuestionsResponse>(`${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_GET_QUESTIONS}`);
@@ -68,7 +54,6 @@ const getQuestions = async (): Promise<AllQuestionsResponse> => {
             throw new Error("Invalid data structure returned from the questions API.");
         }
 
-        localStorage.setItem('allQuestions', JSON.stringify(response.data));
         return response.data;
     } catch (err) {
         console.error("Failed to fetch questions from API:", err);
