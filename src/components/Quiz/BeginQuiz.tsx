@@ -1,8 +1,15 @@
-// components/PracticeSetup.tsx - Updated for PostgreSQL integration
+// components/BeginQuiz.tsx - Unified Quiz Mode with Feedback Toggle
 import React, {useEffect, useState} from 'react';
 import type {CertificationData, Question} from '../../types/preptypes';
 import {QuizConfig} from "../../types/preptypes";
 
+interface DomainAllocation {
+    domainId: string;
+    domainName: string;
+    percentage: number;
+    questionCount: number;
+    availableQuestions: number;
+}
 
 interface PracticeSetupProps {
     certification: CertificationData | undefined;
@@ -13,25 +20,89 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                                             certification,
                                                             onStartQuiz
                                                         }) => {
-    // Selection state
-    const [selectedTestType, setSelectedTestType] = useState<string>('practice');
+    // Basic configuration
+    const [questionCount, setQuestionCount] = useState<number>(30);
+    const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
+    const [timerMinutes, setTimerMinutes] = useState<number>(30);
+
+    // ✨ NEW: Simple feedback toggle (replaces separate exam modes)
+    const [showFeedbackDuringQuiz, setShowFeedbackDuringQuiz] = useState<boolean>(true);
+
+    // Domain and filtering
     const [selectedDomains, setSelectedDomains] = useState<string[]>(['all']);
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
-    const [questionCount, setQuestionCount] = useState<number>(10);
-    const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
-    const [timerMinutes, setTimerMinutes] = useState<number>(10);
 
+    // Advanced configuration
+    const [showAdvancedOptions, setShowAdvancedOptions] = useState<boolean>(false);
+    const [domainAllocations, setDomainAllocations] = useState<DomainAllocation[]>([]);
+    const [selectedCognitiveLevels, setSelectedCognitiveLevels] = useState<string[]>(['all']);
+    const [selectedSkillLevels, setSelectedSkillLevels] = useState<string[]>(['all']);
+    const [useWeightedDomains, setUseWeightedDomains] = useState<boolean>(false);
+
+    // Initialize domain allocations
     useEffect(() => {
-        if (selectedTestType === 'exam-simulation') {
-            setTimerEnabled(true);
-            setTimerMinutes(certification?.examInfo.timeLimit || 90);
-        } else if (selectedTestType && timerEnabled) {
-            setTimerMinutes(getQuestionCountForTestType());
+        if (certification) {
+            initializeDomainAllocations();
         }
-    }, [selectedTestType, certification]);
+    }, [certification, questionCount]);
 
-    // Show loading state if certification is not loaded yet
+    const initializeDomainAllocations = () => {
+        if (!certification) return;
+
+        const allocations: DomainAllocation[] = certification.domains.map(domain => {
+            const weight = domain.weight || (100 / certification.domains.length);
+            const questions = Math.round((weight / 100) * questionCount);
+            return {
+                domainId: domain.id,
+                domainName: domain.name,
+                percentage: weight,
+                questionCount: questions,
+                availableQuestions: domain.totalQuestions
+            };
+        });
+
+        setDomainAllocations(allocations);
+    };
+
+    const updateDomainAllocation = (domainId: string, percentage: number) => {
+        setDomainAllocations(prev => {
+            const updated = prev.map(alloc => {
+                if (alloc.domainId === domainId) {
+                    const numQuestions = Math.round((percentage / 100) * questionCount);
+                    return {...alloc, percentage, questionCount: numQuestions};
+                }
+                return alloc;
+            });
+            return updated;
+        });
+    };
+
+    const autoBalanceDomains = () => {
+        if (!certification) return;
+        const equalPercentage = 100 / certification.domains.length;
+
+        setDomainAllocations(prev => prev.map(alloc => ({
+            ...alloc,
+            percentage: equalPercentage,
+            questionCount: Math.round((equalPercentage / 100) * questionCount)
+        })));
+    };
+
+    const useExamWeights = () => {
+        if (!certification) return;
+
+        setDomainAllocations(prev => prev.map(alloc => {
+            const domain = certification.domains.find(d => d.id === alloc.domainId);
+            const weight = domain?.weight || (100 / certification.domains.length);
+            return {
+                ...alloc,
+                percentage: weight,
+                questionCount: Math.round((weight / 100) * questionCount)
+            };
+        }));
+    };
+
     if (!certification) {
         return (
             <div className="max-w-4xl mx-auto p-6">
@@ -43,7 +114,6 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         );
     }
 
-    // Show message if no questions are loaded
     if (certification.totalQuestions === 0) {
         return (
             <div className="max-w-2xl mx-auto p-6">
@@ -63,15 +133,6 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         );
     }
 
-    // Get all available difficulties and categories from loaded questions
-    const getAllDifficulties = (): string[] => {
-        const difficulties = new Set<string>();
-        certification.domains.forEach(domain => {
-            domain.questions.forEach(q => difficulties.add(q.difficulty));
-        });
-        return Array.from(difficulties).sort();
-    };
-
     const getAllCategories = (): string[] => {
         const categories = new Set<string>();
         certification.domains.forEach(domain => {
@@ -80,11 +141,17 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         return Array.from(categories).sort();
     };
 
-    // Count questions that match current filters
+    const getCognitiveLevels = (): string[] => {
+        return ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create'];
+    };
+
+    const getSkillLevels = (): string[] => {
+        return ['Beginner', 'Intermediate', 'Advanced'];
+    };
+
     const getFilteredQuestionCount = (): number => {
         let questions: Question[] = [];
 
-        // Get questions from selected domains
         if (selectedDomains.includes('all')) {
             questions = certification.domains.flatMap(domain => domain.questions);
         } else {
@@ -93,20 +160,34 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                 .flatMap(domain => domain.questions);
         }
 
-        // Apply difficulty filter
         if (selectedDifficulty !== 'all') {
             questions = questions.filter(q => q.difficulty === selectedDifficulty);
         }
 
-        // Apply category filter
         if (selectedCategory !== 'all') {
             questions = questions.filter(q => q.category === selectedCategory);
+        }
+
+        if (!selectedCognitiveLevels.includes('all')) {
+            questions = questions.filter(q =>
+                selectedCognitiveLevels.some(level =>
+                    q.category.toLowerCase().includes(level.toLowerCase()) ||
+                    q.difficulty.toLowerCase().includes(level.toLowerCase())
+                )
+            );
+        }
+
+        if (!selectedSkillLevels.includes('all')) {
+            questions = questions.filter(q =>
+                selectedSkillLevels.some(level =>
+                    q.difficulty.toLowerCase().includes(level.toLowerCase())
+                )
+            );
         }
 
         return questions.length;
     };
 
-    // Handle domain selection
     const handleDomainToggle = (domainId: string) => {
         if (domainId === 'all') {
             setSelectedDomains(['all']);
@@ -123,101 +204,67 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         }
     };
 
-    // Handle starting the quiz
+    const handleCognitiveLevelToggle = (level: string) => {
+        if (level === 'all') {
+            setSelectedCognitiveLevels(['all']);
+        } else {
+            setSelectedCognitiveLevels(prev => {
+                const newSelection = prev.filter(l => l !== 'all');
+                if (newSelection.includes(level)) {
+                    const filtered = newSelection.filter(l => l !== level);
+                    return filtered.length === 0 ? ['all'] : filtered;
+                } else {
+                    return [...newSelection, level];
+                }
+            });
+        }
+    };
+
+    const handleSkillLevelToggle = (level: string) => {
+        if (level === 'all') {
+            setSelectedSkillLevels(['all']);
+        } else {
+            setSelectedSkillLevels(prev => {
+                const newSelection = prev.filter(l => l !== 'all');
+                if (newSelection.includes(level)) {
+                    const filtered = newSelection.filter(l => l !== level);
+                    return filtered.length === 0 ? ['all'] : filtered;
+                } else {
+                    return [...newSelection, level];
+                }
+            });
+        }
+    };
+
     const handleStartQuiz = () => {
         if (!certification) return;
-        const isExamSimulation = selectedTestType === 'exam-simulation';
+
         const config: QuizConfig = {
-            testType: selectedTestType,
-            selectedDomains,
+            testType: 'unified',
+            selectedDomains: useWeightedDomains
+                ? domainAllocations.map(a => a.domainId)
+                : selectedDomains,
             difficulty: selectedDifficulty,
             selectedCategories: [selectedCategory],
-            questionCount: getQuestionCountForTestType(),
+            questionCount: questionCount,
             certification: certification.id,
-            timerEnabled: isExamSimulation ? true : timerEnabled,
-            timerDuration: isExamSimulation ? certification.examInfo.timeLimit * 60 : (timerEnabled ? timerMinutes * 60 : 0),
-            examSimulationMode: isExamSimulation
+            timerEnabled: timerEnabled,
+            timerDuration: timerEnabled ? timerMinutes * 60 : 0,
+            // ✨ KEY: Use feedback toggle instead of separate exam mode
+            examSimulationMode: !showFeedbackDuringQuiz
         };
 
         onStartQuiz(config);
     };
 
-    // Get question count based on test type
-    const getQuestionCountForTestType: () => number = (): number => {
-        switch (selectedTestType) {
-            case 'quick':
-                return 5;
-            case 'practice':
-                return 10;
-            case 'comprehensive':
-                return 25;
-            case 'domain-focused':
-                return questionCount;
-            case 'full-exam':
-                return certification.examInfo.questionCount;
-            case 'exam-simulation':
-                return certification.examInfo.questionCount;
-            default:
-                return 10;
-        }
-    };
-
-    // Test type options
-    const testTypeOptions = [
-        {
-            value: 'quick',
-            label: 'Quick Practice',
-            description: '5 questions - Fast review',
-            icon: '⚡',
-            questions: 5
-        },
-        {
-            value: 'practice',
-            label: 'Standard Practice',
-            description: '10 questions - Balanced study',
-            icon: '📚',
-            questions: 10
-        },
-        {
-            value: 'comprehensive',
-            label: 'Comprehensive Test',
-            description: '25 questions - Deep assessment',
-            icon: '🎯',
-            questions: 25
-        },
-        {
-            value: 'domain-focused',
-            label: 'Custom Domain Focus',
-            description: 'Custom count - Specific domains',
-            icon: '🔍',
-            questions: questionCount
-        },
-        {
-            value: 'full-exam',
-            label: 'Full Exam Practice',
-            description: `${certification.examInfo.questionCount} questions - Complete exam practice with feedback`,
-            icon: '🏆',
-            questions: certification.examInfo.questionCount
-        },
-        {
-            value: 'exam-simulation',
-            label: 'Exam Simulation',
-            description: `${certification.examInfo.questionCount} questions, ${certification.examInfo.timeLimit} min - Real exam experience (no feedback)`,
-            icon: '🎯',
-            questions: certification.examInfo.questionCount
-        }
-    ];
-
-    const handleQuestionTypeSelection: (optionValue: string) => void = (optionValue: string): void => {
-        setSelectedTestType(optionValue);
-    }
-
     const availableQuestions = getFilteredQuestionCount();
     const canStartQuiz = availableQuestions > 0;
+    const totalPercentage = domainAllocations.reduce((sum, alloc) => sum + alloc.percentage, 0);
+    const isDistributionValid = Math.abs(totalPercentage - 100) < 0.1;
 
     return (
         <div className={'dark:bg-dark-600 dark:text-white bg-pastel-babyblue'}>
-            <div className=" max-w-6xl mx-auto p-6 space-y-8">
+            <div className="max-w-6xl mx-auto p-6 space-y-8">
                 {/* Header */}
                 <div className="text-center">
                     <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
@@ -229,134 +276,268 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                     </p>
                 </div>
 
-                {/* Test Type Selection */}
-                <div
-                    className="font-Burtons bg-pastel-mint dark:bg-dark-900 rounded-lg shadow p-6 dark:border-green-900">
-                    <h2 className="text-xl font-semibold mb-4">Choose Test Type</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {testTypeOptions.map(option => (
-                            <div
-                                key={option.value}
-                                className={`text-xl bg-pastel-pink dark:bg-dark-900 shadow shadow-2xl p-4 rounded-lg border-2 cursor-pointer transition-all dark:shadow dark:shadow-blue-900/50 ${
-                                    selectedTestType === option.value
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-dark-900 '
-                                        : 'border-gray-200 dark:border-pastel-cream hover:border-blue-300 dark:hover:border-blue-500'
-                                }`}
-                                onClick={() => handleQuestionTypeSelection(option.value)}
-                            >
-                                <div className="flex items-center mb-2">
-                                    <span className="text-2xl mr-2">{option.icon}</span>
-                                    <span className="text-gray-800 font-extrabold dark:text-white">{option.label}</span>
-                                </div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{option.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                    {/* Custom Question Count (for domain-focused) */}
-                    {selectedTestType === 'domain-focused' && (
-                        <div className="bg-pastel-pink dark:bg-dark-900 rounded-lg shadow my-4">
-                            <h3 className="text-lg font-semibold mb-3">Question Count</h3>
+                {/* ✨ MAIN CONFIGURATION PANEL */}
+                <div className="font-Burtons bg-pastel-mint dark:bg-dark-900 rounded-lg shadow p-6">
+                    <h2 className="text-xl font-semibold mb-6">Quiz Configuration</h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Question Count */}
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Number of Questions</label>
                             <input
                                 type="number"
-                                min="1"
+                                min="5"
                                 max={availableQuestions}
                                 value={questionCount}
                                 onChange={(e) => setQuestionCount(Number(e.target.value))}
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500"
                             />
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Max: {availableQuestions} available
                             </p>
                         </div>
-                    )}
-                </div>
-                {/* Timer Configuration */}
-                <div className="
-                        text-black 
-                        dark:bg-dark-900 
-                        dark:text-white 
-                        grid 
-                        grid-cols-3
-                        md:grid-cols-2 
-                        lg:grid-cols-3 
-                        gap-6 my-4">
-                    <div className=" dark:bg-dark-900 rounded-lg shadow p-6 m-4">
-                        <div className="bg-pastel-mintlight dark:bg-dark-900 rounded-lg shadow">
-                            <h3 className="dark:border-red-50 text-lg font-semibold mb-3 text-center">Category
-                                Focus</h3>
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                                <option value="all">All Categories</option>
-                                {getAllCategories().map(category => (
-                                    <option key={category} value={category}>
-                                        {category}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
 
-
-                    </div>
-                    <div
-                        className="font-Burtons bg-pastel-aqua text-black bolder flex items-center rounded-lg shadow p-4 m-8">
+                        {/* Timer */}
                         <div>
-                            <h3 className="text-lg font-semibold mb-1">Quiz Timer</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-900">
-                                {selectedTestType === 'exam-simulation' 
-                                    ? 'Timer automatically set to exam time limit'
-                                    : 'Set a time limit for your quiz (recommended for exam simulation)'}
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-medium">Time Limit</label>
+                                <label className="flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={timerEnabled}
+                                        onChange={(e) => setTimerEnabled(e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div
+                                        className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    <span className="ml-2 text-sm">Enable Timer</span>
+                                </label>
+                            </div>
+                            {timerEnabled && (
+                                <input
+                                    type="number"
+                                    min="5"
+                                    max="180"
+                                    value={timerMinutes}
+                                    onChange={(e) => setTimerMinutes(Number(e.target.value))}
+                                    className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                />
+                            )}
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {timerEnabled
+                                    ? `⏱️ ${timerMinutes} minutes`
+                                    : '💡 Recommended: ~' + Math.round(certification.examInfo.timeLimit / certification.examInfo.questionCount * questionCount) + ' min'
+                                }
                             </p>
                         </div>
-                        <label className={`relative inline-flex items-center ${selectedTestType === 'exam-simulation' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-                            <input
-                                type="checkbox"
-                                checked={timerEnabled}
-                                disabled={selectedTestType === 'exam-simulation'}
-                                onChange={(e) => {
-                                    setTimerEnabled(e.target.checked);
-                                    setTimerMinutes(getQuestionCountForTestType());
-                                }}
-                                className="sr-only peer"
-                            />
-                            <div
-                                className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-pastel-mint after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
                     </div>
 
-                    {timerEnabled && (
-                        <div className="mt-4">
-                            <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
-                            <input
-                                type="number"
-                                min="1"
-                                max="180"
-                                value={timerMinutes}
-                                disabled={selectedTestType === 'exam-simulation'}
-                                onChange={(e) => setTimerMinutes(Number(e.target.value))}
-                                className={`w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${selectedTestType === 'exam-simulation' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            />
-                            <p className="text-xs text-gray-500 mt-2">
-                                {selectedTestType === 'exam-simulation' 
-                                    ? `🎯 Exam simulation: Fixed at ${certification.examInfo.timeLimit} minutes`
-                                    : `💡 Exam time limit: ${certification.examInfo.timeLimit} minutes`}
-                            </p>
+                    {/* ✨ FEEDBACK TOGGLE - KEY FEATURE */}
+                    <div
+                        className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="font-semibold text-lg mb-1">Feedback Mode</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    {showFeedbackDuringQuiz
+                                        ? '✅ Show explanations and correct/incorrect indicators during quiz'
+                                        : '🎯 Hide feedback during quiz (exam-style) - Show after submission'
+                                    }
+                                </p>
+                            </div>
+                            <label className="flex items-center cursor-pointer">
+                                <span className="mr-3 text-sm font-medium">
+                                    {showFeedbackDuringQuiz ? '📚 Practice' : '🎯 Exam'}
+                                </span>
+                                <input
+                                    type="checkbox"
+                                    checked={showFeedbackDuringQuiz}
+                                    onChange={(e) => setShowFeedbackDuringQuiz(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div
+                                    className="relative w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ✨ ADVANCED OPTIONS */}
+                <div className="font-Burtons bg-pastel-pink dark:bg-dark-900 rounded-lg shadow p-6">
+                    <button
+                        onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                        className="flex items-center justify-between w-full"
+                    >
+                        <h2 className="text-xl font-semibold">Advanced Options</h2>
+                        <svg
+                            className={`w-6 h-6 transform transition-transform ${showAdvancedOptions ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    {showAdvancedOptions && (
+                        <div className="mt-6 space-y-6">
+                            {/* Category Filter */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Category Focus</label>
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    className="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-dark-600 rounded-lg"
+                                >
+                                    <option value="all">All Categories</option>
+                                    {getAllCategories().map(category => (
+                                        <option key={category} value={category}>{category}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Domain Weighting */}
+                            <div className="p-4 bg-gray-50 dark:bg-dark-800 rounded-lg">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="font-semibold">Domain Distribution</h4>
+                                    <label className="flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={useWeightedDomains}
+                                            onChange={(e) => setUseWeightedDomains(e.target.checked)}
+                                            className="mr-2"
+                                        />
+                                        <span className="text-sm">Custom distribution</span>
+                                    </label>
+                                </div>
+
+                                {useWeightedDomains && (
+                                    <div className="space-y-4">
+                                        <div className="flex gap-2 mb-4">
+                                            <button
+                                                onClick={autoBalanceDomains}
+                                                className="px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200"
+                                            >
+                                                ⚖️ Equal Split
+                                            </button>
+                                            <button
+                                                onClick={useExamWeights}
+                                                className="px-3 py-1 text-sm bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded hover:bg-purple-200"
+                                            >
+                                                🎯 Exam Weights
+                                            </button>
+                                        </div>
+
+                                        {domainAllocations.map((alloc) => (
+                                            <div key={alloc.domainId} className="space-y-2">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="font-medium">{alloc.domainName}</span>
+                                                    <span className="text-gray-600 dark:text-gray-400">
+                                                        {alloc.questionCount} questions ({alloc.percentage.toFixed(1)}%)
+                                                    </span>
+                                                </div>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="100"
+                                                    step="5"
+                                                    value={alloc.percentage}
+                                                    onChange={(e) => updateDomainAllocation(alloc.domainId, Number(e.target.value))}
+                                                    className="w-full"
+                                                />
+                                            </div>
+                                        ))}
+
+                                        <div className={`mt-4 p-3 rounded-lg ${
+                                            isDistributionValid
+                                                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200'
+                                                : 'bg-red-50 dark:bg-red-900/20 border border-red-200'
+                                        }`}>
+                                            <p className="text-sm font-medium">
+                                                Total: {domainAllocations.reduce((sum, a) => sum + a.questionCount, 0)} questions
+                                                ({totalPercentage.toFixed(1)}%)
+                                            </p>
+                                            {!isDistributionValid && (
+                                                <p className="text-xs text-red-600 mt-1">⚠️ Percentages should total
+                                                    100%</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Cognitive Levels */}
+                            <div>
+                                <h4 className="font-semibold mb-3">🧠 Cognitive Levels (Bloom's Taxonomy)</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => handleCognitiveLevelToggle('all')}
+                                        className={`px-3 py-2 text-sm rounded-lg border-2 ${
+                                            selectedCognitiveLevels.includes('all')
+                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                                                : 'border-gray-300 dark:border-gray-600'
+                                        }`}
+                                    >
+                                        All Levels
+                                    </button>
+                                    {getCognitiveLevels().map((level) => (
+                                        <button
+                                            key={level}
+                                            onClick={() => handleCognitiveLevelToggle(level)}
+                                            className={`px-3 py-2 text-sm rounded-lg border-2 ${
+                                                selectedCognitiveLevels.includes(level)
+                                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                                                    : 'border-gray-300 dark:border-gray-600'
+                                            }`}
+                                        >
+                                            {level}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Skill Levels */}
+                            <div>
+                                <h4 className="font-semibold mb-3">📈 Skill Levels</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => handleSkillLevelToggle('all')}
+                                        className={`px-3 py-2 text-sm rounded-lg border-2 ${
+                                            selectedSkillLevels.includes('all')
+                                                ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
+                                                : 'border-gray-300 dark:border-gray-600'
+                                        }`}
+                                    >
+                                        All Levels
+                                    </button>
+                                    {getSkillLevels().map((level) => (
+                                        <button
+                                            key={level}
+                                            onClick={() => handleSkillLevelToggle(level)}
+                                            className={`px-3 py-2 text-sm rounded-lg border-2 ${
+                                                selectedSkillLevels.includes(level)
+                                                    ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
+                                                    : 'border-gray-300 dark:border-gray-600'
+                                            }`}
+                                        >
+                                            {level}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
+
                 {/* Domain Selection */}
-                <div className="font-Burtons bg-pastel-mint dark:bg-dark-900 dark:text-white rounded-lg shadow p-6">
+                <div className="font-Burtons bg-pastel-aqua dark:bg-dark-900 rounded-lg shadow p-6">
                     <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
-                    <div
-                        className="dark:bg-dark-900 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* All Domains Option */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div
-                            className={`bg-pastel-mint dark:bg-dark-900 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                            className={`p-4 rounded-lg border-2 cursor-pointer ${
                                 selectedDomains.includes('all')
-                                    ? 'border-pastel-border bg-blue-50 dark:bg-blue-900/20'
-                                    : 'border-pastel-border dark:border-gray-600 hover:border-blue-300'
+                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                    : 'border-gray-300 dark:border-gray-600'
                             }`}
                             onClick={() => handleDomainToggle('all')}
                         >
@@ -364,19 +545,18 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                 <span className="font-medium">All Domains</span>
                                 <span className="text-2xl">🌐</span>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-white">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
                                 {certification.totalQuestions} questions total
                             </p>
                         </div>
 
-                        {/* Individual Domain Options */}
                         {certification.domains.map(domain => (
                             <div
                                 key={domain.id}
-                                className={`font-Burtons dark:bg-dark-900 bg-pastel-pink p-4 rounded-lg border-2 cursor-pointer transition-all shadow shadow-2xl ${
+                                className={`p-4 rounded-lg border-2 cursor-pointer ${
                                     selectedDomains.includes(domain.id)
                                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                        : 'border-gray-200 dark:border-gray-600 hover:border-blue-300'
+                                        : 'border-gray-300 dark:border-gray-600'
                                 }`}
                                 onClick={() => handleDomainToggle(domain.id)}
                             >
@@ -394,16 +574,16 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                     </div>
                 </div>
 
-                {/* Start Quiz Section */}
-                <div className="font-Burtons bg-pastel-mintlight dark:bg-dark-900 rounded-lg shadow p-6">
+                {/* Start Quiz */}
+                <div className="font-Burtons bg-pastel-cream dark:bg-dark-900 rounded-lg shadow p-6">
                     <div className="flex justify-between items-center">
                         <div>
                             <h3 className="text-lg font-semibold">Ready to Start?</h3>
                             <p className="text-gray-600 dark:text-gray-300">
                                 {availableQuestions > 0 ? (
                                     <>
-                                        {getQuestionCountForTestType()} questions selected
-                                        from {availableQuestions} available
+                                        {questionCount} questions • {timerEnabled ? `${timerMinutes} min` : 'Untimed'}
+                                        {' • '}{showFeedbackDuringQuiz ? '📚 Practice Mode' : '🎯 Exam Mode'}
                                     </>
                                 ) : (
                                     'No questions match your current filters'
@@ -421,31 +601,6 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                         >
                             Start Quiz
                         </button>
-                    </div>
-                </div>
-
-                {/* Exam Information */}
-                <div className="font-Burtons bg-pastel-cream dark:bg-dark-900 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold mb-3">Exam Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div>
-                            <div className="text-2xl font-bold text-blue-600">
-                                {certification.examInfo.questionCount}
-                            </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">Total Questions</div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-green-600">
-                                {certification.examInfo.timeLimit} min
-                            </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">Time Limit</div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-purple-600">
-                                {certification.examInfo.passingScore}
-                            </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">Passing Score</div>
-                        </div>
                     </div>
                 </div>
             </div>
