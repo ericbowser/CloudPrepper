@@ -1,0 +1,2 @@
+export { withAdminAccess } from './withAdminAccess';
+

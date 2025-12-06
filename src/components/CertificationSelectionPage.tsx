@@ -15,30 +15,30 @@ export const CertificationSelection: React.FC<CertificationSelectionPageProps> =
     }, [certifications]);
 
     return (
-        <main className="max-w-4xl mx-auto py-12 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+        <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div className="text-center mb-6">
+                <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl md:text-5xl">
                     Choose Your Path
                 </h1>
-                <p className="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-400 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                <p className="mt-2 max-w-md mx-auto text-sm text-gray-500 dark:text-gray-400 sm:text-base md:mt-3 md:text-lg md:max-w-3xl">
                     Select a certification to start your preparation journey.
                 </p>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-4">
                 {certifications.map((cert) => (
                     <div
                         key={cert.id}
                         onClick={() => onSelectCertification(cert.id)}
                         className="bg-pastel-mintlight dark:bg-dark-700 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
                     >
-                        <div className="p-6 sm:p-8">
+                        <div className="p-4 sm:p-6">
                             <div className="flex items-center">
-                                <span className="text-5xl mr-6">{cert.icon}</span>
+                                <span className="text-4xl mr-4">{cert.icon}</span>
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{cert.name}</h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">{cert.fullName}</p>
-                                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{cert.totalQuestions} questions
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{cert.name}</h2>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{cert.fullName}</p>
+                                    <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">{cert.totalQuestions} questions
                                         available</p>
                                 </div>
                             </div>

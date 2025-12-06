@@ -1,5 +1,7 @@
-import {Question} from "./types/preptypes";
+import {Question} from "@/types/preptypes";
 import React, {useState} from "react";
+import {Button} from "../shared/Button";
+import {Card} from "../shared/Card";
 
 interface QuestionCardProps {
     question: Question;
@@ -25,8 +27,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({question, onEdit, onDelete})
         : [];
 
     return (
-        <div
-            className="text-2xl bg-pastel-mintlight dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-lg p-6 shadow-sm">
+        <Card variant="mint" className="text-2xl">
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
@@ -49,24 +50,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({question, onEdit, onDelete})
                 </div>
 
                 <div className="flex space-x-2">
-                    <button
-                        onClick={onEdit}
-                        className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
+                    <Button variant="primary" size="sm" onClick={onEdit}>
                         Edit
-                    </button>
-                    <button
-                        onClick={onDelete}
-                        className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                    >
+                    </Button>
+                    <Button variant="danger" size="sm" onClick={onDelete}>
                         Delete
-                    </button>
-                    <button
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-                    >
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
                         {isExpanded ? 'Collapse' : 'Expand'}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -116,7 +108,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({question, onEdit, onDelete})
                     </div>
                 </div>
             )}
-        </div>
+        </Card>
     );
 }
 export default QuestionCard;

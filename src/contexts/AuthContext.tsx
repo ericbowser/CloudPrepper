@@ -97,20 +97,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
     }, [verifyToken]);
 
-    // Clean up on page unload - graceful shutdown
-    useEffect(() => {
-        const handleBeforeUnload = () => {
-            // Clear all auth state on page close (sessionStorage clears automatically, but we do it explicitly)
-            sessionStorage.removeItem('auth_token');
-            sessionStorage.removeItem('auth_user');
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, []);
+    // Note: Auth tokens in sessionStorage persist during browser session
+    // They are NOT cleared on page refresh, only on browser/tab close or logout
 
     const login = async (email: string, password: string): Promise<void> => {
         try {
@@ -262,12 +250,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = () => {
         setUser(null);
         setToken(null);
-        // Clear sessionStorage (active session state)
+        // Clear sessionStorage (active session state AND quiz state)
         sessionStorage.removeItem('auth_token');
         sessionStorage.removeItem('auth_user');
+        sessionStorage.removeItem('cloudPrepQuizState'); // Also clear quiz state on logout
+        sessionStorage.removeItem('react-query-cache');
         // Clear localStorage (cleanup old data)
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
+        console.log('🚪 Logout: Cleared all session data');
     };
 
     const value: AuthContextType = {

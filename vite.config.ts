@@ -12,6 +12,10 @@ export default defineConfig({
     server: {
         port: PORT,
         host: HOST,
+        https: {
+            cert: 'ssl/server.crt',
+            key: 'ssl/server.key'
+        }
     },
     plugins: [
         react(),

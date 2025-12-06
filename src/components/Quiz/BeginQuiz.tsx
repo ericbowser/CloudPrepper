@@ -171,8 +171,8 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         if (!selectedCognitiveLevels.includes('all')) {
             questions = questions.filter(q =>
                 selectedCognitiveLevels.some(level =>
-                    q.category.toLowerCase().includes(level.toLowerCase()) ||
-                    q.difficulty.toLowerCase().includes(level.toLowerCase())
+                    (q.category?.toLowerCase() || '').includes(level.toLowerCase()) ||
+                    (q.difficulty?.toLowerCase() || '').includes(level.toLowerCase())
                 )
             );
         }
@@ -180,7 +180,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
         if (!selectedSkillLevels.includes('all')) {
             questions = questions.filter(q =>
                 selectedSkillLevels.some(level =>
-                    q.difficulty.toLowerCase().includes(level.toLowerCase())
+                    (q.difficulty?.toLowerCase() || '').includes(level.toLowerCase())
                 )
             );
         }
@@ -529,50 +529,52 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                     )}
                 </div>
 
-                {/* Domain Selection */}
-                <div className="font-Burtons bg-pastel-aqua dark:bg-dark-900 rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div
-                            className={`p-4 rounded-lg border-2 cursor-pointer ${
-                                selectedDomains.includes('all')
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                    : 'border-gray-300 dark:border-gray-600'
-                            }`}
-                            onClick={() => handleDomainToggle('all')}
-                        >
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="font-medium">All Domains</span>
-                                <span className="text-2xl">🌐</span>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {certification.totalQuestions} questions total
-                            </p>
-                        </div>
-
-                        {certification.domains.map(domain => (
+                {/* Domain Selection - Hidden when using custom distribution */}
+                {!useWeightedDomains && (
+                    <div className="font-Burtons bg-pastel-aqua dark:bg-dark-900 rounded-lg shadow p-6">
+                        <h2 className="text-xl font-semibold mb-4">Select Domains</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div
-                                key={domain.id}
                                 className={`p-4 rounded-lg border-2 cursor-pointer ${
-                                    selectedDomains.includes(domain.id)
+                                    selectedDomains.includes('all')
                                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                         : 'border-gray-300 dark:border-gray-600'
                                 }`}
-                                onClick={() => handleDomainToggle(domain.id)}
+                                onClick={() => handleDomainToggle('all')}
                             >
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-medium">{domain.name}</span>
-                                    <span className="text-2xl">{domain.icon}</span>
+                                    <span className="font-medium">All Domains</span>
+                                    <span className="text-2xl">🌐</span>
                                 </div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{domain.description}</p>
-                                <div className="flex justify-between text-xs text-gray-500">
-                                    <span>{domain.totalQuestions} questions</span>
-                                    <span>Weight: {domain.weight}%</span>
-                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {certification.totalQuestions} questions total
+                                </p>
                             </div>
-                        ))}
+
+                            {certification.domains.map(domain => (
+                                <div
+                                    key={domain.id}
+                                    className={`p-4 rounded-lg border-2 cursor-pointer ${
+                                        selectedDomains.includes(domain.id)
+                                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                            : 'border-gray-300 dark:border-gray-600'
+                                    }`}
+                                    onClick={() => handleDomainToggle(domain.id)}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="font-medium">{domain.name}</span>
+                                        <span className="text-2xl">{domain.icon}</span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{domain.description}</p>
+                                    <div className="flex justify-between text-xs text-gray-500">
+                                        <span>{domain.totalQuestions} questions</span>
+                                        <span>Weight: {domain.weight}%</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Start Quiz */}
                 <div className="font-Burtons bg-pastel-cream dark:bg-dark-900 rounded-lg shadow p-6">

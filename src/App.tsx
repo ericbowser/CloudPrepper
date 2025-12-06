@@ -19,14 +19,15 @@ import {Header} from "./components/Header";
 import {CertificationSelection} from "./components/CertificationSelectionPage";
 import {BeginQuiz} from "./components/Quiz/BeginQuiz";
 import ExtractImageText from "./components/Admin/ExtractImageText";
+import AdminDashboard from "./components/Admin/AdminDashboard";
 import {useAuth} from "./contexts/AuthContext";
 import {queryClient} from "./lib/queryClient";
-//TODO
+import { shuffleArray } from './utils/shuffle'
 
-// Use sessionStorage instead of localStorage - clears on tab close
+// session storage
 const CACHE_KEY = 'cloudPrepQuizState';
 
-// Helper to normalize multiple_answers (handles boolean, number, or string from API)
+// Helper to normalize multiple_answers
 const isMultipleAnswers = (value: boolean | number | string | undefined): boolean => {
     if (typeof value === 'boolean') return value;
     if (typeof value === 'number') return value === 1;
@@ -34,7 +35,6 @@ const isMultipleAnswers = (value: boolean | number | string | undefined): boolea
     return false;
 };
 
-// Add function to clear all caches
 const clearAllCaches = () => {
     // Clear sessionStorage (quiz state and React Query cache)
     sessionStorage.removeItem('cloudPrepQuizState');
@@ -42,8 +42,10 @@ const clearAllCaches = () => {
     sessionStorage.removeItem('auth_token');
     sessionStorage.removeItem('auth_user');
     // Clear any leftover localStorage items (cleanup only)
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+    if (sessionStorage.getItem('auth_token')?.length) {
+        sessionStorage.removeItem('auth_user');
+        localStorage.removeItem('auth_token');
+    }
     console.log('All caches cleared');
 };
 
@@ -112,22 +114,67 @@ const CloudPrepApp: React.FC = () => {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
         
+        // 🔄 RESTORE cached quiz state from sessionStorage (for logged-in users)
+        const cachedState = sessionStorage.getItem(CACHE_KEY);
+        if (cachedState) {
+            try {
+                const parsed = JSON.parse(cachedState);
+                console.log('📦 Restoring cached quiz state from sessionStorage');
+                
+                // Restore all quiz state
+                setCurrentCertification(parsed.currentCertification);
+                setActiveSection(parsed.activeSection);
+                setCurrentQuizConfig(parsed.currentQuizConfig);
+                setCurrentQuizQuestions(parsed.currentQuizQuestions || []);
+                setCurrentQuestionIndex(parsed.currentQuestionIndex || 0);
+                setUserAnswers(parsed.userAnswers || null);
+                setSelectedAnswers(parsed.selectedAnswers || []);
+                setIsAnswered(parsed.isAnswered);
+                setShowExplanation(parsed.showExplanation || false);
+                setTimerEnabled(parsed.timerEnabled || false);
+                setTimerDuration(parsed.timerDuration || 0);
+                setIsTimerPaused(parsed.isTimerPaused || false);
+                
+                if (parsed.quizStartTime) {
+                    setQuizStartTime(new Date(parsed.quizStartTime));
+                }
+                
+                console.log('✅ Quiz state restored successfully');
+            } catch (err) {
+                console.error('Failed to restore cached state:', err);
+                sessionStorage.removeItem(CACHE_KEY);
+            }
+        }
+        
         // Load questions from API
         loadQuestionsFromApi()
             .then(() => console.log('questions loaded'))
             .catch(err => console.log(err));
     }, []);
 
-    // Clean up on page unload - graceful shutdown
+    // Clean up on page unload - differentiate between logged-in and guest users
     useEffect(() => {
         const handleBeforeUnload = () => {
-            // Clear all session and auth state on page close
-            clearAllCaches();
+            // Check if user is logged in (has auth token in sessionStorage)
+            const authToken = sessionStorage.getItem('auth_token');
+            
+            if (!authToken) {
+                // Guest user - clear quiz state on page close
+                console.log('🛡️ Guest user: Clearing quiz state on browser close');
+                sessionStorage.removeItem('cloudPrepQuizState');
+            } else {
+                // Logged-in user - preserve quiz state for resume on refresh
+                console.log('🔐 Logged-in user: Preserving quiz state');
+                // Do NOT clear cloudPrepQuizState or auth tokens
+            }
         };
 
         const handleUnload = () => {
-            // Final cleanup
-            clearAllCaches();
+            // Final cleanup - same logic as beforeunload
+            const authToken = sessionStorage.getItem('auth_token');
+            if (!authToken) {
+                sessionStorage.removeItem('cloudPrepQuizState');
+            }
         };
 
         window.addEventListener('beforeunload', handleBeforeUnload);
@@ -274,7 +321,7 @@ const CloudPrepApp: React.FC = () => {
             }
 
             // Shuffle questions
-            questions = questions.sort(() => 0.5 - Math.random());
+            questions = shuffleArray(questions);
 
             // Limit to requested count
             if (config.questionCount && questions.length > config.questionCount) {
@@ -590,20 +637,32 @@ const CloudPrepApp: React.FC = () => {
         );
     }
 
-    if (!currentCertification) {
+    if (!currentCertification && activeSection !== 'admin') {
         return (
             <div className="dark:bg-dark-900 dark:text-white bg-gray-50 min-h-screen font-burtons">
                 <Header title="Cloud Prepper">
                     {isAdmin && (
-                        <button
-                            onClick={() => setShowOcr(true)}
-                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
-                        >
-                            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            OCR Tool
-                        </button>
+                        <>
+                            <button
+                                onClick={() => setActiveSection('admin')}
+                                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm font-medium mr-2"
+                            >
+                                <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Admin Panel
+                            </button>
+                            <button
+                                onClick={() => setShowOcr(true)}
+                                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+                            >
+                                <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                OCR Tool
+                            </button>
+                        </>
                     )}
                 </Header>
                 <CertificationSelection
@@ -618,6 +677,11 @@ const CloudPrepApp: React.FC = () => {
         );
     }
 
+    // Handle admin panel access without certification
+    if (activeSection === 'admin' && isAdmin) {
+        return <AdminDashboard />;
+    }
+
     const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
         const baseClasses = "bg-pastel-lightGreen w-full text-left p-2.5 rounded-lg border-2 transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.99] shadow-sm hover:shadow-md ";
         const isExamSimulation = currentQuizConfig?.examSimulationMode ?? false;
@@ -625,28 +689,28 @@ const CloudPrepApp: React.FC = () => {
         // In exam simulation mode, never show correct/incorrect borders - only show selection
         if (isExamSimulation) {
             if (selectedAnswers.includes(option.text)) {
-                return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-blue-100 dark:shadow-blue-900/50`;
+                return `${baseClasses} pastel:border-pastel-cyan pastel:bg-pastel-bluelight classic:border-blue-500 classic:bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500 pastel:ring-1 pastel:ring-pastel-border classic:ring-2 classic:ring-blue-200 dark:ring-blue-800 border-blue-500 bg-blue-50 ring-2 ring-blue-200`;
             }
-            return `${baseClasses} border-blue-400 dark:border-gray-600  dark:bg-dark-900 hover:border-blue-300 hover:bg-blue-25 dark:hover:bg-dark-700 hover:ring-1 hover:ring-blue-200 dark:hover:ring-blue-800`;
+            return `${baseClasses} pastel:border-pastel-border pastel:bg-white classic:border-blue-400 classic:hover:border-blue-300 classic:hover:bg-blue-25 dark:border-gray-600 dark:bg-dark-900 dark:hover:bg-dark-700 pastel:hover:border-pastel-mint pastel:hover:bg-pastel-mintlight/50 border-blue-400 hover:border-blue-300`;
         }
 
         // Normal mode - show feedback
         if (isAnswered !== null) {
             const isSelected = selectedAnswers.includes(option.text);
             if (option.isCorrect) {
-                return `${baseClasses} border-green-500 bg-pastel-green dark:bg-green-900/30 dark:border-green-600 shadow-green-100 dark:shadow-green-900/50`;
+                return `${baseClasses} pastel:border-green-400 pastel:bg-green-50 classic:border-green-500 classic:bg-green-50 dark:bg-green-900/30 dark:border-green-600 border-green-500 bg-green-50`;
             }
             if (isSelected && !option.isCorrect) {
-                return `${baseClasses} border-red-500 bg-red-50 dark:bg-red-900/30 dark:border-red-600 shadow-red-100 dark:shadow-red-900/50`;
+                return `${baseClasses} pastel:border-red-300 pastel:bg-red-50 classic:border-red-500 classic:bg-red-50 dark:bg-red-900/30 dark:border-red-600 border-red-500 bg-red-50`;
             }
-            return `${baseClasses} border-gray-300 dark:border-gray-600 bg-pastel-mint dark:bg-dark-900 opacity-75`;
+            return `${baseClasses} pastel:border-pastel-border pastel:bg-pastel-mintlight classic:border-gray-300 classic:bg-white dark:border-gray-600 dark:bg-dark-900 border-gray-300 bg-white opacity-75`;
         }
 
         if (selectedAnswers.includes(option.text)) {
-            return `${baseClasses} border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800 shadow-blue-100 dark:shadow-blue-900/50`;
+            return `${baseClasses} pastel:border-pastel-cyan pastel:bg-pastel-bluelight classic:border-blue-500 classic:bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500 pastel:ring-1 pastel:ring-pastel-border classic:ring-2 classic:ring-blue-200 dark:ring-blue-800 border-blue-500 bg-blue-50 ring-2 ring-blue-200`;
         }
 
-        return `${baseClasses} border-blue-400 dark:border-gray-600  dark:bg-dark-900 hover:border-blue-300 hover:bg-blue-25 dark:hover:bg-dark-700 hover:ring-1 hover:ring-blue-200 dark:hover:ring-blue-800`;
+        return `${baseClasses} pastel:border-pastel-border pastel:bg-white classic:border-blue-400 classic:hover:border-blue-300 classic:hover:bg-blue-25 dark:border-gray-600 dark:bg-dark-900 dark:hover:bg-dark-700 pastel:hover:border-pastel-mint pastel:hover:bg-pastel-mintlight/50 border-blue-400 hover:border-blue-300`;
     };
 
     return (
@@ -691,15 +755,27 @@ const CloudPrepApp: React.FC = () => {
                 )}
 
                 {isAdmin && (
-                    <button
-                        onClick={() => setShowOcr(true)}
-                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium mr-4"
-                    >
-                        <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        OCR Tool
-                    </button>
+                    <>
+                        <button
+                            onClick={() => setActiveSection('admin')}
+                            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm font-medium mr-2"
+                        >
+                            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Admin Panel
+                        </button>
+                        <button
+                            onClick={() => setShowOcr(true)}
+                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium mr-4"
+                        >
+                            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            OCR Tool
+                        </button>
+                    </>
                 )}
 
                 <button
@@ -836,7 +912,7 @@ const CloudPrepApp: React.FC = () => {
 
                                     {/* Question Text */}
                                     <div className="mb-3">
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white leading-relaxed mb-3">
+                                        <h3 className="text-xl font-medium text-gray-900 dark:text-white leading-relaxed mb-3">
                                             {currentQuestion.question_text}
                                         </h3>
                                         {isMultipleAnswers(currentQuestion.multiple_answers) && (

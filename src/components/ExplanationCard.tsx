@@ -26,7 +26,7 @@ export const ExplanationCard: React.FC<ExplanationCardProps> = ({question, onPro
                     <div className="bg-pastel-bluelight dark:bg-white/10 border border-gray-200 dark:border-gray-600 rounded-lg p-4 animate-fade-in">
                         <h5 className="font-medium text-blue-700 dark:text-blue-400 mb-2 text-sm">{question.explanation_details.summary}</h5>
                         <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1 text-sm">
-                            {question.explanation_details.breakdown.map((item, i) => (
+                          {question?.explanation_details?.breakdown?.map((item, i) => (
                                 <li key={i}>{item}</li>
                             ))}
                         </ul>

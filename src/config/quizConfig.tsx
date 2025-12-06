@@ -6,14 +6,14 @@ interface QuizConfigProps {
     allQuestions: Question[];
 }
 
-export const QuizConfig: React.FC<QuizConfigProps> = ({ onStartQuiz, allQuestions }) => {
+const QuizConfig: React.FC<QuizConfigProps> = ({ onStartQuiz, allQuestions }) => {
     const [selectedTestType, setSelectedTestType] = useState<string>('quick');
     const [selectedDomain, setSelectedDomain] = useState<string>('all');
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
     const [questionCount, setQuestionCount] = useState<number>(10);
 
     const getRandomQuestions = (questions: Question[], count: number): Question[] => {
-        const shuffled = [...questions].sort(() => 0.5 - Math.random());
+        const shuffled = shuffleArray(questions);
         return shuffled.slice(0, Math.min(count, questions.length));
     };
 
@@ -175,3 +175,5 @@ export const QuizConfig: React.FC<QuizConfigProps> = ({ onStartQuiz, allQuestion
         </div>
     );
 };
+
+export default QuizConfig;

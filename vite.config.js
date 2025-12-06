@@ -12,7 +12,11 @@ module.exports = defineConfig({
     server: {
         port: PORT,
         host: HOST, 
-        proxy: [nodePolyfills() ]
+        proxy: [nodePolyfills() ],
+        // https: {
+        //     cert: 'ssl/server.crt',
+        //     key: 'ssl/server.key'
+        // }
     },
     plugins: [
         react(),
