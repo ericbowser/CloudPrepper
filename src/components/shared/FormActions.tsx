@@ -34,17 +34,16 @@ export const FormActions: React.FC<FormActionsProps> = ({
                     {cancelLabel}
                 </Button>
             )}
-            {onSubmit && (
-                <Button
-                    type="submit"
-                    variant={submitVariant}
-                    isLoading={isLoading}
-                    loadingText={submitLabel}
-                    disabled={submitDisabled || isLoading}
-                >
-                    {submitLabel}
-                </Button>
-            )}
+            <Button
+                type="submit"
+                variant={submitVariant}
+                isLoading={isLoading}
+                loadingText={submitLabel}
+                disabled={submitDisabled || isLoading}
+                onClick={onSubmit}
+            >
+                {submitLabel}
+            </Button>
         </div>
     );
 };

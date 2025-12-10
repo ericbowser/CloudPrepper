@@ -18,7 +18,6 @@ import {Dashboard} from "./components/Dashboard";
 import {Header} from "./components/Header";
 import {CertificationSelection} from "./components/CertificationSelectionPage";
 import {BeginQuiz} from "./components/Quiz/BeginQuiz";
-import ExtractImageText from "./components/Admin/ExtractImageText";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import {useAuth} from "./contexts/AuthContext";
 import {queryClient} from "./lib/queryClient";
@@ -64,8 +63,6 @@ const CloudPrepApp: React.FC = () => {
 
     // Main application state
     const [activeSection, setActiveSection] = useState<SectionType | string>('quiz');
-    const [showOcr, setShowOcr] = useState<boolean>(false);
-    const [showQuestionForm, setShowQuestionForm] = useState<boolean>(false);
 
     // Quiz state
     const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
@@ -107,6 +104,19 @@ const CloudPrepApp: React.FC = () => {
         return () => clearInterval(interval);
     }, [timerEnabled, isTimerPaused, timerDuration, activeSection]);
 
+    // Listen for admin navigation events from main nav
+    useEffect(() => {
+        const handleNavigateToAdmin = () => {
+            setActiveSection('admin');
+        };
+        
+        window.addEventListener('navigateToAdmin', handleNavigateToAdmin);
+        
+        return () => {
+            window.removeEventListener('navigateToAdmin', handleNavigateToAdmin);
+        };
+    }, []);
+
     // Clean up on mount - only clear old localStorage (not sessionStorage)
     useEffect(() => {
         // Only clear old localStorage data (backward compatibility cleanup)
@@ -123,7 +133,9 @@ const CloudPrepApp: React.FC = () => {
                 
                 // Restore all quiz state
                 setCurrentCertification(parsed.currentCertification);
-                setActiveSection(parsed.activeSection);
+                // DON'T restore 'admin' section - always start fresh on route '/'
+                const restoredSection = parsed.activeSection === 'admin' ? 'quiz' : parsed.activeSection;
+                setActiveSection(restoredSection);
                 setCurrentQuizConfig(parsed.currentQuizConfig);
                 setCurrentQuizQuestions(parsed.currentQuizQuestions || []);
                 setCurrentQuestionIndex(parsed.currentQuestionIndex || 0);
@@ -188,7 +200,8 @@ const CloudPrepApp: React.FC = () => {
 
     // Effect to save state to sessionStorage whenever it changes (only during active session)
     useEffect(() => {
-        if (!isLoading && currentCertification) {
+        // Don't cache if in admin section (admin has its own route at /admin)
+        if (!isLoading && currentCertification && activeSection !== 'admin') {
             const stateToCache = {
                 currentCertification,
                 activeSection,
@@ -587,19 +600,7 @@ const CloudPrepApp: React.FC = () => {
         }
     };
 
-    const ocrModal = showOcr && isAdmin && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-            <div className="relative bg-pastel-mintlight dark:bg-dark-900 p-4 rounded-lg shadow-lg max-w-3xl w-full">
-                <ExtractImageText/>
-                <button
-                    onClick={() => setShowOcr(false)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
-                >
-                    X
-                </button>
-            </div>
-        </div>
-    );
+
 
     if (isLoading && !currentCertification) { // Show loading only if no cached cert
         return (
@@ -608,7 +609,6 @@ const CloudPrepApp: React.FC = () => {
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-lg text-gray-600">Loading questions from API...</p>
                 </div>
-                {ocrModal}
             </div>
         );
     }
@@ -632,7 +632,6 @@ const CloudPrepApp: React.FC = () => {
                         Retry Connection
                     </button>
                 </div>
-                {ocrModal}
             </div>
         );
     }
@@ -641,29 +640,7 @@ const CloudPrepApp: React.FC = () => {
         return (
             <div className="dark:bg-dark-900 dark:text-white bg-gray-50 min-h-screen font-burtons">
                 <Header title="Cloud Prepper">
-                    {isAdmin && (
-                        <>
-                            <button
-                                onClick={() => setActiveSection('admin')}
-                                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm font-medium mr-2"
-                            >
-                                <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                Admin Panel
-                            </button>
-                            <button
-                                onClick={() => setShowOcr(true)}
-                                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
-                            >
-                                <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                OCR Tool
-                            </button>
-                        </>
-                    )}
+                    {/* Admin controls moved to main navigation */}
                 </Header>
                 <CertificationSelection
                     certifications={loadedCertifications}
@@ -672,14 +649,20 @@ const CloudPrepApp: React.FC = () => {
                         setActiveSection('practice');
                     }}
                 />
-                {ocrModal}
             </div>
         );
     }
 
     // Handle admin panel access without certification
     if (activeSection === 'admin' && isAdmin) {
-        return <AdminDashboard />;
+        return <AdminDashboard onNavigateHome={() => {
+            // Navigate back to the quiz section
+            if (currentCertification) {
+                setActiveSection('practice');  // Go to practice setup if certification selected
+            } else {
+                setActiveSection('quiz');  // Otherwise go to certification selection
+            }
+        }} />;
     }
 
     const getOptionClassName: (option: QuestionOptionData) => string = (option: QuestionOptionData) => {
@@ -751,30 +734,6 @@ const CloudPrepApp: React.FC = () => {
                                 </span>
                             </div>
                         </div>
-                    </>
-                )}
-
-                {isAdmin && (
-                    <>
-                        <button
-                            onClick={() => setActiveSection('admin')}
-                            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm font-medium mr-2"
-                        >
-                            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            Admin Panel
-                        </button>
-                        <button
-                            onClick={() => setShowOcr(true)}
-                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium mr-4"
-                        >
-                            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            OCR Tool
-                        </button>
                     </>
                 )}
 
@@ -1099,7 +1058,6 @@ const CloudPrepApp: React.FC = () => {
                     )}
                 </main>
             </div>
-            {ocrModal}
         </div>
     );
 };
