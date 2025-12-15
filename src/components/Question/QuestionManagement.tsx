@@ -1,9 +1,9 @@
 // src/components/QuestionManagement.tsx - Complete CRUD workflow
 import React, { useEffect, useState } from 'react';
 import { Question } from '../../types/preptypes';
-import { useQuestions, useQuestionFilters } from '../Question/QuestionContext';
-import AddQuestionForm from './AddQuestionForm';
-import EditQuestionForm from './EditQuestionForm';
+import { useQuestions, useQuestionFilters } from '../../contexts/QuestionContext';
+import AddQuestionForm from '../Admin/AddQuestionForm';
+import EditQuestionForm from '../Admin/EditQuestionForm';
 import QuestionCard from './QuestionCard';
 
 type ViewMode = 'list' | 'add' | 'edit';

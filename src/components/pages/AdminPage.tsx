@@ -1,6 +1,6 @@
 // Admin page for question management - centralized CRUD operations
 import React, { useState } from 'react';
-import { useQuestions } from '../Question/QuestionContext';
+import { useQuestions } from '../../contexts/QuestionContext';
 import QuestionManagement from '../Question/QuestionManagement';
 import { useQueryClient } from '@tanstack/react-query';
 

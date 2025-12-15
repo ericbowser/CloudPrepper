@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import AdminBackup from './AdminBackup';
 import ExtractImageText from './ExtractImageText';
+import QuestionManager from './QuestionManager';
 import ProtectedRoute from '../ProtectedRoute';
 import { AdminNavBar } from '../shared/AdminNavBar';
 
@@ -203,19 +204,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome }) => {
     );
 
     const QuestionsSection: React.FC = () => (
-        <div className="space-y-6">
-            <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-                <div className="text-center py-12">
-                    <div className="text-6xl mb-4">🚧</div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                        Question Manager Coming Soon
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                        Advanced question management features including bulk import, editing, and categorization will be available in the next update.
-                    </p>
-                </div>
-            </div>
-        </div>
+        <QuestionManager />
     );
 
     const UsersSection: React.FC = () => (

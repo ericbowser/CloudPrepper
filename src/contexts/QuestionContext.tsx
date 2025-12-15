@@ -1,8 +1,8 @@
 // src/context/QuestionContext.tsx - Enhanced with React Query
 import React, {createContext, useCallback, useContext, useEffect, useReducer} from 'react';
 import {CertificationData, Question} from '../../types/preptypes';
-import {CERTIFICATIONS} from '../../config/domainConfig';
-import {useQuestionsQuery, useAddQuestionMutation, useUpdateQuestionMutation} from '../../hooks/useQuestionsQuery';
+import {CERTIFICATIONS} from '../config/domainConfig';
+import {useQuestionsQuery, useAddQuestionMutation, useUpdateQuestionMutation} from '../hooks/useQuestionsQuery';
 
 // Types for the context
 interface QuestionState {
