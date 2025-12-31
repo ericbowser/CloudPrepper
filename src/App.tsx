@@ -20,7 +20,7 @@ import {CertificationSelection} from "./components/CertificationSelectionPage";
 import {BeginQuiz} from "./components/Quiz/BeginQuiz";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import {useAuth} from "./contexts/AuthContext";
-import {queryClient} from "./lib/queryClient";
+import {queryClient} from "./data/queryClient";
 import { shuffleArray } from './utils/shuffle'
 
 // session storage

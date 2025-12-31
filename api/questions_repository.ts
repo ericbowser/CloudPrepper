@@ -1,4 +1,4 @@
-import apiClient from '../src/lib/axios';
+import apiClient from './axios';
 import type {Question} from "@/types/preptypes";
 import {
     CLOUD_PREPPER_ADD_QUESTION,

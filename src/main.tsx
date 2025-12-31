@@ -6,7 +6,7 @@ import CloudPrepApp from "../src/App";
 import {QuestionProvider} from "./contexts/QuestionContext";
 import {QueryClientProvider} from '@tanstack/react-query';
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
-import {queryClient} from './lib/queryClient';
+import {queryClient} from './data/queryClient';
 import {BrowserRouter, Link, Route, Routes} from 'react-router-dom';
 import AdminPage from './components/pages/AdminPage';
 import {AuthProvider, useAuth} from './contexts/AuthContext';

@@ -1,6 +1,6 @@
 // src/lib/axios.ts - Authenticated axios instance
 import axios from 'axios';
-import { CLOUD_PREPPER_BASE_URL } from '../../env.json';
+import { CLOUD_PREPPER_BASE_URL } from '../env.json';
 
 // Create an axios instance with base configuration
 const apiClient = axios.create({
