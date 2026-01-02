@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { CLOUD_PREPPER_BASE_URL } from '../config/env';
 
 interface ProfileImageUploadProps {
     currentAvatarUrl?: string | null;
@@ -18,7 +19,6 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const CLOUD_PREPPER_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:32636';
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 

@@ -1,7 +1,7 @@
 {
   "name": "comptia",
   "version": "1.0.0",
-  "description": "",
+  "description": "Cloud preperation tool",
   "type": "commonjs",
   "homepage": "https://github.com/ericbowser/CompTIAPrepper#readme",
   "bugs": {
@@ -37,11 +37,11 @@
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.9.3",
-    "tesseract.js": "^6.0.1",
-    "vite": "^7.1.2"
+    "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.14",
@@ -50,9 +50,10 @@
     "@types/pg": "^8.15.5",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^5.0.1",
+    "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.21",
     "caniuse-lite": "^1.0.30001735",
+    "dotenv": "^17.2.3",
     "esbuild": "^0.25.12",
     "fs": "^0.0.1-security",
     "lucide-react": "^0.546.0",
@@ -61,7 +62,7 @@
     "rollup-plugin-polyfill-node": "^0.13.0",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3",
-    "vite": "^7.1.2",
+    "vite": "^7.3.0",
     "vite-plugin-node-polyfills": "^0.24.0"
   }
 }

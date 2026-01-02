@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { CLOUD_PREPPER_BASE_URL } from '../../env.json';
+import { CLOUD_PREPPER_BASE_URL } from '../config/env';
 
 interface User {
     id: number;

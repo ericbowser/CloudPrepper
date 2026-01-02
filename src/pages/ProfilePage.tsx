@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Navigation from '../components/Navigation';
 import ProfileImageUpload from '../components/ProfileImageUpload';
+import { CLOUD_PREPPER_BASE_URL } from '../config/env';
 
 interface UserProfile {
     id: number;
     username: string;
     email: string;
-    role: string;
+    role: 'user' | 'admin';
     avatar_url: string | null;
     user_type?: string;
 }
@@ -18,7 +19,6 @@ const ProfilePage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const CLOUD_PREPPER_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:32636';
 
     useEffect(() => {
         fetchProfile();

@@ -4,7 +4,7 @@ import {
     CLOUD_PREPPER_ADD_QUESTION,
     CLOUD_PREPPER_GET_QUESTIONS,
     CLOUD_PREPPER_UPDATE_QUESTION
-} from '../env.json';
+} from '../src/config/env';
 
 interface AllQuestionsResponse {
     comptiaQuestions: Question[];

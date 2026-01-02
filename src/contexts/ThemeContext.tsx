@@ -1,8 +1,12 @@
+"use client";
+
 // src/Theme/ThemeContext.tsx - Updated for 3 themes
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import { useEffect, useState} from 'react';
+import {createContext, useContext} from 'react';
 
 // Theme type definition
-export type ThemeType = 'classic' | 'pastel' | 'dark';
+const THEMES = ['classic', 'pastel', 'dark'] as const;
+export type ThemeType = typeof THEMES[number];
 
 interface ThemeContextType {
     theme: ThemeType;
@@ -18,7 +22,7 @@ export const ThemeProvider = ({children}: { children: React.ReactNode }) => {
     const [theme, setThemeState] = useState<ThemeType>(() => {
         // Check localStorage first
         const savedTheme = localStorage.getItem('theme') as ThemeType;
-        if (savedTheme && ['classic', 'pastel', 'dark'].includes(savedTheme)) {
+        if (savedTheme && THEMES.includes(savedTheme as ThemeType)) {
             return savedTheme;
         }
         
@@ -30,7 +34,7 @@ export const ThemeProvider = ({children}: { children: React.ReactNode }) => {
         const root = window.document.documentElement;
         
         // Remove all theme classes
-        root.classList.remove('classic', 'pastel', 'dark');
+        root.classList.remove(...THEMES);
         
         // Add current theme class
         root.classList.add(theme);
@@ -166,10 +170,9 @@ export const ThemeToggle: React.FC = () => {
     const { theme, setTheme } = useTheme();
 
     const cycleTheme = () => {
-        const themeOrder: ThemeType[] = ['classic', 'pastel', 'dark'];
-        const currentIndex = themeOrder.indexOf(theme);
-        const nextIndex = (currentIndex + 1) % themeOrder.length;
-        setTheme(themeOrder[nextIndex]);
+        const currentIndex = THEMES.indexOf(theme);
+        const nextIndex = (currentIndex + 1) % THEMES.length;
+        setTheme(THEMES[nextIndex]);
     };
 
     const getIcon = () => {

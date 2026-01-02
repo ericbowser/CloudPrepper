@@ -8,7 +8,7 @@ import {
     CLOUD_PREPPER_BACKUP_GENERATE,
     CLOUD_PREPPER_BACKUP_DOWNLOAD,
     CLOUD_PREPPER_BACKUP_RESTORE
-} from '../env.json';
+} from '../src/config/env';
 
 // Types
 export interface BackupFile {

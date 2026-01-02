@@ -1,6 +1,6 @@
 // src/components/Header.tsx - Updated to use ThemeSelector
 import React from 'react';
-import { ThemeSelector } from "../Theme/ThemeContext";
+import { ThemeSelector } from "../contexts/ThemeContext";
 
 interface HeaderProps {
     title: string;

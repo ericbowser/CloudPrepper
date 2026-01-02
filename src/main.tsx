@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {createRoot} from 'react-dom/client';
 import './assets/styles/output.css';
-import {ThemeProvider} from "./Theme/ThemeContext";
+import {ThemeProvider} from "./contexts/ThemeContext";
 import CloudPrepApp from "../src/App";
 import {QuestionProvider} from "./contexts/QuestionContext";
 import {QueryClientProvider} from '@tanstack/react-query';

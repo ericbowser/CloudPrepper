@@ -17,6 +17,7 @@ assistLog.js
 
 /src/QuestionRepository/
 env.json
+.env
 
 *.md
 **/*.md

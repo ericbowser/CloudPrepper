@@ -1,7 +1,6 @@
-// tailwind.config.ts - Updated with Classic theme support
-import type {Config} from 'tailwindcss'
-
-const config: Config = {
+// tailwind.config.mjs - Updated with Classic theme support
+/** @type {import('tailwindcss').Config} */
+const config = {
     content: [
         "./src/**/*.{js,jsx,ts,tsx}",
         "./index.html",

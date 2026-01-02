@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
-import commonjs from "@rollup/plugin-commonjs";
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import react from '@vitejs/plugin-react/dist';
-import { HOST, PORT } from './env.json';
+import { config } from 'dotenv';
+const {HOST, PORT} = config().parsed;
 
 export default defineConfig({
     build: {
@@ -19,7 +20,10 @@ export default defineConfig({
     },
     plugins: [
         react(),
-        commonjs(),
+        tailwindcss(),
         nodePolyfills()
-    ]
+    ],
+    optimizeDeps: {
+        include: ['react', 'react-dom']
+    }
 });

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from './Button';
-import { ThemeSelector } from '../../Theme/ThemeContext';
+import { ThemeSelector } from '../../contexts/ThemeContext';
 
 interface AdminNavBarProps {
     onNavigateHome?: () => void;
