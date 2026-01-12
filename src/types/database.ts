@@ -2,17 +2,22 @@
 
 // Base database row interface for question tables
 interface BaseQuestionRow {
+    id: number; // bigint in PostgreSQL, mapped to number in TypeScript
     question_id: number;
     question_number: number;
-    category: string | null;
     domain: string | null;
+    category: string | null;
+    skill_level: string | null;
+    cognitive_level: string | null;
     question_text: string;
     options: QuestionOption[] | string; // JSONB can come as parsed object or string
     correct_answer: string;
-    multiple_answers: boolean,
-    correct_answers: [],
     explanation: string | null;
     explanation_details: ExplanationDetails | string; // JSONB can come as parsed object or string
+    multiple_answers: boolean; // bit(1) in PostgreSQL
+    correct_answers: string[]; // text[] in PostgreSQL
+    weight: number | null; // double precision in PostgreSQL, can be null
+    references: string[] | null; // text[] in PostgreSQL, can be null
 }
 
 // Question option structure (matches your JSONB format)
@@ -34,7 +39,7 @@ export interface ComptiaQuestionRow extends BaseQuestionRow {
         | 'Cloud Deployment'
         | 'Operations and Support'
         | 'Security'
-        | 'DevOps and Automation'
+        | 'DevOps Fundamentals'
         | 'Troubleshooting'
         | null;
 }
@@ -78,6 +83,10 @@ export interface TransformedQuestion {
     correctAnswer: string;
     explanation: string;
     explanationDetails: ExplanationDetails | null;
+    skill_level?: string | null;
+    cognitive_level?: string | null;
+    weight?: number | null;
+    references?: string[] | null;
     children?: undefined;
     isCurrentQuestion: boolean;
     onClick: () => void;

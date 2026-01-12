@@ -88,6 +88,10 @@ export interface Question {
         breakdown: string[];
         otherOptions: string;
     };
+    skill_level?: string | null; // From database: text
+    cognitive_level?: string | null; // From database: character varying(50)
+    weight?: number | null; // From database: double precision
+    references?: string[] | null; // From database: text[]
 }
 
 // A specific type for recording a user's submitted answer
