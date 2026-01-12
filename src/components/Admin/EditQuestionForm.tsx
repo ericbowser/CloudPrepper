@@ -114,13 +114,15 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
             }
             
             // Parse correct_answers if it's a string
-            let correctAnswersArray = question.correct_answers;
+            let correctAnswersArray: string[] | null = question.correct_answers;
             if (typeof question.correct_answers === 'string') {
+                const correctAnswersStr: string = question.correct_answers;
                 try {
-                    correctAnswersArray = JSON.parse(question.correct_answers);
+                    const parsed = JSON.parse(correctAnswersStr);
+                    correctAnswersArray = Array.isArray(parsed) ? parsed : [];
                 } catch (error) {
                     // If parsing fails, split by comma
-                    correctAnswersArray = question.correct_answers.split(',').map(s => s.trim());
+                    correctAnswersArray = correctAnswersStr.split(',').map((s: string) => s.trim());
                 }
             }
             
@@ -231,7 +233,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
             ...prev,
             explanation_details: {
                 ...prev.explanation_details,
-                breakdown: [...prev.explanation_details.breakdown, '']
+                breakdown: [...prev.explanation_details?.breakdown, '']
             }
         }));
         setHasChanges(true);
@@ -320,8 +322,8 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
             explanation: formData.explanation.trim(),
             explanation_details: {
                 summary: formData.explanation_details.summary.trim() || formData.explanation.trim(),
-                breakdown: formData.explanation_details.breakdown.filter(point => point.trim()),
-                otherOptions: formData.explanation_details.otherOptions.trim()
+                breakdown: formData.explanation_details.breakdown?.length > 0 ? formData.explanation_details.breakdown.filter(point => point.trim()) : [],
+                otherOptions: formData.explanation_details?.otherOptions?.trim()
             }
         };
 
@@ -549,7 +551,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                         </label>
                         <input
                             type="text"
-                            value={formData.explanation_details.summary}
+                            value={formData.explanation_details?.summary || ''}
                             onChange={(e) => setFormData(prev => ({
                                 ...prev,
                                 explanation_details: {...prev.explanation_details, summary: e.target.value}
@@ -575,11 +577,11 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                             </button>
                         </div>
                         <div className="space-y-2">
-                            {formData.explanation_details.breakdown.map((point, index) => (
+                            {formData.explanation_details.breakdown?.length > 0 && formData.explanation_details.breakdown?.map((point, index) => (
                                 <div key={index} className="flex items-center space-x-2">
                                     <input
                                         type="text"
-                                        value={point}
+                                        value={point || ''}
                                         onChange={(e) => updateBreakdownPoint(index, e.target.value)}
                                         placeholder={`Breakdown point ${index + 1}...`}
                                         className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white"
@@ -605,7 +607,7 @@ const EditQuestionForm: React.FC<EditQuestionFormProps> = ({
                             Other Options Explanation
                         </label>
                         <textarea
-                            value={formData.explanation_details.otherOptions}
+                            value={formData.explanation_details?.otherOptions || ''}
                             onChange={(e) => setFormData(prev => ({
                                 ...prev,
                                 explanation_details: {...prev.explanation_details, otherOptions: e.target.value}

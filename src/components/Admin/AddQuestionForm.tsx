@@ -131,13 +131,13 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
             ...prev,
             explanation_details: {
                 ...prev.explanation_details,
-                breakdown: [...prev.explanation_details.breakdown, '']
+                breakdown: [...prev.explanation_details?.breakdown, '']
             }
         }));
     };
 
     const updateBreakdownPoint = (index: number, value: string) => {
-        const newBreakdown = [...formData.explanation_details.breakdown];
+        const newBreakdown = [...formData.explanation_details?.breakdown];
         newBreakdown[index] = value;
         setFormData(prev => ({
             ...prev,
@@ -237,17 +237,14 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
         }
     };
 
-    const handleOtherOptionsChange= async (event: any): Promise<void> => {
-        const newOtherOptions = event.target.value;
-        if (newOtherOptions.lenth > 0) {
-            setFormData(prev => ({
-                ...prev,
-                explanation_details: {
-                    ...prev.explanation_details,
-                    otherOptions: event.target.value
-                }
-            }));
-        }
+    const handleOtherOptionsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setFormData(prev => ({
+            ...prev,
+            explanation_details: {
+                ...prev.explanation_details,
+                otherOptions: event.target.value
+            }
+        }));
     }
 
     return (
@@ -504,7 +501,7 @@ const AddQuestionForm: React.FC<AddQuestionFormProps> = ({
                         </label>
                         <textarea
                             value={formData.explanation_details.otherOptions}
-                            onChange={() => handleOtherOptionsChange}
+                            onChange={handleOtherOptionsChange}
                             placeholder="Explain why the other options are incorrect..."
                             rows={3}
                             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-pastel-bluelight dark:bg-dark-700 text-gray-900 dark:text-white"

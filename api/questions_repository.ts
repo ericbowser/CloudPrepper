@@ -2,8 +2,7 @@ import apiClient from './axios';
 import type {Question} from "@/types/preptypes";
 import {
     CLOUD_PREPPER_ADD_QUESTION,
-    CLOUD_PREPPER_GET_QUESTIONS,
-    CLOUD_PREPPER_UPDATE_QUESTION
+    CLOUD_PREPPER_GET_QUESTIONS
 } from '../src/config/env';
 
 interface AllQuestionsResponse {
@@ -31,7 +30,8 @@ const updateQuestion = async (question_id: number, question: Question): Promise<
     try {
         console.log('Sending PUT request to update question:', question_id);
         console.log('Auth token present:', !!sessionStorage.getItem('auth_token'));
-        const response = await apiClient.put<Question>(`${CLOUD_PREPPER_UPDATE_QUESTION}/${question_id}`, {question});
+        // Match the pattern used by addQuestion: /api/questions/updateQuestion/{id}
+        const response = await apiClient.put<Question>(`/api/questions/updateQuestion/${question_id}`, {question});
         
         if ((response.status === 200 || response.status === 201) && response.data) {
             return response.data;

@@ -20,10 +20,10 @@ export const CLOUD_PREPPER_GET_QUESTIONS =
     getEnvVar('VITE_CLOUD_PREPPER_GET_QUESTIONS', '/getExamQuestions');
 
 export const CLOUD_PREPPER_ADD_QUESTION = 
-    getEnvVar('VITE_CLOUD_PREPPER_ADD_QUESTION', '/api/questions');
+    getEnvVar('VITE_CLOUD_PREPPER_ADD_QUESTION', '/api/questions/addQuestion');
 
 export const CLOUD_PREPPER_UPDATE_QUESTION = 
-    getEnvVar('VITE_CLOUD_PREPPER_UPDATE_QUESTION', '/api/questions');
+    getEnvVar('VITE_CLOUD_PREPPER_UPDATE_QUESTION', '/updateQuestion');
 
 export const CLOUD_PREPPER_BACKUP_STATUS = 
     getEnvVar('VITE_CLOUD_PREPPER_BACKUP_STATUS', '/api/backup/status');
