@@ -13,7 +13,7 @@ const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]):
 			const questionDomain = question.domain.toLowerCase();
             const category = question.category.toLowerCase();
 
-			// CompTIA Cloud+ domain mapping (CV0-003)
+			// CompTIA Cloud+ domain mapping (CV0-004)
 			if (domain.id === 'cloud-architecture') {
 				return category.includes('cloud architecture') ||
 					questionDomain.includes('cloud architecture');
@@ -81,17 +81,17 @@ const populateDomainsWithQuestions = (domains: Domain[], questions: Question[]):
 	});
 };
 
-// CompTIA Cloud+ Domains (CV0-003)
+// CompTIA Cloud+ Domains (CV0-004) - OFFICIAL EXAM WEIGHTS
 export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'cloud-architecture',
-		name: 'Cloud Architecture and Models',
-		description: 'Cloud concepts, deployment models, and service types (25%)',
+		name: 'Cloud Architecture and Design',
+		description: 'Cloud concepts, deployment models, and architectural design (23%)',
 		progress: 0,
 		questions: [],
 		categories: [],
 		totalQuestions: 0,
-		weight: 25,
+		weight: 23, // CORRECTED: Was 25%, official is 23%
 		icon: '🏗️',
 		studyProgress: {
 			attempted: 0,
@@ -102,14 +102,32 @@ export const COMPTIA_DOMAINS: Domain[] = [
 		}
 	},
 	{
-		id: 'deployments',
-		name: 'Cloud Deployment',
-		description: 'Deployment strategies, migration, and integration (20%)',
+		id: 'security',
+		name: 'Security',
+		description: 'Cloud security principles, implementation, and compliance (19%)',
 		progress: 0,
 		questions: [],
 		categories: [],
 		totalQuestions: 0,
-		weight: 20,
+		weight: 19, // CORRECTED: Was 25%, official is 19%
+		icon: '🛡️',
+		studyProgress: {
+			attempted: 0,
+			correct: 0,
+			accuracy: 0,
+			timeSpent: 0,
+			weakCategories: []
+		}
+	},
+	{
+		id: 'deployments',
+		name: 'Deployment',
+		description: 'Deployment strategies, migration, and integration (19%)',
+		progress: 0,
+		questions: [],
+		categories: [],
+		totalQuestions: 0,
+		weight: 19, // CORRECTED: Was 20%, official is 19%
 		icon: '🚀',
 		studyProgress: {
 			attempted: 0,
@@ -122,49 +140,13 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'operations-support',
 		name: 'Operations and Support',
-		description: 'Cloud operations, monitoring, and maintenance (20%)',
+		description: 'Cloud operations, monitoring, and maintenance (17%)',
 		progress: 0,
 		questions: [],
 		categories: [],
 		totalQuestions: 0,
-		weight: 20,
+		weight: 17, // CORRECTED: Was 20%, official is 17%
 		icon: '⚙️',
-		studyProgress: {
-			attempted: 0,
-			correct: 0,
-			accuracy: 0,
-			timeSpent: 0,
-			weakCategories: []
-		}
-	},
-	{
-		id: 'security',
-		name: 'Security',
-		description: 'Cloud security principles and implementation (25%)',
-		progress: 0,
-		questions: [],
-		categories: [],
-		totalQuestions: 0,
-		weight: 25,
-		icon: '🛡️',
-		studyProgress: {
-			attempted: 0,
-			correct: 0,
-			accuracy: 0,
-			timeSpent: 0,
-			weakCategories: []
-		}
-	},
-	{
-		id: 'devops',
-		name: 'DevOps and Automation',
-		description: 'DevOps practices and automation (5%)',
-		progress: 0,
-		questions: [],
-		categories: [],
-		totalQuestions: 0,
-		weight: 5,
-		icon: '🔄',
 		studyProgress: {
 			attempted: 0,
 			correct: 0,
@@ -176,13 +158,31 @@ export const COMPTIA_DOMAINS: Domain[] = [
 	{
 		id: 'troubleshooting',
 		name: 'Troubleshooting',
-		description: 'Problem identification and resolution (5%)',
+		description: 'Problem identification and resolution (12%)',
 		progress: 0,
 		questions: [],
 		categories: [],
 		totalQuestions: 0,
-		weight: 5,
+		weight: 12, // CORRECTED: Was 5%, official is 12%
 		icon: '🔧',
+		studyProgress: {
+			attempted: 0,
+			correct: 0,
+			accuracy: 0,
+			timeSpent: 0,
+			weakCategories: []
+		}
+	},
+	{
+		id: 'devops',
+		name: 'DevOps Fundamentals',
+		description: 'DevOps practices, automation, and CI/CD (10%)',
+		progress: 0,
+		questions: [],
+		categories: [],
+		totalQuestions: 0,
+		weight: 10, // CORRECTED: Was 5%, official is 10%
+		icon: '🔄',
 		studyProgress: {
 			attempted: 0,
 			correct: 0,

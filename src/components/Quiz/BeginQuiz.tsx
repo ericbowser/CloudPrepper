@@ -261,6 +261,7 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
     const canStartQuiz = availableQuestions > 0;
     const totalPercentage = domainAllocations.reduce((sum, alloc) => sum + alloc.percentage, 0);
     const isDistributionValid = Math.abs(totalPercentage - 100) < 0.1;
+    console.log('domainAllocations', domainAllocations);
 
     return (
         <div className={'dark:bg-dark-600 dark:text-white bg-pastel-babyblue'}>

@@ -9,6 +9,7 @@ import {
     CLOUD_PREPPER_BACKUP_DOWNLOAD,
     CLOUD_PREPPER_BACKUP_RESTORE
 } from '../src/config/env';
+import { addBreadcrumb, captureException } from '../src/config/sentry';
 
 // Types
 export interface BackupFile {
@@ -101,6 +102,8 @@ const createAuthConfig = (token: string): AxiosRequestConfig => ({
 export const getBackupStatus = async (token: string): Promise<BackupStatus> => {
     try {
         console.log('Fetching backup status...');
+        addBreadcrumb('backup', 'Fetching backup status', {});
+        
         const response = await axios.get<BackupStatus>(
             `${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_BACKUP_STATUS}`,
             createAuthConfig(token)
@@ -110,9 +113,19 @@ export const getBackupStatus = async (token: string): Promise<BackupStatus> => {
             throw new Error(`Unexpected response status: ${response.status}`);
         }
 
+        addBreadcrumb('backup', 'Backup status fetched', {
+            status: response.data.status,
+            success: response.data.success
+        });
+
         return response.data;
     } catch (err) {
         console.error('Failed to fetch backup status:', err);
+        captureException(err instanceof Error ? err : new Error(String(err)), {
+            component: 'backup_api',
+            action: 'get_backup_status',
+            extra: {}
+        });
         throw err;
     }
 };
@@ -124,6 +137,8 @@ export const getBackupStatus = async (token: string): Promise<BackupStatus> => {
 export const getBackupDashboard = async (token: string): Promise<BackupDashboard> => {
     try {
         console.log('Fetching backup dashboard...');
+        addBreadcrumb('backup', 'Fetching backup dashboard', {});
+        
         const response = await axios.get<BackupDashboard>(
             `${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_BACKUP_DASHBOARD}`,
             createAuthConfig(token)
@@ -133,9 +148,19 @@ export const getBackupDashboard = async (token: string): Promise<BackupDashboard
             throw new Error(`Unexpected response status: ${response.status}`);
         }
 
+        addBreadcrumb('backup', 'Backup dashboard fetched', {
+            totalBackups: response.data.backup.totalBackups,
+            enabled: response.data.backup.backupSystemEnabled
+        });
+
         return response.data;
     } catch (err) {
         console.error('Failed to fetch backup dashboard:', err);
+        captureException(err instanceof Error ? err : new Error(String(err)), {
+            component: 'backup_api',
+            action: 'get_backup_dashboard',
+            extra: {}
+        });
         throw err;
     }
 };
@@ -147,6 +172,8 @@ export const getBackupDashboard = async (token: string): Promise<BackupDashboard
 export const listBackups = async (token: string): Promise<BackupFile[]> => {
     try {
         console.log('Listing backup files...');
+        addBreadcrumb('backup', 'Listing backup files', {});
+        
         const response = await axios.get<BackupListResponse>(
             `${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_BACKUP_LIST}`,
             createAuthConfig(token)
@@ -156,9 +183,18 @@ export const listBackups = async (token: string): Promise<BackupFile[]> => {
             throw new Error(`Unexpected response status: ${response.status}`);
         }
 
+        addBreadcrumb('backup', 'Backup files listed', {
+            totalBackups: response.data.totalBackups
+        });
+
         return response.data.backups;
     } catch (err) {
         console.error('Failed to list backups:', err);
+        captureException(err instanceof Error ? err : new Error(String(err)), {
+            component: 'backup_api',
+            action: 'list_backups',
+            extra: {}
+        });
         throw err;
     }
 };
@@ -170,6 +206,8 @@ export const listBackups = async (token: string): Promise<BackupFile[]> => {
 export const generateBackup = async (token: string): Promise<BackupGeneration> => {
     try {
         console.log('Generating new backup...');
+        addBreadcrumb('backup', 'Generating new backup', {}, 'info');
+        
         const response = await axios.get<BackupGeneration>(
             `${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_BACKUP_GENERATE}`,
             createAuthConfig(token)
@@ -179,9 +217,20 @@ export const generateBackup = async (token: string): Promise<BackupGeneration> =
             throw new Error(`Unexpected response status: ${response.status}`);
         }
 
+        addBreadcrumb('backup', 'Backup generated successfully', {
+            fileName: response.data.fileName,
+            fileSize: response.data.fileSize,
+            success: response.data.success
+        }, 'info');
+
         return response.data;
     } catch (err) {
         console.error('Failed to generate backup:', err);
+        captureException(err instanceof Error ? err : new Error(String(err)), {
+            component: 'backup_api',
+            action: 'generate_backup',
+            extra: {}
+        });
         throw err;
     }
 };
@@ -194,6 +243,8 @@ export const generateBackup = async (token: string): Promise<BackupGeneration> =
 export const downloadBackup = async (token: string, fileName: string): Promise<Blob> => {
     try {
         console.log(`Downloading backup: ${fileName}`);
+        addBreadcrumb('backup', 'Downloading backup file', { fileName });
+        
         const response = await axios.get(
             `${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_BACKUP_DOWNLOAD}/${fileName}`,
             {
@@ -206,9 +257,19 @@ export const downloadBackup = async (token: string, fileName: string): Promise<B
             throw new Error(`Unexpected response status: ${response.status}`);
         }
 
+        addBreadcrumb('backup', 'Backup downloaded successfully', {
+            fileName,
+            blobSize: response.data.size
+        });
+
         return response.data;
     } catch (err) {
         console.error('Failed to download backup:', err);
+        captureException(err instanceof Error ? err : new Error(String(err)), {
+            component: 'backup_api',
+            action: 'download_backup',
+            extra: { fileName }
+        });
         throw err;
     }
 };
@@ -224,6 +285,8 @@ export const restoreBackup = async (
 ): Promise<RestoreResponse> => {
     try {
         console.log(`Restoring backup: ${fileName}`);
+        addBreadcrumb('backup', 'Restoring backup from file', { fileName }, 'warning');
+        
         const response = await axios.post<RestoreResponse>(
             `${CLOUD_PREPPER_BASE_URL}${CLOUD_PREPPER_BACKUP_RESTORE}`,
             {
@@ -237,9 +300,20 @@ export const restoreBackup = async (
             throw new Error(`Unexpected response status: ${response.status}`);
         }
 
+        addBreadcrumb('backup', 'Backup restored successfully', {
+            fileName,
+            commandsExecuted: response.data.commandsExecuted,
+            success: response.data.success
+        }, 'info');
+
         return response.data;
     } catch (err) {
         console.error('Failed to restore backup:', err);
+        captureException(err instanceof Error ? err : new Error(String(err)), {
+            component: 'backup_api',
+            action: 'restore_backup',
+            extra: { fileName }
+        });
         throw err;
     }
 };

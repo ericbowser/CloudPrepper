@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { CLOUD_PREPPER_BASE_URL } from '../config/env';
+import { addBreadcrumb, captureException } from '../config/sentry';
 
 interface ProfileImageUploadProps {
     currentAvatarUrl?: string | null;
@@ -58,6 +59,12 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
             const formData = new FormData();
             formData.append('avatar', file);
 
+            addBreadcrumb('profile', 'Uploading profile image', {
+                fileName: file.name,
+                fileSize: file.size,
+                fileType: file.type
+            });
+
             const response = await fetch(`${CLOUD_PREPPER_BASE_URL}/api/profile/avatar`, {
                 method: 'POST',
                 headers: {
@@ -76,6 +83,10 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
             const serverAvatarUrl = `${CLOUD_PREPPER_BASE_URL}${data.user.avatar_url}`;
             setPreviewUrl(serverAvatarUrl);
             
+            addBreadcrumb('profile', 'Profile image uploaded successfully', {
+                avatarUrl: data.user.avatar_url
+            });
+            
             // Call success callback if provided
             if (onUploadSuccess && data.user.avatar_url) {
                 onUploadSuccess(data.user.avatar_url);
@@ -85,6 +96,11 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
             const errorMessage = err instanceof Error ? err.message : 'Failed to upload image';
             setError(errorMessage);
             console.error('Upload error:', err);
+            captureException(err instanceof Error ? err : new Error(String(err)), {
+                component: 'ProfileImageUpload',
+                action: 'upload_avatar',
+                extra: { fileName: file.name }
+            });
         } finally {
             setUploading(false);
         }
@@ -99,6 +115,8 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
         setError(null);
 
         try {
+            addBreadcrumb('profile', 'Deleting profile image', {}, 'warning');
+            
             const response = await fetch(`${CLOUD_PREPPER_BASE_URL}/api/profile/avatar`, {
                 method: 'DELETE',
                 headers: {
@@ -114,6 +132,7 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
             }
 
             setPreviewUrl(null);
+            addBreadcrumb('profile', 'Profile image deleted successfully', {});
             
             // Call success callback with null
             if (onUploadSuccess) {
@@ -124,6 +143,11 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
             const errorMessage = err instanceof Error ? err.message : 'Failed to delete image';
             setError(errorMessage);
             console.error('Delete error:', err);
+            captureException(err instanceof Error ? err : new Error(String(err)), {
+                component: 'ProfileImageUpload',
+                action: 'delete_avatar',
+                extra: {}
+            });
         } finally {
             setUploading(false);
         }

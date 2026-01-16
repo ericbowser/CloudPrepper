@@ -80,7 +80,7 @@ export interface Question {
     question_text: string;
     options: QuestionOptionData[];
     correct_answer: string;
-    multiple_answers: boolean;
+    multiple_answers: boolean; // postgres data-type bit(1) "0" or "1"
     correct_answers: string[];
     explanation: string;
     explanation_details?: {

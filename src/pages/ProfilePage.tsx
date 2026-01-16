@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Navigation from '../components/Navigation';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import { CLOUD_PREPPER_BASE_URL } from '../config/env';
+import { addBreadcrumb, captureException } from '../config/sentry';
 
 interface UserProfile {
     id: number;
@@ -27,6 +28,8 @@ const ProfilePage: React.FC = () => {
     const fetchProfile = async () => {
         try {
             setLoading(true);
+            addBreadcrumb('profile', 'Fetching user profile', {});
+            
             const response = await fetch(`${CLOUD_PREPPER_BASE_URL}/api/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -41,10 +44,19 @@ const ProfilePage: React.FC = () => {
             }
 
             setProfile(data.user);
+            addBreadcrumb('profile', 'Profile fetched successfully', {
+                userId: data.user.id,
+                hasAvatar: !!data.user.avatar_url
+            });
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load profile';
             setError(errorMessage);
             console.error('Profile fetch error:', err);
+            captureException(err instanceof Error ? err : new Error(String(err)), {
+                component: 'ProfilePage',
+                action: 'fetch_profile',
+                extra: {}
+            });
         } finally {
             setLoading(false);
         }

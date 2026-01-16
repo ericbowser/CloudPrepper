@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { CLOUD_PREPPER_BASE_URL } from '../config/env';
+import { addBreadcrumb, captureException, setSentryUser, clearSentryUser } from '../config/sentry';
 
 interface User {
     id: number;
@@ -33,6 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const verifyToken = useCallback(async (authToken: string): Promise<void> => {
         try {
             const url = `${CLOUD_PREPPER_BASE_URL}/api/auth/verify`;
+            addBreadcrumb('auth', 'Verifying authentication token', {});
+            
             const response = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
@@ -54,11 +57,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (data.success && data.user) {
                 setUser(data.user);
+                addBreadcrumb('auth', 'Token verified successfully', {
+                    userId: data.user.id,
+                    email: data.user.email
+                });
+                setSentryUser({ id: String(data.user.id), email: data.user.email, username: data.user.username });
             } else {
                 throw new Error('Token invalid');
             }
         } catch (error) {
             console.error('Token verification error:', error);
+            captureException(error instanceof Error ? error : new Error(String(error)), {
+                component: 'AuthContext',
+                action: 'verify_token',
+                extra: {}
+            });
             throw error;
         }
     }, []);
@@ -104,6 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const url = `${CLOUD_PREPPER_BASE_URL}/api/auth/login`;
             console.log('Attempting login to:', url);
+            addBreadcrumb('auth', 'Login attempt', { email });
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -164,9 +178,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             sessionStorage.setItem('auth_user', JSON.stringify(userData));
 
             console.log('Login successful for user:', userData.email);
+            addBreadcrumb('auth', 'Login successful', {
+                userId: userData.id,
+                email: userData.email,
+                role: userData.role
+            });
+            setSentryUser({ id: String(userData.id), email: userData.email, username: userData.username });
 
         } catch (error) {
             console.error('Login error:', error);
+            captureException(error instanceof Error ? error : new Error(String(error)), {
+                component: 'AuthContext',
+                action: 'login',
+                extra: { email }
+            });
             if (error instanceof TypeError && error.message.includes('fetch')) {
                 throw new Error('Cannot connect to server. Please check if the backend is running.');
             }
@@ -178,6 +203,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const url = `${CLOUD_PREPPER_BASE_URL}/api/auth/register`;
             console.log('Attempting registration to:', url);
+            addBreadcrumb('auth', 'Registration attempt', { email, username, role });
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -222,6 +248,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 throw new Error(data.message || data.error || 'Registration failed');
             }
 
+            addBreadcrumb('auth', 'Registration successful', {
+                email,
+                username,
+                role
+            });
+
             // Auto-login after registration
             const authToken = data.token;
             const userData = data.user;
@@ -237,9 +269,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             sessionStorage.setItem('auth_user', JSON.stringify(userData));
 
             console.log('Registration successful for user:', userData.email);
+            addBreadcrumb('auth', 'Registration successful', {
+                userId: userData.id,
+                email: userData.email,
+                role: userData.role
+            });
+            setSentryUser({ id: String(userData.id), email: userData.email, username: userData.username });
 
         } catch (error) {
             console.error('Registration error:', error);
+            captureException(error instanceof Error ? error : new Error(String(error)), {
+                component: 'AuthContext',
+                action: 'register',
+                extra: { email, username, role }
+            });
             if (error instanceof TypeError && error.message.includes('fetch')) {
                 throw new Error('Cannot connect to server. Please check if the backend is running.');
             }
@@ -248,6 +291,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = () => {
+        addBreadcrumb('auth', 'User logout', {
+            userId: user?.id,
+            email: user?.email
+        });
+        clearSentryUser();
+        
         setUser(null);
         setToken(null);
         // Clear sessionStorage (active session state AND quiz state)

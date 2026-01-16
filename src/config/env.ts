@@ -14,7 +14,7 @@ const getEnvVar = (key: string, defaultValue: string): string => {
 
 export const CLOUD_PREPPER_BASE_URL = 
     getEnvVar('VITE_CLOUD_PREPPER_BASE_URL', 
-        getEnvVar('VITE_API_URL', 'http://localhost:36236'));
+        getEnvVar('VITE_API_URL', process.env.CLOUD_PREPPER_BASE_URL || 'http://localhost:36236'));
 
 export const CLOUD_PREPPER_GET_QUESTIONS = 
     getEnvVar('VITE_CLOUD_PREPPER_GET_QUESTIONS', '/getExamQuestions');
