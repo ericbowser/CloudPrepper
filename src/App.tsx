@@ -205,8 +205,8 @@ const CloudPrepApp: React.FC = () => {
             const stateToCache = {
                 currentCertification,
                 activeSection,
-                currentQuizConfig,
-                currentQuizQuestions,
+                // Do not persist full quiz config or questions to avoid storing
+                // certification-derived data in clear text in sessionStorage.
                 currentQuestionIndex,
                 userAnswers,
                 quizStartTime: quizStartTime.toISOString(),
