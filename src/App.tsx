@@ -203,10 +203,9 @@ const CloudPrepApp: React.FC = () => {
         // Don't cache if in admin section (admin has its own route at /admin)
         if (!isLoading && currentCertification && activeSection !== 'admin') {
             const stateToCache = {
-                currentCertification,
                 activeSection,
-                // Do not persist full quiz config or questions to avoid storing
-                // certification-derived data in clear text in sessionStorage.
+                // Do not persist full quiz config, questions, or certification identifiers
+                // to avoid storing certification-derived data in clear text in sessionStorage.
                 currentQuestionIndex,
                 userAnswers,
                 quizStartTime: quizStartTime.toISOString(),
