@@ -34,6 +34,8 @@ export interface QuizConfig {
     timerEnabled?: boolean;
     timerDuration?: number; // in seconds
     examSimulationMode?: boolean; // If true, hide feedback during quiz
+    selectedCognitiveLevels?: string[]; // Filter by cognitive levels
+    selectedSkillLevels?: string[]; // Filter by skill levels
 }
 
 // Certification data structure

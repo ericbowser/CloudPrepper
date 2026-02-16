@@ -29,13 +29,6 @@ const Navigation = () => {
 
     return (
         <>
-            <button
-                onClick={() => {
-                    throw new Error('This is your first error!');
-                }}
-                >
-                Break the world
-            </button>
             <nav className="bg-gradient-to-r from-slate-900 to-purple-900 border-b border-white/10">
                 <div className="mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex gap-6 items-center">

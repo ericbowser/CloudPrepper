@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import type {CertificationData, Question} from '../../types/preptypes';
 import {QuizConfig} from "../../types/preptypes";
+import {SKILL_LEVELS_ARRAY, COGNITIVE_LEVELS_ARRAY} from '../../utils/constants';
 
 interface DomainAllocation {
     domainId: string;
@@ -142,45 +143,63 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
     };
 
     const getCognitiveLevels = (): string[] => {
-        return ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create'];
+        return COGNITIVE_LEVELS_ARRAY;
     };
 
     const getSkillLevels = (): string[] => {
-        return ['Beginner', 'Intermediate', 'Advanced'];
+        return SKILL_LEVELS_ARRAY;
     };
 
     const getFilteredQuestionCount = (): number => {
         let questions: Question[] = [];
 
-        if (selectedDomains.includes('all')) {
-            questions = certification.domains.flatMap(domain => domain.questions);
+        // Get questions from selected domains (considering weighted domains if enabled)
+        if (useWeightedDomains && domainAllocations.length > 0) {
+            // Use weighted domain allocations
+            const selectedDomainIds = domainAllocations
+                .filter(alloc => alloc.percentage > 0)
+                .map(alloc => alloc.domainId);
+            
+            if (selectedDomainIds.length > 0) {
+                questions = certification.domains
+                    .filter(domain => selectedDomainIds.includes(domain.id))
+                    .flatMap(domain => domain.questions);
+            }
         } else {
-            questions = certification.domains
-                .filter(domain => selectedDomains.includes(domain.id))
-                .flatMap(domain => domain.questions);
+            // Use regular domain selection
+            if (selectedDomains.includes('all')) {
+                questions = certification.domains.flatMap(domain => domain.questions);
+            } else {
+                questions = certification.domains
+                    .filter(domain => selectedDomains.includes(domain.id))
+                    .flatMap(domain => domain.questions);
+            }
         }
 
+        // Apply difficulty filter
         if (selectedDifficulty !== 'all') {
             questions = questions.filter(q => q.difficulty === selectedDifficulty);
         }
 
+        // Apply category filter
         if (selectedCategory !== 'all') {
             questions = questions.filter(q => q.category === selectedCategory);
         }
 
+        // Apply cognitive level filter
         if (!selectedCognitiveLevels.includes('all')) {
             questions = questions.filter(q =>
-                selectedCognitiveLevels.some(level =>
-                    (q.category?.toLowerCase() || '').includes(level.toLowerCase()) ||
-                    (q.difficulty?.toLowerCase() || '').includes(level.toLowerCase())
+                q.cognitive_level && selectedCognitiveLevels.some(level =>
+                    q.cognitive_level?.toLowerCase() === level.toLowerCase()
                 )
             );
         }
 
+        // Apply skill level filter
         if (!selectedSkillLevels.includes('all')) {
             questions = questions.filter(q =>
-                selectedSkillLevels.some(level =>
-                    (q.difficulty?.toLowerCase() || '').includes(level.toLowerCase())
+                q.skill_level && selectedSkillLevels.some(level =>
+                    q.skill_level?.toLowerCase() === level.toLowerCase()
                 )
             );
         }
@@ -251,7 +270,9 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
             timerEnabled: timerEnabled,
             timerDuration: timerEnabled ? timerMinutes * 60 : 0,
             // ✨ KEY: Use feedback toggle instead of separate exam mode
-            examSimulationMode: !showFeedbackDuringQuiz
+            examSimulationMode: !showFeedbackDuringQuiz,
+            selectedCognitiveLevels: selectedCognitiveLevels.includes('all') ? undefined : selectedCognitiveLevels,
+            selectedSkillLevels: selectedSkillLevels.includes('all') ? undefined : selectedSkillLevels
         };
 
         onStartQuiz(config);
@@ -526,6 +547,44 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Filter Results Summary */}
+                            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h4 className="font-semibold text-lg mb-1">📊 Filter Results</h4>
+                                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                                            {availableQuestions > 0 ? (
+                                                <>
+                                                    <span className="font-semibold text-blue-600 dark:text-blue-400">{availableQuestions}</span> question{availableQuestions !== 1 ? 's' : ''} available
+                                                    {availableQuestions < questionCount && (
+                                                        <span className="ml-2 text-orange-600 dark:text-orange-400">
+                                                            (Requested: {questionCount})
+                                                        </span>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <span className="text-red-600 dark:text-red-400 font-semibold">
+                                                    No questions match your current filters
+                                                </span>
+                                            )}
+                                        </p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                            Based on: {
+                                                useWeightedDomains && domainAllocations.length > 0
+                                                    ? `${domainAllocations.filter(a => a.percentage > 0).length} weighted domain${domainAllocations.filter(a => a.percentage > 0).length !== 1 ? 's' : ''}`
+                                                    : selectedDomains.includes('all')
+                                                        ? 'All Domains'
+                                                        : `${selectedDomains.length} domain${selectedDomains.length !== 1 ? 's' : ''}`
+                                            }
+                                            {selectedDifficulty !== 'all' && ` • ${selectedDifficulty} difficulty`}
+                                            {selectedCategory !== 'all' && ` • ${selectedCategory} category`}
+                                            {!selectedCognitiveLevels.includes('all') && ` • ${selectedCognitiveLevels.length} cognitive level${selectedCognitiveLevels.length !== 1 ? 's' : ''}`}
+                                            {!selectedSkillLevels.includes('all') && ` • ${selectedSkillLevels.length} skill level${selectedSkillLevels.length !== 1 ? 's' : ''}`}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -585,11 +644,20 @@ export const BeginQuiz: React.FC<PracticeSetupProps> = ({
                             <p className="text-gray-600 dark:text-gray-300">
                                 {availableQuestions > 0 ? (
                                     <>
-                                        {questionCount} questions • {timerEnabled ? `${timerMinutes} min` : 'Untimed'}
+                                        <span className="font-semibold text-blue-600 dark:text-blue-400">{availableQuestions}</span> question{availableQuestions !== 1 ? 's' : ''} available
+                                        {' • '}Requesting: {questionCount}
+                                        {' • '}{timerEnabled ? `${timerMinutes} min` : 'Untimed'}
                                         {' • '}{showFeedbackDuringQuiz ? '📚 Practice Mode' : '🎯 Exam Mode'}
+                                        {availableQuestions < questionCount && (
+                                            <span className="ml-2 text-orange-600 dark:text-orange-400 text-sm">
+                                                ⚠️ Not enough questions available
+                                            </span>
+                                        )}
                                     </>
                                 ) : (
-                                    'No questions match your current filters'
+                                    <span className="text-red-600 dark:text-red-400 font-semibold">
+                                        No questions match your current filters
+                                    </span>
                                 )}
                             </p>
                         </div>

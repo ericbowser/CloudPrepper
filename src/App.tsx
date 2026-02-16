@@ -333,6 +333,34 @@ const CloudPrepApp: React.FC = () => {
                     .flatMap(domain => domain.questions);
             }
 
+            // 2. Apply difficulty filter
+            if (config.difficulty && config.difficulty !== 'all') {
+                questions = questions.filter(q => q.difficulty === config.difficulty);
+            }
+
+            // 3. Apply category filter
+            if (config.selectedCategories && config.selectedCategories.length > 0 && !config.selectedCategories.includes('all')) {
+                questions = questions.filter(q => config.selectedCategories!.includes(q.category));
+            }
+
+            // 4. Apply cognitive level filter
+            if (config.selectedCognitiveLevels && config.selectedCognitiveLevels.length > 0) {
+                questions = questions.filter(q =>
+                    q.cognitive_level && config.selectedCognitiveLevels!.some(level =>
+                        q.cognitive_level?.toLowerCase() === level.toLowerCase()
+                    )
+                );
+            }
+
+            // 5. Apply skill level filter
+            if (config.selectedSkillLevels && config.selectedSkillLevels.length > 0) {
+                questions = questions.filter(q =>
+                    q.skill_level && config.selectedSkillLevels!.some(level =>
+                        q.skill_level?.toLowerCase() === level.toLowerCase()
+                    )
+                );
+            }
+
             // Shuffle questions
             questions = shuffleArray(questions);
 
@@ -786,6 +814,37 @@ const CloudPrepApp: React.FC = () => {
                                     </div>
                                 </div>
 
+                                {/* Question Tags (moved up for more viewport space) */}
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    <span
+                                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd"
+                                                  d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z"
+                                                  clipRule="evenodd"/>
+                                        </svg>
+                                        {currentQuestion.category}
+                                    </span>
+                                    <span
+                                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200 border border-purple-200 dark:border-purple-700">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd"
+                                                  d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                                  clipRule="evenodd"/>
+                                        </svg>
+                                        {currentQuestion.skill_level || 'N/A'}
+                                    </span>
+                                    <span
+                                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200 border border-green-200 dark:border-green-700">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd"
+                                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                  clipRule="evenodd"/>
+                                        </svg>
+                                        {currentQuestion.domain}
+                                    </span>
+                                </div>
+
                                 {/* Enhanced Progress Bar */}
                                 <div className="space-y-2">
                                     <div
@@ -837,46 +896,15 @@ const CloudPrepApp: React.FC = () => {
                                         {/* Enhanced Question Card */}
                                         <div
                                             className="bg-white dark:bg-dark-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                <div className="p-4">
-                                    {/* Question Tags */}
-                                    <div className="flex flex-wrap gap-2 mb-3">
-                                        <span
-                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
-                                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd"
-                                                      d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z"
-                                                      clipRule="evenodd"/>
-                                            </svg>
-                                            {currentQuestion.category}
-                                        </span>
-                                        <span
-                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200 border border-purple-200 dark:border-purple-700">
-                                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd"
-                                                      d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                                      clipRule="evenodd"/>
-                                            </svg>
-                                            {currentQuestion.difficulty}
-                                        </span>
-                                        <span
-                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200 border border-green-200 dark:border-green-700">
-                                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd"
-                                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                      clipRule="evenodd"/>
-                                            </svg>
-                                            {currentQuestion.domain}
-                                        </span>
-                                    </div>
-
+                                <div className="p-4 sm:p-6">
                                     {/* Question Text */}
-                                    <div className="mb-3">
-                                        <h3 className="text-xl font-medium text-gray-900 dark:text-white leading-relaxed mb-3">
+                                    <div className="mb-4">
+                                        <h3 className="text-lg sm:text-xl font-medium text-gray-900 dark:text-white leading-relaxed">
                                             {currentQuestion.question_text}
                                         </h3>
                                         {isMultipleAnswers(currentQuestion.multiple_answers) && (
                                             <div
-                                                className="flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+                                                className="mt-4 flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
                                                 <svg className="w-5 h-5 text-amber-600 dark:text-amber-400"
                                                      fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd"
@@ -937,7 +965,7 @@ const CloudPrepApp: React.FC = () => {
 
                             {/* Enhanced Navigation */}
                             <div
-                                className="flex justify-between items-center bg-white dark:bg-dark-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                                className="position-sticky bottom-0 flex justify-between items-center bg-white dark:bg-dark-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                                 <button
                                     onClick={previousQuestion}
                                     disabled={currentQuestionIndex === 0}
